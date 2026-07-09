@@ -9,6 +9,7 @@ import pledgesRouter from './routes/pledges';
 import adminRouter from './routes/admin';
 import { AuthContext } from './types';
 import { successResponse, errorResponse } from './utils/response';
+import { checkDatabaseHealth } from '@db';
 
 console.log('🚀 API Server Starting with detailed logging...');
 
@@ -50,12 +51,31 @@ app.use(async (c, next) => {
 app.use(prettyJSON());
 
 // Health check endpoint
-app.get('/health', (c) => {
+app.get('/health', async (c) => {
     console.log('👉 /health endpoint called');
-    return c.json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-    });
+
+    try {
+        const dbHealth = await checkDatabaseHealth();
+        const status = dbHealth.healthy ? 'ok' : 'degraded';
+
+        return c.json({
+            status,
+            timestamp: new Date().toISOString(),
+            database: dbHealth,
+        }, dbHealth.healthy ? 200 : 503);
+    } catch (error) {
+        console.error('Health check failed:', error);
+
+        return c.json({
+            status: 'unhealthy',
+            timestamp: new Date().toISOString(),
+            database: {
+                connected: false,
+                healthy: false,
+                tables: [],
+            },
+        }, 503);
+    }
 });
 
 // Debug endpoint
@@ -193,11 +213,39 @@ app.onError((err, c) => {
 export default app;
 
 // Start server
-if (process.env.NODE_ENV !== 'test') {
+async function startServer() {
+    try {
+        const health = await checkDatabaseHealth();
+
+        console.log('🔎 Startup database health check:', {
+            connected: health.connected,
+            healthy: health.healthy,
+            tables: health.tables.map((table) => ({
+                name: table.name,
+                rowCount: table.rowCount,
+                hasData: table.hasData,
+            })),
+        });
+
+        if (!health.healthy) {
+            console.warn('⚠️ API started with an unhealthy database: one or more tables are empty');
+        }
+    } catch (error) {
+        console.error('❌ API server failed database health check:', error);
+        throw error;
+    }
+
     const port = process.env.API_PORT || 3001;
     Bun.serve({
         port,
         fetch: app.fetch,
     });
     console.log(`✅ API Server running at http://localhost:${port}`);
+}
+
+if (process.env.NODE_ENV !== 'test') {
+    startServer().catch((error) => {
+        console.error('❌ API server failed to start:', error);
+        process.exit(1);
+    });
 }

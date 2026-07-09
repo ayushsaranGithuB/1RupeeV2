@@ -29,8 +29,7 @@ export default function NGOManagement() {
 
   const fetchNgos = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${apiUrl}/admin/ngos`, {
+      const res = await fetch(`/api/proxy/admin/ngos`, {
         headers: { Authorization: "Bearer test-token" },
       });
       const data = await res.json();
@@ -50,8 +49,7 @@ export default function NGOManagement() {
     setSuccess("");
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${apiUrl}/admin/ngos`, {
+      const res = await fetch(`/api/proxy/admin/ngos`, {
         method: "POST",
         headers: {
           Authorization: "Bearer test-token",

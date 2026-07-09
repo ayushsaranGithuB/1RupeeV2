@@ -18,8 +18,7 @@ export default function CampaignManagement() {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${apiUrl}/admin/campaigns`, {
+        const res = await fetch(`/api/proxy/admin/campaigns`, {
           headers: { Authorization: "Bearer test-token" },
         });
         const data = await res.json();

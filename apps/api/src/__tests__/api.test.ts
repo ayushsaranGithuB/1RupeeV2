@@ -7,10 +7,12 @@ describe('API Endpoints', () => {
             const req = new Request('http://localhost:3000/health');
             const res = await app.fetch(req);
 
-            expect(res.status).toBe(200);
+            expect([200, 503]).toContain(res.status);
             const body = await res.json() as any;
-            expect(body.status).toBe('ok');
+            expect(['ok', 'degraded', 'unhealthy']).toContain(body.status);
             expect(body.timestamp).toBeDefined();
+            expect(body.database).toBeDefined();
+            expect(Array.isArray(body.database.tables)).toBe(true);
         });
     });
 

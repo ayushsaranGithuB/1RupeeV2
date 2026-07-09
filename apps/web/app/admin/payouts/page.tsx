@@ -18,8 +18,7 @@ export default function PayoutManagement() {
   useEffect(() => {
     const fetchPayouts = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${apiUrl}/admin/payouts`, {
+        const res = await fetch(`/api/proxy/admin/payouts`, {
           headers: { Authorization: "Bearer test-token" },
         });
         const data = await res.json();
