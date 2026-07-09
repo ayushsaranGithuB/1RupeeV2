@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noEmit": true,
+    // "baseUrl": ".",
+    "paths": {
+      "@app/*": ["./app/*"],
+      "@components/*": ["../../components/*"],
+      "@features/*": ["../../features/*"],
+      "@lib/*": ["../../lib/*"],
+      "@server/*": ["../../server/*"],
+      "@services/*": ["../../services/*"],
+      "@repositories/*": ["../../repositories/*"],
+      "@schemas/*": ["../../schemas/*"],
+      "@hooks/*": ["../../hooks/*"],
+      "@types/*": ["../../types/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

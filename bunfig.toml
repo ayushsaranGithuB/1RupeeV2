@@ -1,0 +1,9 @@
+# Bun configuration
+
+[install]
+# Use exact version specified in package.json
+exact = true
+
+[install.scopes]
+# Use npm registry for all scoped packages
+"*" = { token = "PLACEHOLDER", url = "https://registry.npmjs.org/" }

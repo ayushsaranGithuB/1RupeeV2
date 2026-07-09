@@ -1,0 +1,24 @@
+{
+  "name": "1rupee-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist",
+    "start": "bun dist/index.js",
+    "lint": "bun run type-check",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^3.0.0",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.3",
+    "@eslint/js": "latest",
+    "typescript-eslint": "latest"
+  }
+}
