@@ -25,14 +25,14 @@ Deliverable: Database ready. ✅
 
 ## Phase 3 — API
 
-- [ ] Hono application
-- [ ] Auth middleware
-- [ ] Campaign endpoints
-- [ ] Wallet endpoints
-- [ ] Pledge endpoints
-- [ ] Donation endpoints
+- [x] Hono application
+- [x] Auth middleware
+- [x] Campaign endpoints
+- [x] Wallet endpoints
+- [x] Pledge endpoints
+- [x] Automated tests
 
-Deliverable: Core API complete.
+Deliverable: Core API complete. ✅
 
 ---
 

@@ -17,6 +17,10 @@
     "apps/*",
     "packages/*"
   ],
+  "dependencies": {
+    "drizzle-orm": "^0.30.0",
+    "postgres": "^3.4.0"
+  },
   "devDependencies": {
     "turbo": "latest",
     "typescript": "^5.3.3",

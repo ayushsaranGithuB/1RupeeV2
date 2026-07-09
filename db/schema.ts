@@ -113,6 +113,7 @@ export const campaigns = pgTable('campaigns', {
     supporter_count: integer('supporter_count').notNull().default(0),
     status: campaignStatusEnum('status').notNull().default('DRAFT'),
     created_at: timestamp('created_at').notNull().defaultNow(),
+    updated_at: timestamp('updated_at').notNull().defaultNow(),
     deleted_at: timestamp('deleted_at'),
 });
 
