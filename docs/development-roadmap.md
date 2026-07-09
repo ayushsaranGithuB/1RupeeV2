@@ -54,13 +54,19 @@ Deliverable: Recurring donations functional.
 - [x] Support tier editor
 - [x] User search
 - [x] Payout workflow
+- [x] Donations and ledger operations views
+- [x] Transparency report publishing view
+- [x] Unified admin design system and UX guidelines
+- [x] Table-first operations UI with right-side drawer workflows (details/add/edit)
 
 Deliverable: Operations team can manage the platform. ✅
 
 Notes:
+
 - Admin dashboard now shows operational KPIs from the platform data.
 - Admin screens now cover donations, ledger review, and transparency reports from `FEATURES.md`.
 - Shared admin proxy now supports mutating requests so the screens work end-to-end.
+- Admin workflow now follows a consistent SaaS interaction model across screens (search/filter table -> drawer -> inline edit -> save).
 
 ---
 
@@ -88,7 +94,20 @@ Deliverable: Complete donor experience.
 
 ---
 
-## Phase 8 — Polish
+## Phase 8 — CI/CD and UI Test Coverage
+
+- [ ] CI pipeline for lint, typecheck, unit tests, and build
+- [ ] Branch protections and required status checks
+- [ ] Preview deployments for pull requests
+- [ ] Component test suite for all shared UI components (`apps/web/components/ui/*`)
+- [ ] Admin page interaction tests for drawer workflows and table filters
+- [ ] Visual regression snapshots for critical admin flows
+
+Deliverable: Reliable release pipeline with test-verified UI quality.
+
+---
+
+## Phase 9 — Polish
 
 - [ ] Responsive QA
 - [ ] Accessibility
