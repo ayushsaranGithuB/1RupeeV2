@@ -8,7 +8,10 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "type-check": "turbo run type-check"
+    "type-check": "turbo run type-check",
+    "db:push": "drizzle-kit push:pg",
+    "db:generate": "drizzle-kit generate:pg",
+    "db:studio": "drizzle-kit studio"
   },
   "workspaces": [
     "apps/*",
@@ -16,7 +19,8 @@
   ],
   "devDependencies": {
     "turbo": "latest",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "drizzle-kit": "^0.20.0"
   },
   "packageManager": "bun@1.0.0"
 }
