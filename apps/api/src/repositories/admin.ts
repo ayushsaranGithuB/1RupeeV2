@@ -1,6 +1,6 @@
 import { getDb } from '@db';
 import { ngos, campaign_tiers, payouts } from '@db/schema';
-import { eq, ilike, and } from 'drizzle-orm';
+import { eq, ilike, and, isNull } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
 export class NgoRepository {
@@ -18,12 +18,8 @@ export class NgoRepository {
 
     async findMany(status?: string, search?: string, limit = 20, offset = 0) {
         try {
-            console.log('🔍 [NgoRepository.findMany] Starting query with:', { status, search, limit, offset });
-
             const db = getDb();
-            console.log('✅ [NgoRepository.findMany] Database connection obtained');
-
-            const conditions = [];
+            const conditions = [isNull(ngos.deleted_at) as any];
 
             if (status) {
                 conditions.push(eq(ngos.verification_status, status as any));
@@ -33,18 +29,11 @@ export class NgoRepository {
                 conditions.push(ilike(ngos.name, `%${search}%`));
             }
 
-            const q = db.select().from(ngos);
-            const query = conditions.length > 0 ? q.where(and(...conditions)) : (q as any);
-
-            console.log('🔄 [NgoRepository.findMany] Executing query...');
-            const results = await (query as any).limit(limit).offset(offset);
-
-            console.log(`✅ [NgoRepository.findMany] Query completed, found ${results.length} NGOs`);
-            console.log('📊 [NgoRepository.findMany] Results:', results);
-
+            const q = db.select().from(ngos).where(and(...conditions));
+            const results = await (q as any).limit(limit).offset(offset);
             return results as any[];
         } catch (error) {
-            console.error('❌ [NgoRepository.findMany] Error:', error);
+            console.error('[NgoRepository.findMany] Error:', error);
             throw error;
         }
     }
@@ -63,6 +52,9 @@ export class NgoRepository {
                 website: data.website,
                 email: data.email,
                 phone: data.phone,
+                payout_account: data.verification_notes
+                    ? { verification_notes: data.verification_notes }
+                    : undefined,
             })
             .returning();
         return (result[0] as any) || null;
@@ -70,6 +62,23 @@ export class NgoRepository {
 
     async update(id: string, data: any) {
         const db = getDb();
+        const existing = await this.findById(id);
+        if (!existing) {
+            return null;
+        }
+
+        const existingPayoutAccount =
+            existing.payout_account && typeof existing.payout_account === 'object'
+                ? existing.payout_account
+                : {};
+
+        const payoutAccount = data.verification_notes !== undefined
+            ? {
+                ...existingPayoutAccount,
+                verification_notes: data.verification_notes,
+            }
+            : existing.payout_account;
+
         const result = await db
             .update(ngos)
             .set({
@@ -81,6 +90,10 @@ export class NgoRepository {
                 ...(data.email !== undefined && { email: data.email }),
                 ...(data.phone !== undefined && { phone: data.phone }),
                 ...(data.verification_status && { verification_status: data.verification_status as any }),
+                ...(payoutAccount !== undefined && { payout_account: payoutAccount }),
+                ...(data.archived !== undefined && {
+                    deleted_at: data.archived ? new Date() : null,
+                }),
             })
             .where(eq(ngos.id, id))
             .returning();
@@ -157,25 +170,25 @@ export class PayoutRepository {
         return (result[0] as any) || null;
     }
 
-    async findByNgoId(ngoId: string, limit = 20, offset = 0) {
+    async findMany(filters: { ngoId?: string; status?: string; limit?: number; offset?: number }) {
         const db = getDb();
-        const results = await db
-            .select()
-            .from(payouts)
-            .where(eq(payouts.ngo_id, ngoId))
-            .limit(limit)
-            .offset(offset);
-        return results as any[];
-    }
+        const conditions = [];
 
-    async findByStatus(status: string, limit = 20, offset = 0) {
-        const db = getDb();
-        const results = await db
-            .select()
-            .from(payouts)
-            .where(eq(payouts.status, status as any))
-            .limit(limit)
-            .offset(offset);
+        if (filters.ngoId) {
+            conditions.push(eq(payouts.ngo_id, filters.ngoId));
+        }
+
+        if (filters.status) {
+            conditions.push(eq(payouts.status, filters.status as any));
+        }
+
+        const query = conditions.length > 0
+            ? db.select().from(payouts).where(and(...conditions))
+            : db.select().from(payouts);
+
+        const results = await (query as any)
+            .limit(filters.limit ?? 50)
+            .offset(filters.offset ?? 0);
         return results as any[];
     }
 
@@ -208,10 +221,6 @@ export class PayoutRepository {
             .where(eq(payouts.id, id))
             .returning();
         return (result[0] as any) || null;
-    }
-
-    async getLineItems(payoutId: string) {
-        return [];
     }
 }
 

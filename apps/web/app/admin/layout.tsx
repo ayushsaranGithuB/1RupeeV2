@@ -1,73 +1,134 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const menuItems = [
+  { label: "Dashboard", href: "/admin" },
+  { label: "NGOs", href: "/admin/ngos" },
+  { label: "Campaigns", href: "/admin/campaigns" },
+  { label: "Support Tiers", href: "/admin/tiers" },
+  { label: "Users", href: "/admin/users" },
+  { label: "Donations", href: "/admin/donations" },
+  { label: "Ledger", href: "/admin/ledger" },
+  { label: "Payouts", href: "/admin/payouts" },
+  { label: "Transparency", href: "/admin/reports" },
+];
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const menuItems = [
-    { icon: "📊", label: "Dashboard", href: "/admin" },
-    { icon: "🏢", label: "NGOs", href: "/admin/ngos" },
-    { icon: "📢", label: "Campaigns", href: "/admin/campaigns" },
-    { icon: "⭐", label: "Support Tiers", href: "/admin/tiers" },
-    { icon: "👥", label: "Users", href: "/admin/users" },
-    { icon: "💰", label: "Payouts", href: "/admin/payouts" },
-  ];
+  const currentSection =
+    menuItems
+      .slice()
+      .sort((a, b) => b.href.length - a.href.length)
+      .find(
+        (item) =>
+          pathname === item.href || pathname.startsWith(item.href + "/"),
+      )?.label ?? "Dashboard";
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      {/* Sidebar */}
+    <div className="relative flex min-h-screen bg-[radial-gradient(circle_at_15%_0%,#dff5ec_0%,transparent_35%),radial-gradient(circle_at_100%_0%,#dbeafe_0%,transparent_40%),linear-gradient(180deg,#f8fafc_0%,#eef5ff_100%)] text-slate-900">
       <aside
-        className={`${
-          sidebarOpen ? "w-64" : "w-20"
-        } border-r border-slate-200 bg-white transition-all duration-300 flex flex-col`}
+        className={cn(
+          "sticky top-0 z-20 h-screen border-r border-slate-200/80 bg-white/85 backdrop-blur-xl transition-all duration-300",
+          sidebarOpen ? "w-56" : "w-20",
+        )}
       >
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-          <h1 className={`text-lg font-bold ${!sidebarOpen && "hidden"}`}>
-            1Rupee Admin
-          </h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            ←
-          </Button>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors ${
-                !sidebarOpen && "justify-center"
-              }`}
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between border-b border-slate-200/80 px-4 py-5">
+            <div className={cn("space-y-1", !sidebarOpen && "hidden")}>
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-600">
+                1Rupee
+              </p>
+              <h1 className="text-lg font-semibold text-slate-900">
+                Admin Console
+              </h1>
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setSidebarOpen((value) => !value)}
+              aria-label="Toggle sidebar"
+              className="border-slate-200 bg-white"
             >
-              <span className="text-xl">{item.icon}</span>
-              {sidebarOpen && (
-                <span className="text-sm font-medium">{item.label}</span>
-              )}
-            </Link>
-          ))}
-        </nav>
+              {sidebarOpen ? "-" : "+"}
+            </Button>
+          </div>
+
+          <nav className="space-y-1.5 p-3">
+            {menuItems.map((item) => {
+              const active = pathname === item.href;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
+                    active
+                      ? "bg-slate-900 text-white shadow-[0_10px_30px_-14px_rgba(15,23,42,0.8)]"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+                    !sidebarOpen && "justify-center px-2 text-center",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "inline-flex h-7 w-7 items-center justify-center rounded-lg border text-xs font-semibold",
+                      active
+                        ? "border-white/30 bg-white/20 text-white"
+                        : "border-slate-200 bg-white text-slate-500",
+                    )}
+                  >
+                    {item.label.charAt(0)}
+                  </span>
+                  <span className={cn(!sidebarOpen && "hidden")}>
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className={cn("mt-auto px-4 pb-5", !sidebarOpen && "hidden")}>
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                Platform Health
+              </p>
+              <p className="mt-2 text-sm text-emerald-900">
+                All core admin systems are operational.
+              </p>
+            </div>
+          </div>
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="border-b border-slate-200 bg-white p-6">
-          <h2 className="text-2xl font-bold">Operations Dashboard</h2>
-          <p className="text-sm text-slate-500">
-            Manage platform, NGOs, campaigns, and payouts
+      <main className="min-w-0 flex-1">
+        <div className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/80 px-6 py-5 backdrop-blur-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            Admin Workspace
+          </p>
+          <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-2xl font-semibold text-slate-900">
+              {currentSection}
+            </h2>
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+              Live Operations
+            </span>
+          </div>
+          <p className="mt-1 text-sm text-slate-500">
+            Manage NGOs, campaigns, users, finance, and transparency workflows.
           </p>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6">{children}</div>
       </main>
     </div>
   );

@@ -49,13 +49,18 @@ Deliverable: Recurring donations functional.
 
 ## Phase 5 — Admin
 
-- [ ] NGO management
-- [ ] Campaign management
-- [ ] Support tier editor
-- [ ] User search
-- [ ] Payout workflow
+- [x] NGO management
+- [x] Campaign management
+- [x] Support tier editor
+- [x] User search
+- [x] Payout workflow
 
-Deliverable: Operations team can manage the platform.
+Deliverable: Operations team can manage the platform. ✅
+
+Notes:
+- Admin dashboard now shows operational KPIs from the platform data.
+- Admin screens now cover donations, ledger review, and transparency reports from `FEATURES.md`.
+- Shared admin proxy now supports mutating requests so the screens work end-to-end.
 
 ---
 

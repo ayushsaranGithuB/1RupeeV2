@@ -1,30 +1,59 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import {
-    CreateNgoSchema,
-    UpdateNgoSchema,
-    NgoFilterSchema,
-    AdminCreateCampaignSchema,
-    AdminUpdateCampaignSchema,
     AdminCampaignFilterSchema,
-    CreateTierSchema,
-    UpdateTierSchema,
-    TierFilterSchema,
-    UserSearchSchema,
-    PayoutSchema,
+    AdminCreateCampaignSchema,
+    AdminNgoUpdateSchema,
+    AdminUpdateCampaignSchema,
     ApprovePayoutSchema,
+    CreateNgoSchema,
+    CreateTierSchema,
+    DonationFilterSchema,
+    LedgerFilterSchema,
+    NgoFilterSchema,
+    PayoutListFilterSchema,
+    PayoutSchema,
     ProcessPayoutSchema,
+    TierFilterSchema,
+    TransparencyReportSchema,
+    UpdateTierSchema,
+    UserSearchSchema,
+    UserSuspendSchema,
+    WalletAdjustmentSchema,
 } from '../schemas/admin';
 import {
-    ngoService,
+    adminReportingService,
     campaignAdminService,
+    ngoService,
+    payoutService,
     tierService,
     userSearchService,
-    payoutService,
 } from '../services/admin';
-import { successResponse, errorResponse } from '../utils/response';
+import { errorResponse, successResponse } from '../utils/response';
 
 const admin = new Hono();
+
+function getAdminId(c: any) {
+    return c.get('auth')?.user?.id || 'test-admin-id';
+}
+
+function validationError(error: unknown) {
+    if (error instanceof z.ZodError) {
+        return errorResponse('VALIDATION_ERROR', error.errors[0].message);
+    }
+
+    return null;
+}
+
+admin.get('/overview', async (c) => {
+    try {
+        const overview = await adminReportingService.getOverview();
+        return c.json(successResponse(overview));
+    } catch (error: any) {
+        console.error('Error loading admin overview:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to load admin overview'), 500);
+    }
+});
 
 // NGO Management
 admin.post('/ngos', async (c) => {
@@ -34,11 +63,9 @@ admin.post('/ngos', async (c) => {
         const ngo = await ngoService.createNgo(data);
         return c.json(successResponse(ngo), 201);
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(
-                errorResponse('VALIDATION_ERROR', error.errors[0].message),
-                400
-            );
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error creating NGO:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to create NGO'), 500);
@@ -47,17 +74,14 @@ admin.post('/ngos', async (c) => {
 
 admin.get('/ngos', async (c) => {
     try {
-        console.log('📍 [admin.get /ngos] Route handler called');
         const query = c.req.query();
-        console.log('📝 [admin.get /ngos] Query params:', query);
         const filters = NgoFilterSchema.parse(query);
-        console.log('✅ [admin.get /ngos] Filters parsed:', filters);
         const ngos = await ngoService.listNgos(filters.status, filters.search, filters.limit, filters.offset);
-        console.log('📤 [admin.get /ngos] Returning NGOs count:', ngos.length);
         return c.json(successResponse(ngos));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error listing NGOs:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to list NGOs'), 500);
@@ -80,15 +104,16 @@ admin.get('/ngos/:id', async (c) => {
 admin.patch('/ngos/:id', async (c) => {
     try {
         const body = await c.req.json();
-        const data = UpdateNgoSchema.parse(body);
+        const data = AdminNgoUpdateSchema.parse(body);
         const ngo = await ngoService.updateNgo(c.req.param('id'), data);
         if (!ngo) {
             return c.json(errorResponse('NOT_FOUND', 'NGO not found'), 404);
         }
         return c.json(successResponse(ngo));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error updating NGO:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to update NGO'), 500);
@@ -97,7 +122,8 @@ admin.patch('/ngos/:id', async (c) => {
 
 admin.post('/ngos/:id/verify', async (c) => {
     try {
-        const ngo = await ngoService.verifyNgo(c.req.param('id'));
+        const body = await c.req.json().catch(() => ({}));
+        const ngo = await ngoService.verifyNgo(c.req.param('id'), body?.verification_notes);
         if (!ngo) {
             return c.json(errorResponse('NOT_FOUND', 'NGO not found'), 404);
         }
@@ -116,8 +142,9 @@ admin.post('/campaigns', async (c) => {
         const campaign = await campaignAdminService.createCampaign(data);
         return c.json(successResponse(campaign), 201);
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error creating campaign:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to create campaign'), 500);
@@ -136,8 +163,9 @@ admin.get('/campaigns', async (c) => {
         );
         return c.json(successResponse(campaigns));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error listing campaigns:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to list campaigns'), 500);
@@ -168,8 +196,9 @@ admin.patch('/campaigns/:id', async (c) => {
         }
         return c.json(successResponse(campaign));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error updating campaign:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to update campaign'), 500);
@@ -184,8 +213,9 @@ admin.post('/tiers', async (c) => {
         const tier = await tierService.createTier(data);
         return c.json(successResponse(tier), 201);
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error creating tier:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to create tier'), 500);
@@ -199,8 +229,9 @@ admin.get('/campaigns/:campaignId/tiers', async (c) => {
         const tiers = await tierService.listTiers(filters.campaign_id, filters.limit, filters.offset);
         return c.json(successResponse(tiers));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error listing tiers:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to list tiers'), 500);
@@ -230,8 +261,9 @@ admin.patch('/tiers/:id', async (c) => {
         }
         return c.json(successResponse(tier));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error updating tier:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to update tier'), 500);
@@ -262,8 +294,9 @@ admin.get('/users/search', async (c) => {
         );
         return c.json(successResponse(results));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error searching users:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to search users'), 500);
@@ -283,6 +316,140 @@ admin.get('/users/:id', async (c) => {
     }
 });
 
+admin.get('/users/:id/profile', async (c) => {
+    try {
+        const profile = await userSearchService.getUserProfile(c.req.param('id'));
+        if (!profile) {
+            return c.json(errorResponse('NOT_FOUND', 'User not found'), 404);
+        }
+        return c.json(successResponse(profile));
+    } catch (error: any) {
+        console.error('Error fetching user profile:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to fetch user profile'), 500);
+    }
+});
+
+admin.post('/users/:id/wallet-adjustments', async (c) => {
+    try {
+        const body = await c.req.json();
+        const data = WalletAdjustmentSchema.parse(body);
+        const profile = await userSearchService.adjustWallet(
+            c.req.param('id'),
+            getAdminId(c),
+            data.type,
+            data.amount,
+            data.reason
+        );
+
+        if (!profile) {
+            return c.json(errorResponse('NOT_FOUND', 'Wallet not found for user'), 404);
+        }
+
+        return c.json(successResponse(profile));
+    } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
+        console.error('Error adjusting wallet:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to adjust wallet'), 500);
+    }
+});
+
+admin.post('/users/:id/suspend', async (c) => {
+    try {
+        const body = await c.req.json();
+        const data = UserSuspendSchema.parse(body);
+        const user = await userSearchService.setSuspended(
+            c.req.param('id'),
+            getAdminId(c),
+            data.suspended,
+            data.reason
+        );
+
+        if (!user) {
+            return c.json(errorResponse('NOT_FOUND', 'User not found'), 404);
+        }
+
+        return c.json(successResponse(user));
+    } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
+        console.error('Error updating user status:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to update user status'), 500);
+    }
+});
+
+admin.get('/donations', async (c) => {
+    try {
+        const query = c.req.query();
+        const filters = DonationFilterSchema.parse(query);
+        const results = await adminReportingService.listDonations({
+            ngoId: filters.ngo_id,
+            campaignId: filters.campaign_id,
+            limit: filters.limit,
+            offset: filters.offset,
+        });
+        return c.json(successResponse(results));
+    } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
+        console.error('Error listing donations:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to list donations'), 500);
+    }
+});
+
+admin.get('/ledger', async (c) => {
+    try {
+        const query = c.req.query();
+        const filters = LedgerFilterSchema.parse(query);
+        const results = await adminReportingService.listLedger({
+            userId: filters.user_id,
+            type: filters.type,
+            limit: filters.limit,
+            offset: filters.offset,
+        });
+        return c.json(successResponse(results));
+    } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
+        console.error('Error loading ledger:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to load ledger'), 500);
+    }
+});
+
+admin.get('/reports', async (c) => {
+    try {
+        const reports = await adminReportingService.listReports();
+        return c.json(successResponse(reports));
+    } catch (error: any) {
+        console.error('Error loading reports:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to load reports'), 500);
+    }
+});
+
+admin.post('/reports', async (c) => {
+    try {
+        const body = await c.req.json();
+        const data = TransparencyReportSchema.parse(body);
+        const report = await adminReportingService.createReport(data);
+        return c.json(successResponse(report), 201);
+    } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
+        console.error('Error creating report:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to create report'), 500);
+    }
+});
+
 // Payout Workflow
 admin.post('/payouts', async (c) => {
     try {
@@ -295,8 +462,9 @@ admin.post('/payouts', async (c) => {
         );
         return c.json(successResponse(payout), 201);
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error creating payout:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to create payout'), 500);
@@ -305,9 +473,20 @@ admin.post('/payouts', async (c) => {
 
 admin.get('/payouts', async (c) => {
     try {
-        const pending = await payoutService.listPendingPayouts();
-        return c.json(successResponse(pending));
+        const query = c.req.query();
+        const filters = PayoutListFilterSchema.parse(query);
+        const payoutList = await payoutService.listPayouts(
+            filters.ngo_id,
+            filters.status,
+            filters.limit,
+            filters.offset
+        );
+        return c.json(successResponse(payoutList));
     } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
         console.error('Error listing payouts:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to list payouts'), 500);
     }
@@ -336,8 +515,9 @@ admin.post('/payouts/:id/approve', async (c) => {
         }
         return c.json(successResponse(payout));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error approving payout:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to approve payout'), 500);
@@ -348,14 +528,19 @@ admin.post('/payouts/:id/process', async (c) => {
     try {
         const body = await c.req.json();
         const data = ProcessPayoutSchema.parse(body);
-        const payout = await payoutService.processPayout(c.req.param('id'), data.razorpay_transfer_id);
+        const payout = await payoutService.processPayout(
+            c.req.param('id'),
+            data.razorpay_transfer_id,
+            data.receipt_url
+        );
         if (!payout) {
             return c.json(errorResponse('NOT_FOUND', 'Payout not found'), 404);
         }
         return c.json(successResponse(payout));
     } catch (error: any) {
-        if (error instanceof z.ZodError) {
-            return c.json(errorResponse('VALIDATION_ERROR', error.errors[0].message), 400);
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
         }
         console.error('Error processing payout:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to process payout'), 500);

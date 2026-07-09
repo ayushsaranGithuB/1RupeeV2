@@ -13,23 +13,6 @@
 
 ---
 
-## Design System
-
-**Theme:** Light only (no dark mode for MVP)
-
-**Colors:**
-
-- White backgrounds
-- Neutral grays
-- Green as primary accent
-- Red only for destructive actions
-
-**Spacing:** 4/8/16/24/32 scale **Radius:** lg **Typography:** Geist or Inter with clear hierarchy and comfortable whitespace
-
-**No gradients or custom styling.**
-
----
-
 ## Page Routes
 
 ### Public Pages
@@ -89,17 +72,6 @@ Guide users to discover campaigns.
 
 ---
 
-## Layout Principles
-
-- Mobile-first
-- Responsive
-- Accessible
-- Fast and uncluttered
-- Keep pages thin
-- Keep dashboard clean and minimal
-
----
-
 ## Coding Standards
 
 - Use Server Components by default
@@ -114,5 +86,3 @@ Guide users to discover campaigns.
 - Components under components/
 - Forms use React Hook Form + Zod
 - Use shadcn/ui wherever possible
-- Mobile-first layouts
-- Light minimal white theme

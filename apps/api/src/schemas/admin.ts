@@ -13,6 +13,12 @@ export const CreateNgoSchema = z.object({
 
 export const UpdateNgoSchema = CreateNgoSchema.partial();
 
+export const AdminNgoUpdateSchema = UpdateNgoSchema.extend({
+    verification_status: z.enum(['PENDING', 'VERIFIED', 'REJECTED', 'SUSPENDED']).optional(),
+    verification_notes: z.string().max(1000).optional(),
+    archived: z.boolean().optional(),
+});
+
 export const NgoFilterSchema = z.object({
     status: z.enum(['PENDING', 'VERIFIED', 'REJECTED', 'SUSPENDED']).optional(),
     search: z.string().optional(),
@@ -69,11 +75,49 @@ export const UserSearchSchema = z.object({
     offset: z.coerce.number().int().min(0).default(0),
 });
 
+export const WalletAdjustmentSchema = z.object({
+    type: z.enum(['credit', 'debit']),
+    amount: z.coerce.number().int().positive('Amount must be positive'),
+    reason: z.string().min(5, 'Reason must be at least 5 characters'),
+});
+
+export const UserSuspendSchema = z.object({
+    suspended: z.boolean(),
+    reason: z.string().min(5, 'Reason must be at least 5 characters').optional(),
+});
+
+export const DonationFilterSchema = z.object({
+    ngo_id: z.string().uuid().optional(),
+    campaign_id: z.string().uuid().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(50),
+    offset: z.coerce.number().int().min(0).default(0),
+});
+
+export const LedgerFilterSchema = z.object({
+    user_id: z.string().uuid().optional(),
+    type: z.enum(['TOPUP', 'DONATION', 'REFUND', 'ADJUSTMENT']).optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(50),
+    offset: z.coerce.number().int().min(0).default(0),
+});
+
+export const TransparencyReportSchema = z.object({
+    title: z.string().min(3, 'Title must be at least 3 characters'),
+    file_url: z.string().url('File URL must be a valid URL'),
+    report_type: z.string().min(3, 'Report type must be at least 3 characters'),
+});
+
 // Payout Workflow
 export const PayoutSchema = z.object({
     ngo_id: z.string().uuid('Invalid NGO ID'),
     start_date: z.date().or(z.string().datetime()),
     end_date: z.date().or(z.string().datetime()),
+});
+
+export const PayoutListFilterSchema = z.object({
+    ngo_id: z.string().uuid().optional(),
+    status: z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED']).optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(50),
+    offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const ApprovePayoutSchema = z.object({
@@ -84,4 +128,5 @@ export const ApprovePayoutSchema = z.object({
 export const ProcessPayoutSchema = z.object({
     payout_id: z.string().uuid('Invalid payout ID'),
     razorpay_transfer_id: z.string(),
+    receipt_url: z.string().url().optional(),
 });

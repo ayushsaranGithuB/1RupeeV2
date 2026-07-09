@@ -1,235 +1,346 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { adminRequest, formatDate } from "@/lib/admin";
 
-interface NGO {
+interface NgoRecord {
   id: string;
   name: string;
   slug: string;
-  description: string;
-  verification_status: string;
+  description: string | null;
+  logo_url: string | null;
+  website: string | null;
+  email: string | null;
+  phone: string | null;
+  verification_status: "PENDING" | "VERIFIED" | "REJECTED" | "SUSPENDED";
+  payout_account?: {
+    verification_notes?: string;
+  } | null;
+  created_at?: string;
 }
 
+const emptyForm = {
+  name: "",
+  slug: "",
+  description: "",
+  logo_url: "",
+  website: "",
+  email: "",
+  phone: "",
+  verification_notes: "",
+};
+
 export default function NGOManagement() {
-  const [ngos, setNgos] = useState<NGO[]>([]);
+  const [ngos, setNgos] = useState<NgoRecord[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    email: "",
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedNgoId, setSelectedNgoId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
 
-  useEffect(() => {
-    fetchNgos();
-  }, []);
+  const selectedNgo = useMemo(
+    () => ngos.find((ngo) => ngo.id === selectedNgoId) || null,
+    [ngos, selectedNgoId],
+  );
 
-  const fetchNgos = async () => {
+  async function loadNgos() {
+    setLoading(true);
+    setError(null);
+
     try {
-      const res = await fetch(`/api/proxy/admin/ngos`, {
-        headers: { Authorization: "Bearer test-token" },
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        setNgos(data.data);
+      const path = search
+        ? "/admin/ngos?search=" + encodeURIComponent(search)
+        : "/admin/ngos";
+      const data = await adminRequest<NgoRecord[]>(path);
+      setNgos(data);
+      if (!selectedNgoId && data[0]) {
+        setSelectedNgoId(data[0].id);
       }
     } catch (err) {
-      console.error("Failed to fetch NGOs:", err);
+      setError(err instanceof Error ? err.message : "Failed to load NGOs");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    loadNgos();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedNgo) {
+      setForm(emptyForm);
+      return;
+    }
+
+    setForm({
+      name: selectedNgo.name,
+      slug: selectedNgo.slug,
+      description: selectedNgo.description || "",
+      logo_url: selectedNgo.logo_url || "",
+      website: selectedNgo.website || "",
+      email: selectedNgo.email || "",
+      phone: selectedNgo.phone || "",
+      verification_notes: selectedNgo.payout_account?.verification_notes || "",
+    });
+  }, [selectedNgo]);
+
+  async function handleCreate(e: FormEvent) {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setSaving(true);
+    setError(null);
 
     try {
-      const res = await fetch(`/api/proxy/admin/ngos`, {
+      await adminRequest("/admin/ngos", {
         method: "POST",
-        headers: {
-          Authorization: "Bearer test-token",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(form),
       });
-
-      const data = await res.json();
-      if (data.success) {
-        setSuccess("NGO created successfully!");
-        setFormData({ name: "", slug: "", description: "", email: "" });
-        setShowForm(false);
-        await fetchNgos();
-      } else {
-        setError(data.error || "Failed to create NGO");
-      }
+      setForm(emptyForm);
+      await loadNgos();
     } catch (err) {
-      setError("Error creating NGO: " + String(err));
+      setError(err instanceof Error ? err.message : "Failed to create NGO");
+    } finally {
+      setSaving(false);
     }
-  };
+  }
+
+  async function saveSelectedNgo(status?: NgoRecord["verification_status"]) {
+    if (!selectedNgo) {
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      await adminRequest("/admin/ngos/" + selectedNgo.id, {
+        method: "PATCH",
+        body: JSON.stringify({
+          ...form,
+          ...(status ? { verification_status: status } : {}),
+        }),
+      });
+      await loadNgos();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update NGO");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function archiveSelectedNgo() {
+    if (!selectedNgo) {
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      await adminRequest("/admin/ngos/" + selectedNgo.id, {
+        method: "PATCH",
+        body: JSON.stringify({ archived: true }),
+      });
+      setSelectedNgoId(null);
+      await loadNgos();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to archive NGO");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">NGO Management</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-        >
-          {showForm ? "Cancel" : "+ Add NGO"}
-        </button>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold">NGO Management</h1>
+          <p className="text-sm text-slate-500">
+            Create, edit, approve, archive, and capture verification notes for NGOs.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Input
+            placeholder="Search NGOs"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Button onClick={loadNgos} variant="outline">
+            Search
+          </Button>
+        </div>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
+      {error ? (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6 text-sm text-red-700">{error}</CardContent>
+        </Card>
+      ) : null}
 
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-          {success}
-        </div>
-      )}
+      <div className="grid gap-6 xl:grid-cols-[1.05fr,1.2fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Add NGO</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form className="grid gap-3" onSubmit={handleCreate}>
+              <Input
+                placeholder="Name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+              <Input
+                placeholder="Slug"
+                value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              />
+              <Textarea
+                placeholder="Description"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
+              <Input
+                placeholder="Logo URL"
+                value={form.logo_url}
+                onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
+              />
+              <Input
+                placeholder="Website"
+                value={form.website}
+                onChange={(e) => setForm({ ...form, website: e.target.value })}
+              />
+              <div className="grid gap-3 md:grid-cols-2">
+                <Input
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+                <Input
+                  placeholder="Phone"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
+              </div>
+              <Textarea
+                placeholder="Verification notes"
+                value={form.verification_notes}
+                onChange={(e) =>
+                  setForm({ ...form, verification_notes: e.target.value })
+                }
+              />
+              <Button type="submit" disabled={saving}>
+                {saving ? "Saving..." : "Create NGO"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-      {showForm && (
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-4">Create New NGO</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Organization Name"
-              />
+        <Card>
+          <CardHeader>
+            <CardTitle>Review NGOs</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="max-h-[420px] space-y-3 overflow-auto pr-2">
+              {loading ? (
+                <p className="text-sm text-slate-500">Loading NGOs...</p>
+              ) : ngos.length === 0 ? (
+                <p className="text-sm text-slate-500">No NGOs found.</p>
+              ) : (
+                ngos.map((ngo) => (
+                  <button
+                    key={ngo.id}
+                    type="button"
+                    onClick={() => setSelectedNgoId(ngo.id)}
+                    className={
+                      "w-full rounded-2xl border p-4 text-left transition " +
+                      (selectedNgoId === ngo.id
+                        ? "border-slate-900 bg-slate-900 text-white"
+                        : "border-slate-200 bg-white hover:border-slate-300")
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{ngo.name}</p>
+                        <p className="text-xs opacity-70">{ngo.slug}</p>
+                      </div>
+                      <span className="rounded-full bg-black/10 px-2 py-1 text-xs">
+                        {ngo.verification_status}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm opacity-80">{ngo.description}</p>
+                  </button>
+                ))
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Slug
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.slug}
-                onChange={(e) =>
-                  setFormData({ ...formData, slug: e.target.value })
-                }
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="organization-name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <textarea
-                required
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Organization description (min 10 chars)"
-                rows={3}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="contact@organization.com"
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-            >
-              Create NGO
-            </button>
-          </form>
-        </div>
-      )}
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                Slug
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {loading ? (
-              <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-600">
-                  Loading...
-                </td>
-              </tr>
-            ) : ngos.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-6 py-4 text-center text-gray-600">
-                  No NGOs found
-                </td>
-              </tr>
-            ) : (
-              ngos.map((ngo) => (
-                <tr key={ngo.id}>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {ngo.name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {ngo.slug}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        ngo.verification_status === "VERIFIED"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
+            {selectedNgo ? (
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{selectedNgo.name}</p>
+                    <p className="text-xs text-slate-500">
+                      Added {formatDate(selectedNgo.created_at)}
+                    </p>
+                  </div>
+                  <Select
+                    value={selectedNgo.verification_status}
+                    onChange={(e) =>
+                      saveSelectedNgo(
+                        e.target.value as NgoRecord["verification_status"],
+                      )
+                    }
+                    className="w-[180px]"
+                  >
+                    <option value="PENDING">Pending</option>
+                    <option value="VERIFIED">Verified</option>
+                    <option value="REJECTED">Rejected</option>
+                    <option value="SUSPENDED">Suspended</option>
+                  </Select>
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  <Input
+                    value={form.logo_url}
+                    placeholder="Logo URL"
+                    onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
+                  />
+                  <Textarea
+                    value={form.verification_notes}
+                    placeholder="Verification notes"
+                    onChange={(e) =>
+                      setForm({ ...form, verification_notes: e.target.value })
+                    }
+                  />
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => saveSelectedNgo()} disabled={saving}>
+                      Save NGO
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => saveSelectedNgo("VERIFIED")}
+                      disabled={saving}
                     >
-                      {ngo.verification_status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <button className="text-blue-600 hover:text-blue-800">
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                      Approve NGO
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={archiveSelectedNgo}
+                      disabled={saving}
+                    >
+                      Archive NGO
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
