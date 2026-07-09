@@ -112,22 +112,6 @@ export default function AdminLayout({
       </aside>
 
       <main className="min-w-0 flex-1">
-        <div className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/80 px-6 py-5 backdrop-blur-xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-            Admin Workspace
-          </p>
-          <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-2xl font-semibold text-slate-900">
-              {currentSection}
-            </h2>
-            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-              Live Operations
-            </span>
-          </div>
-          <p className="mt-1 text-sm text-slate-500">
-            Manage NGOs, campaigns, users, finance, and transparency workflows.
-          </p>
-        </div>
         <div className="p-4 sm:p-6">{children}</div>
       </main>
     </div>

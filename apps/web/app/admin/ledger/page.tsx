@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { adminRequest, formatCurrency, formatDate } from "@/lib/admin";
 
 interface LedgerEntry {
@@ -19,8 +26,13 @@ interface LedgerEntry {
 export default function LedgerPage() {
   const [type, setType] = useState("");
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const selectedEntry =
+    entries.find((entry) => entry.id === selectedEntryId) || null;
 
   async function loadLedger() {
     setLoading(true);
@@ -41,59 +53,155 @@ export default function LedgerPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1400px] space-y-4">
       <div>
-        <h1 className="text-3xl font-semibold">Platform Ledger</h1>
-        <p className="text-sm text-slate-500">View immutable wallet transactions across the platform.</p>
+        <p className="text-xs font-medium text-slate-500">Admin / Ledger</p>
+        <h1 className="text-[30px] font-semibold">Platform Ledger</h1>
       </div>
 
       {error ? (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6 text-sm text-red-700">{error}</CardContent>
-        </Card>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ledger Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <Select value={type} onChange={(e) => setType(e.target.value)} className="w-[220px]">
-            <option value="">All transaction types</option>
-            <option value="TOPUP">Top-ups</option>
-            <option value="DONATION">Donations</option>
-            <option value="REFUND">Refunds</option>
-            <option value="ADJUSTMENT">Adjustments</option>
-          </Select>
-          <Button onClick={loadLedger}>Apply Filter</Button>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3">
+        <Select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="w-[220px]"
+        >
+          <option value="">All transaction types</option>
+          <option value="TOPUP">Top-ups</option>
+          <option value="DONATION">Donations</option>
+          <option value="REFUND">Refunds</option>
+          <option value="ADJUSTMENT">Adjustments</option>
+        </Select>
+        <Button
+          onClick={loadLedger}
+          className="bg-emerald-600 text-white hover:bg-emerald-500"
+        >
+          Apply
+        </Button>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Ledger Entries</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
+      <div className="rounded-xl border border-slate-200 bg-white">
+        <div className="border-b border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+          Ledger Entries
+        </div>
+        <div className="p-2">
           {loading ? (
-            <p className="text-sm text-slate-500">Loading ledger...</p>
-          ) : entries.map((entry) => (
-            <div key={entry.id} className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className="px-2 py-3 text-sm text-slate-500">
+              Loading ledger...
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {entries.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-sm text-slate-500">
+                      No ledger entries found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  entries.map((entry) => (
+                    <TableRow
+                      key={entry.id}
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setSelectedEntryId(entry.id);
+                        setDrawerOpen(true);
+                      }}
+                    >
+                      <TableCell className="font-medium text-slate-900">
+                        {entry.user_name}
+                        <div className="text-xs text-slate-500">
+                          {entry.user_email}
+                        </div>
+                      </TableCell>
+                      <TableCell>{entry.type}</TableCell>
+                      <TableCell>{formatCurrency(entry.amount)}</TableCell>
+                      <TableCell>{entry.description || "-"}</TableCell>
+                      <TableCell>{formatDate(entry.created_at)}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </div>
+
+      {drawerOpen ? (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-slate-900/20"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[520px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-slate-400">Ledger Drawer</p>
+                <h2 className="text-[22px] font-semibold text-slate-900">
+                  Transaction Details
+                </h2>
+              </div>
+              <Button variant="outline" onClick={() => setDrawerOpen(false)}>
+                Close
+              </Button>
+            </div>
+
+            {selectedEntry ? (
+              <div className="space-y-3">
                 <div>
-                  <p className="font-medium text-slate-900">{entry.user_name}</p>
-                  <p className="text-sm text-slate-500">{entry.user_email}</p>
+                  <p className="text-xs text-slate-400">User</p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {selectedEntry.user_name}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    {selectedEntry.user_email}
+                  </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-slate-900">{formatCurrency(entry.amount)}</p>
-                  <p className="text-xs text-slate-400">{entry.type}</p>
+                <div>
+                  <p className="text-xs text-slate-400">Type</p>
+                  <p className="text-sm text-slate-700">{selectedEntry.type}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">Amount</p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {formatCurrency(selectedEntry.amount)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">Description</p>
+                  <p className="text-sm text-slate-700">
+                    {selectedEntry.description || "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">Date</p>
+                  <p className="text-sm text-slate-700">
+                    {formatDate(selectedEntry.created_at)}
+                  </p>
                 </div>
               </div>
-              <p className="mt-3 text-sm text-slate-600">{entry.description}</p>
-              <p className="mt-1 text-xs text-slate-400">{formatDate(entry.created_at)}</p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            ) : (
+              <p className="text-sm text-slate-500">
+                Select a transaction from the table.
+              </p>
+            )}
+          </aside>
+        </>
+      ) : null}
     </div>
   );
 }

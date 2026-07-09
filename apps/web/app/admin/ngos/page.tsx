@@ -2,9 +2,16 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { adminRequest, formatDate } from "@/lib/admin";
 
@@ -33,35 +40,57 @@ const emptyForm = {
   email: "",
   phone: "",
   verification_notes: "",
+  verification_status: "PENDING" as NgoRecord["verification_status"],
 };
+
+type DrawerMode = "create" | "edit" | null;
 
 export default function NGOManagement() {
   const [ngos, setNgos] = useState<NgoRecord[]>([]);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedNgoId, setSelectedNgoId] = useState<string | null>(null);
-  const [form, setForm] = useState(emptyForm);
+  const [drawerMode, setDrawerMode] = useState<DrawerMode>(null);
+  const [createForm, setCreateForm] = useState(emptyForm);
+  const [editForm, setEditForm] = useState(emptyForm);
 
   const selectedNgo = useMemo(
     () => ngos.find((ngo) => ngo.id === selectedNgoId) || null,
     [ngos, selectedNgoId],
   );
 
+  const filteredNgos = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+
+    return ngos.filter((ngo) => {
+      const matchesSearch = normalizedSearch
+        ? ngo.name.toLowerCase().includes(normalizedSearch) ||
+          ngo.slug.toLowerCase().includes(normalizedSearch) ||
+          (ngo.email || "").toLowerCase().includes(normalizedSearch)
+        : true;
+      const matchesStatus = statusFilter
+        ? ngo.verification_status === statusFilter
+        : true;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [ngos, search, statusFilter]);
+
+  function closeDrawer() {
+    setDrawerMode(null);
+    setSelectedNgoId(null);
+  }
+
   async function loadNgos() {
     setLoading(true);
     setError(null);
 
     try {
-      const path = search
-        ? "/admin/ngos?search=" + encodeURIComponent(search)
-        : "/admin/ngos";
-      const data = await adminRequest<NgoRecord[]>(path);
+      const data = await adminRequest<NgoRecord[]>("/admin/ngos");
       setNgos(data);
-      if (!selectedNgoId && data[0]) {
-        setSelectedNgoId(data[0].id);
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load NGOs");
     } finally {
@@ -75,11 +104,11 @@ export default function NGOManagement() {
 
   useEffect(() => {
     if (!selectedNgo) {
-      setForm(emptyForm);
+      setEditForm(emptyForm);
       return;
     }
 
-    setForm({
+    setEditForm({
       name: selectedNgo.name,
       slug: selectedNgo.slug,
       description: selectedNgo.description || "",
@@ -88,6 +117,7 @@ export default function NGOManagement() {
       email: selectedNgo.email || "",
       phone: selectedNgo.phone || "",
       verification_notes: selectedNgo.payout_account?.verification_notes || "",
+      verification_status: selectedNgo.verification_status,
     });
   }, [selectedNgo]);
 
@@ -99,9 +129,10 @@ export default function NGOManagement() {
     try {
       await adminRequest("/admin/ngos", {
         method: "POST",
-        body: JSON.stringify(form),
+        body: JSON.stringify(createForm),
       });
-      setForm(emptyForm);
+      setCreateForm(emptyForm);
+      setDrawerMode(null);
       await loadNgos();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create NGO");
@@ -110,7 +141,7 @@ export default function NGOManagement() {
     }
   }
 
-  async function saveSelectedNgo(status?: NgoRecord["verification_status"]) {
+  async function saveSelectedNgo() {
     if (!selectedNgo) {
       return;
     }
@@ -121,11 +152,10 @@ export default function NGOManagement() {
     try {
       await adminRequest("/admin/ngos/" + selectedNgo.id, {
         method: "PATCH",
-        body: JSON.stringify({
-          ...form,
-          ...(status ? { verification_status: status } : {}),
-        }),
+        body: JSON.stringify(editForm),
       });
+      setDrawerMode(null);
+      setSelectedNgoId(null);
       await loadNgos();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update NGO");
@@ -147,7 +177,7 @@ export default function NGOManagement() {
         method: "PATCH",
         body: JSON.stringify({ archived: true }),
       });
-      setSelectedNgoId(null);
+      closeDrawer();
       await loadNgos();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to archive NGO");
@@ -157,145 +187,293 @@ export default function NGOManagement() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold">NGO Management</h1>
-          <p className="text-sm text-slate-500">
-            Create, edit, approve, archive, and capture verification notes for NGOs.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Input
-            placeholder="Search NGOs"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <Button onClick={loadNgos} variant="outline">
-            Search
+    <div className="mx-auto max-w-[1400px] space-y-4">
+      <div>
+        <p className="text-xs text-slate-400">Admin / NGOs</p>
+        <h1 className="text-[30px] font-semibold">NGO Management</h1>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="min-w-[220px] flex-1 space-y-1">
+            <p className="text-xs text-slate-400">Search</p>
+            <Input
+              placeholder="Search by name, slug, or email"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="w-full space-y-1 sm:w-[200px]">
+            <p className="text-xs text-slate-400">Status</p>
+            <Select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="">All statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="VERIFIED">Verified</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="SUSPENDED">Suspended</option>
+            </Select>
+          </div>
+          <Button variant="outline" onClick={loadNgos}>
+            Refresh
+          </Button>
+          <Button
+            onClick={() => {
+              setCreateForm(emptyForm);
+              setDrawerMode("create");
+            }}
+            className="bg-emerald-600 text-white hover:bg-emerald-500"
+          >
+            Add NGO
           </Button>
         </div>
       </div>
 
       {error ? (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6 text-sm text-red-700">{error}</CardContent>
-        </Card>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[1.05fr,1.2fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Add NGO</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form className="grid gap-3" onSubmit={handleCreate}>
-              <Input
-                placeholder="Name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-              <Input
-                placeholder="Slug"
-                value={form.slug}
-                onChange={(e) => setForm({ ...form, slug: e.target.value })}
-              />
-              <Textarea
-                placeholder="Description"
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-              />
-              <Input
-                placeholder="Logo URL"
-                value={form.logo_url}
-                onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-              />
-              <Input
-                placeholder="Website"
-                value={form.website}
-                onChange={(e) => setForm({ ...form, website: e.target.value })}
-              />
-              <div className="grid gap-3 md:grid-cols-2">
-                <Input
-                  placeholder="Email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                />
-                <Input
-                  placeholder="Phone"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                />
-              </div>
-              <Textarea
-                placeholder="Verification notes"
-                value={form.verification_notes}
-                onChange={(e) =>
-                  setForm({ ...form, verification_notes: e.target.value })
-                }
-              />
-              <Button type="submit" disabled={saving}>
-                {saving ? "Saving..." : "Create NGO"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+      <div className="rounded-xl border border-slate-200 bg-white p-2">
+        {loading ? (
+          <p className="px-3 py-3 text-sm text-slate-500">Loading NGOs...</p>
+        ) : filteredNgos.length === 0 ? (
+          <p className="px-3 py-3 text-sm text-slate-500">No NGOs found.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Created</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredNgos.map((ngo) => (
+                <TableRow
+                  key={ngo.id}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSelectedNgoId(ngo.id);
+                    setDrawerMode("edit");
+                  }}
+                >
+                  <TableCell className="font-medium text-slate-900">
+                    {ngo.name}
+                    <div className="text-xs text-slate-500">/{ngo.slug}</div>
+                  </TableCell>
+                  <TableCell>{ngo.email || "-"}</TableCell>
+                  <TableCell>{ngo.verification_status}</TableCell>
+                  <TableCell>{formatDate(ngo.created_at)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Review NGOs</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="max-h-[420px] space-y-3 overflow-auto pr-2">
-              {loading ? (
-                <p className="text-sm text-slate-500">Loading NGOs...</p>
-              ) : ngos.length === 0 ? (
-                <p className="text-sm text-slate-500">No NGOs found.</p>
-              ) : (
-                ngos.map((ngo) => (
-                  <button
-                    key={ngo.id}
-                    type="button"
-                    onClick={() => setSelectedNgoId(ngo.id)}
-                    className={
-                      "w-full rounded-2xl border p-4 text-left transition " +
-                      (selectedNgoId === ngo.id
-                        ? "border-slate-900 bg-slate-900 text-white"
-                        : "border-slate-200 bg-white hover:border-slate-300")
-                    }
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium">{ngo.name}</p>
-                        <p className="text-xs opacity-70">{ngo.slug}</p>
-                      </div>
-                      <span className="rounded-full bg-black/10 px-2 py-1 text-xs">
-                        {ngo.verification_status}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm opacity-80">{ngo.description}</p>
-                  </button>
-                ))
-              )}
+      {drawerMode ? (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-slate-900/20"
+            onClick={closeDrawer}
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[540px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-slate-400">NGO Drawer</p>
+                <h2 className="text-[22px] font-semibold text-slate-900">
+                  {drawerMode === "create"
+                    ? "Create NGO"
+                    : selectedNgo?.name || "NGO Details"}
+                </h2>
+              </div>
+              <Button variant="outline" onClick={closeDrawer}>
+                Close
+              </Button>
             </div>
 
-            {selectedNgo ? (
-              <div className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{selectedNgo.name}</p>
-                    <p className="text-xs text-slate-500">
-                      Added {formatDate(selectedNgo.created_at)}
-                    </p>
-                  </div>
-                  <Select
-                    value={selectedNgo.verification_status}
+            {drawerMode === "create" ? (
+              <form className="grid gap-3" onSubmit={handleCreate}>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Name</p>
+                  <Input
+                    placeholder="Name"
+                    value={createForm.name}
                     onChange={(e) =>
-                      saveSelectedNgo(
-                        e.target.value as NgoRecord["verification_status"],
-                      )
+                      setCreateForm({ ...createForm, name: e.target.value })
                     }
-                    className="w-[180px]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Slug</p>
+                  <Input
+                    placeholder="Slug"
+                    value={createForm.slug}
+                    onChange={(e) =>
+                      setCreateForm({
+                        ...createForm,
+                        slug: e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Email</p>
+                  <Input
+                    placeholder="Email"
+                    value={createForm.email}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, email: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Phone</p>
+                  <Input
+                    placeholder="Phone"
+                    value={createForm.phone}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, phone: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Website</p>
+                  <Input
+                    placeholder="Website"
+                    value={createForm.website}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, website: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Logo URL</p>
+                  <Input
+                    placeholder="Logo URL"
+                    value={createForm.logo_url}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, logo_url: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Description</p>
+                  <Textarea
+                    placeholder="Description"
+                    value={createForm.description}
+                    onChange={(e) =>
+                      setCreateForm({
+                        ...createForm,
+                        description: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Verification Notes</p>
+                  <Textarea
+                    placeholder="Verification notes"
+                    value={createForm.verification_notes}
+                    onChange={(e) =>
+                      setCreateForm({
+                        ...createForm,
+                        verification_notes: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={saving}
+                    className="bg-emerald-600 text-white hover:bg-emerald-500"
+                  >
+                    {saving ? "Saving..." : "Save"}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={closeDrawer}>
+                    Close
+                  </Button>
+                </div>
+              </form>
+            ) : selectedNgo ? (
+              <div className="grid gap-3">
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Name</p>
+                  <Input
+                    placeholder="Name"
+                    value={editForm.name}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Slug</p>
+                  <Input
+                    placeholder="Slug"
+                    value={editForm.slug}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, slug: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Email</p>
+                  <Input
+                    placeholder="Email"
+                    value={editForm.email}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, email: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Phone</p>
+                  <Input
+                    placeholder="Phone"
+                    value={editForm.phone}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, phone: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Website</p>
+                  <Input
+                    placeholder="Website"
+                    value={editForm.website}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, website: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Logo URL</p>
+                  <Input
+                    placeholder="Logo URL"
+                    value={editForm.logo_url}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, logo_url: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Verification Status</p>
+                  <Select
+                    value={editForm.verification_status}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        verification_status: e.target
+                          .value as NgoRecord["verification_status"],
+                      })
+                    }
                   >
                     <option value="PENDING">Pending</option>
                     <option value="VERIFIED">Verified</option>
@@ -303,45 +481,57 @@ export default function NGOManagement() {
                     <option value="SUSPENDED">Suspended</option>
                   </Select>
                 </div>
-
-                <div className="mt-4 grid gap-3">
-                  <Input
-                    value={form.logo_url}
-                    placeholder="Logo URL"
-                    onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-                  />
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Description</p>
                   <Textarea
-                    value={form.verification_notes}
-                    placeholder="Verification notes"
+                    placeholder="Description"
+                    value={editForm.description}
                     onChange={(e) =>
-                      setForm({ ...form, verification_notes: e.target.value })
+                      setEditForm({ ...editForm, description: e.target.value })
                     }
                   />
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={() => saveSelectedNgo()} disabled={saving}>
-                      Save NGO
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => saveSelectedNgo("VERIFIED")}
-                      disabled={saving}
-                    >
-                      Approve NGO
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={archiveSelectedNgo}
-                      disabled={saving}
-                    >
-                      Archive NGO
-                    </Button>
-                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Verification Notes</p>
+                  <Textarea
+                    placeholder="Verification notes"
+                    value={editForm.verification_notes}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        verification_notes: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <p className="text-xs text-slate-500">
+                  Added {formatDate(selectedNgo.created_at)}
+                </p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Button
+                    onClick={saveSelectedNgo}
+                    disabled={saving}
+                    className="bg-emerald-600 text-white hover:bg-emerald-500"
+                  >
+                    {saving ? "Saving..." : "Save"}
+                  </Button>
+                  <Button variant="outline" onClick={closeDrawer}>
+                    Close
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={archiveSelectedNgo}
+                    disabled={saving}
+                    className="border-red-200 text-red-600 hover:bg-red-50"
+                  >
+                    Archive
+                  </Button>
                 </div>
               </div>
             ) : null}
-          </CardContent>
-        </Card>
-      </div>
+          </aside>
+        </>
+      ) : null}
     </div>
   );
 }

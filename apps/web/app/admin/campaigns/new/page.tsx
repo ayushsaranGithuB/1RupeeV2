@@ -4,7 +4,6 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -87,13 +86,13 @@ export default function CreateCampaignPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1400px] space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold">Create Campaign</h1>
-          <p className="text-sm text-slate-500">
-            Add a new campaign from this dedicated screen.
+          <p className="text-xs font-medium text-slate-500">
+            Admin / Campaigns / New
           </p>
+          <h1 className="text-[30px] font-semibold">Create Campaign</h1>
         </div>
         <Link
           href="/admin/campaigns"
@@ -104,98 +103,93 @@ export default function CreateCampaignPage() {
       </div>
 
       {error ? (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6 text-sm text-red-700">
-            {error}
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Campaign Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-sm text-slate-500">Loading NGOs...</p>
-          ) : (
-            <form className="grid gap-3 xl:grid-cols-2" onSubmit={handleCreate}>
-              <div className="xl:col-span-2">
-                <Select
-                  value={form.ngo_id}
-                  onChange={(e) => setForm({ ...form, ngo_id: e.target.value })}
-                  disabled={!ngos.length}
-                >
-                  {ngos.map((ngo) => (
-                    <option key={ngo.id} value={ngo.id}>
-                      {ngo.name}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <Input
-                value={form.title}
-                placeholder="Title"
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-              />
-              <Input
-                value={form.slug}
-                placeholder="Slug"
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    slug: e.target.value.toLowerCase().replace(/\s+/g, "-"),
-                  })
-                }
-              />
-              <div className="xl:col-span-2">
-                <Textarea
-                  value={form.short_description}
-                  placeholder="Short description"
-                  onChange={(e) =>
-                    setForm({ ...form, short_description: e.target.value })
-                  }
-                />
-              </div>
-              <div className="xl:col-span-2">
-                <Textarea
-                  value={form.description}
-                  placeholder="Detailed description"
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                />
-              </div>
-              <Input
-                value={form.hero_image}
-                placeholder="Hero image URL"
-                onChange={(e) =>
-                  setForm({ ...form, hero_image: e.target.value })
-                }
-              />
-              <Input
-                value={form.goal_amount}
-                placeholder="Goal amount"
-                onChange={(e) =>
-                  setForm({ ...form, goal_amount: e.target.value })
-                }
-              />
+      <div className="rounded-xl border border-slate-200 bg-white p-4">
+        {loading ? (
+          <p className="text-sm text-slate-500">Loading NGOs...</p>
+        ) : (
+          <form className="grid gap-3 xl:grid-cols-2" onSubmit={handleCreate}>
+            <div className="xl:col-span-2">
               <Select
-                value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                value={form.ngo_id}
+                onChange={(e) => setForm({ ...form, ngo_id: e.target.value })}
+                disabled={!ngos.length}
               >
-                <option value="DRAFT">Draft</option>
-                <option value="ACTIVE">Active</option>
+                {ngos.map((ngo) => (
+                  <option key={ngo.id} value={ngo.id}>
+                    {ngo.name}
+                  </option>
+                ))}
               </Select>
-              <div className="xl:col-span-2">
-                <Button type="submit" disabled={saving || !ngos.length}>
-                  {saving ? "Saving..." : "Create Campaign"}
-                </Button>
-              </div>
-            </form>
-          )}
-        </CardContent>
-      </Card>
+            </div>
+            <Input
+              value={form.title}
+              placeholder="Title"
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+            <Input
+              value={form.slug}
+              placeholder="Slug"
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  slug: e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                })
+              }
+            />
+            <div className="xl:col-span-2">
+              <Textarea
+                value={form.short_description}
+                placeholder="Short description"
+                onChange={(e) =>
+                  setForm({ ...form, short_description: e.target.value })
+                }
+              />
+            </div>
+            <div className="xl:col-span-2">
+              <Textarea
+                value={form.description}
+                placeholder="Detailed description"
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+              />
+            </div>
+            <Input
+              value={form.hero_image}
+              placeholder="Hero image URL"
+              onChange={(e) => setForm({ ...form, hero_image: e.target.value })}
+            />
+            <Input
+              value={form.goal_amount}
+              placeholder="Goal amount"
+              onChange={(e) =>
+                setForm({ ...form, goal_amount: e.target.value })
+              }
+            />
+            <Select
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+            >
+              <option value="DRAFT">Draft</option>
+              <option value="ACTIVE">Active</option>
+            </Select>
+            <div className="xl:col-span-2">
+              <Button
+                type="submit"
+                disabled={saving || !ngos.length}
+                className="bg-emerald-600 text-white hover:bg-emerald-500"
+              >
+                {saving ? "Saving..." : "Create Campaign"}
+              </Button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

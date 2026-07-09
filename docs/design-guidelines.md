@@ -1,472 +1,154 @@
 # Design Guidelines
 
-## OneRupeeProject
+## OneRupee Admin UI
 
-Version 1.0
+Version 1.1
 
----
+## Product Direction
 
-# Design Philosophy
+The admin should feel like a focused operations console.
 
-The UI should feel closer to:
+Reference product qualities:
 
-- Vercel
-- Linear
-- Arc Browser
-- Stripe Dashboard
-- GitHub
+- Fast and calm
+- Dense but readable
+- Workflow-first
+- Minimal decoration
 
-NOT
+Avoid:
 
-- Bootstrap Admin Templates
-- Material Dashboard
-- Enterprise CRUD software
+- Marketing-style hero sections inside admin pages
+- Large decorative cards as primary content pattern
+- Long stacked forms with no grouping
 
-The goal is to feel calm, fast, modern and uncluttered.
+## Core UX Rules
 
-Every screen should communicate only what the user needs right now.
+### 1) One Primary Action
 
----
+Each screen should have one clear primary CTA in solid green. Examples:
 
-# Core Principles
+- Campaign workspace: Save Changes
+- Report publishing: Publish
+- Payout workflow: Generate Payout or Mark Complete (context dependent)
 
-## Less UI
+Secondary actions use outline buttons. Destructive actions use red text/border treatment.
 
-If something can be removed, remove it.
+### 2) Table-First Operations
 
-Whitespace is useful.
+Default to tables for lists, queues, and history. Use card grids only when visual scanning is materially better.
 
-Empty boxes are not.
+Primary table use cases:
 
----
+- Users list
+- NGO list
+- Donation and ledger feeds
+- Payout queue
+- Reports index
+- Tier listings
 
-## Progressive Disclosure
+### 3) Progressive Disclosure
 
-Do not show every piece of information.
+Show essentials first; push metadata and advanced controls lower. Do not lead with IDs or backend fields.
 
-Show:
+### 4) Workflow Split
 
-Essential
+Where needed, split workflows into dedicated routes:
 
-↓
+- Campaign list page: browse/filter/open only
+- Create campaign page: creation form only
+- Campaign detail page: workspace tabs (Overview, Support Tiers, Analytics, Settings)
 
-Expandable
+## Layout System
 
-↓
+### Width and Spacing
 
-Advanced
+- Max content width: 1400px
+- Standard page rhythm: compact vertical spacing (primarily 16px blocks)
+- Prefer horizontal toolbars with wrap on smaller screens
 
-Campaign ID should not appear above campaign title.
+### Containers
 
----
+- Use one main surface per section: rounded-xl, neutral border, white background
+- Avoid card-within-card chains
+- For grouped content inside a surface, use subtle dividers and rounded-lg inner blocks
 
-## Density
+### Header Pattern
 
-Optimize for desktop.
+Use this order:
 
-Use horizontal space.
+1. Breadcrumb-like context line (example: Admin / Users)
+2. Page title
+3. Optional top-right actions
 
-Avoid long vertical pages.
+## Typography
 
-Prefer
+- Page title: 30px semibold
+- Section title: 18px semibold
+- Body: 14px
+- Caption/meta: 12px
+- Keep font weights restrained (400/500/600)
 
-2-column
+## Color and Visual Tokens
 
-3-column
+- App background: neutral light gray
+- Primary surfaces: white
+- Borders: neutral 200
+- Main text: neutral 900
+- Secondary text: neutral 500
+- Accent: emerald for primary actions and links
+- Error state: red border + pale red fill
 
-or
+## Form Design
 
-split layouts
+- Keep forms in logical groups and compact rows
+- Use 2-column layouts on desktop for medium/large forms
+- Keep labels and placeholders clear and task-specific
+- Never render large unstructured walls of inputs
 
-instead of stacking cards.
+## Filters and Search
 
----
+- Place filters and search in one horizontal toolbar
+- Toolbar must wrap for smaller breakpoints
+- Keep filter controls width-constrained and consistent
 
-## One Primary Action
+## States
 
-Every page should answer:
+Every major section should visibly handle:
 
-"What is the user supposed to do?"
+- Loading
+- Empty
+- Error
+- Success/updated
 
-Only one button should visually dominate.
+Use inline states inside the relevant surface, not full-page blockers.
 
-Example
+## Campaign Workspace Standard
 
-Campaign Page
+The campaign detail experience is the model for complex admin workflows:
 
-Primary
+- Sticky mental model with tabs
+- KPI strip first
+- Editable content in scoped sections
+- Tier and donation data shown in tables
+- Save as the dominant action
+- Publish/Archive as secondary actions
 
-Save Changes
+## Dashboard Standard
 
-Secondary
+Dashboard should prioritize operator usefulness:
 
-Archive
+- Compact metrics row
+- Quick links to high-frequency workflows
+- Checklist/status area for operational coverage
 
-Delete
+Avoid oversized decorative stat cards.
 
----
+## Accessibility and Responsiveness
 
-# Layout
+- Maintain usable layouts through wide desktop ranges (including ~1500px)
+- Keep action bars and filter rows wrapping cleanly
+- Ensure touch targets and contrast remain accessible
 
-Maximum content width
+## Consistency Rule
 
-1400px
-
-Never stretch forms across the entire monitor.
-
----
-
-## Spacing Scale
-
-Use only
-
-4
-
-8
-
-12
-
-16
-
-24
-
-32
-
-48
-
-No random spacing values.
-
----
-
-## Grid
-
-Desktop
-
-12-column grid
-
-Large forms
-
-2 columns
-
-Statistics
-
-4-column cards
-
-Lists
-
-Full width
-
----
-
-# Typography
-
-Use
-
-Geist
-
-or
-
-Inter
-
-Sizes
-
-Page Title
-
-32
-
-Section Title
-
-20
-
-Card Title
-
-16
-
-Body
-
-14
-
-Caption
-
-12
-
-Never exceed 3 font weights.
-
-400
-
-500
-
-600
-
----
-
-# Cards
-
-Avoid cards inside cards.
-
-Most pages should have
-
-1 outer container
-
-with sections inside.
-
-Padding
-
-20–24px
-
-Radius
-
-12px
-
-Border
-
-1px neutral
-
-Shadow
-
-Very subtle
-
----
-
-# Tables
-
-Prefer tables over large forms.
-
-Example
-
-Support Tiers
-
-Instead of
-
-4 giant cards
-
-Use
-
----
-
-## Tier Daily Monthly Active
-
-Daily ₹1 ₹30 ✓ Lunch ₹10 ₹300 ✓ Community ₹35 ₹1000 ✓
-
----
-
-Edit opens a drawer.
-
----
-
-# Forms
-
-Split into logical sections.
-
-Campaign
-
----
-
-Basic Information
-
-Media
-
-Support Tiers
-
-Publishing
-
-Never show 30 inputs at once.
-
----
-
-# Navigation
-
-Sidebar
-
-240px
-
-Icons
-
-18px
-
-Collapsed mode supported.
-
-Top navigation should be minimal.
-
----
-
-# Colors
-
-Background
-
-White
-
-Cards
-
-White
-
-Borders
-
-Neutral 200
-
-Text
-
-Neutral 900
-
-Muted text
-
-Neutral 500
-
-Accent
-
-Green
-
-Only use red
-
-for destructive actions.
-
----
-
-# Icons
-
-Lucide Icons only.
-
-18–20px
-
-Never decorative.
-
-Every icon must communicate meaning.
-
----
-
-# Buttons
-
-Primary
-
-Solid
-
-Secondary
-
-Outline
-
-Danger
-
-Destructive
-
-No gradients.
-
-No shadows.
-
----
-
-# Statistics
-
-Use compact stat cards.
-
-Instead of
-
-Huge KPI blocks
-
-Use
-
----
-
-Raised
-
-## ₹1.2L
-
-Height
-
-80px
-
-Maximum
-
-4 cards per row.
-
----
-
-# Empty States
-
-Every empty state should explain:
-
-Why it is empty.
-
-What action to take.
-
-Provide one CTA.
-
----
-
-# Responsive
-
-Mobile first.
-
-Desktop should feel information dense.
-
-Do not simply stack every card vertically.
-
----
-
-# Animations
-
-Subtle only.
-
-100–200ms
-
-Opacity
-
-Translate
-
-No bouncing.
-
-No scaling.
-
----
-
-# Component Library
-
-Always use shadcn/ui.
-
-Preferred components
-
-Card
-
-Table
-
-Badge
-
-Dialog
-
-Drawer
-
-Popover
-
-Dropdown
-
-Sheet
-
-Tabs
-
-Command
-
-ScrollArea
-
-Tooltip
-
-Toast
-
-Avoid custom implementations.
-
----
-
-# AI Agent Instructions
-
-When generating UI:
-
-- Prefer fewer components.
-- Remove unnecessary text.
-- Reduce visual noise.
-- Maximize information density.
-- Minimize scrolling.
-- Avoid nested cards.
-- Avoid oversized typography.
-- Avoid large empty areas.
-- Think like Linear, not Salesforce.
-- Reuse existing components before creating new ones.
-
-Every screen should feel like a professional SaaS product rather than an admin template.
+Any new admin page should reuse these patterns before introducing new visual language. If a deviation is needed, document why in the PR and update this file.

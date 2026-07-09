@@ -2,9 +2,16 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { adminRequest, formatCurrency } from "@/lib/admin";
 
@@ -34,12 +41,15 @@ const emptyForm = {
   display_order: "0",
 };
 
+type DrawerMode = "create" | "edit" | null;
+
 export default function TiersManagement() {
   const [campaigns, setCampaigns] = useState<CampaignOption[]>([]);
   const [selectedCampaignId, setSelectedCampaignId] = useState("");
   const [tiers, setTiers] = useState<TierRecord[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [editingTierId, setEditingTierId] = useState<string | null>(null);
+  const [drawerMode, setDrawerMode] = useState<DrawerMode>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +64,9 @@ export default function TiersManagement() {
 
   async function loadTiers(campaignId: string) {
     if (!campaignId) return;
-    const data = await adminRequest<TierRecord[]>(`/admin/campaigns/${campaignId}/tiers`);
+    const data = await adminRequest<TierRecord[]>(
+      `/admin/campaigns/${campaignId}/tiers`,
+    );
     setTiers(data);
   }
 
@@ -65,7 +77,9 @@ export default function TiersManagement() {
       try {
         await loadCampaigns();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load campaigns");
+        setError(
+          err instanceof Error ? err.message : "Failed to load campaigns",
+        );
       } finally {
         setLoading(false);
       }
@@ -112,6 +126,7 @@ export default function TiersManagement() {
       }
       setForm(emptyForm);
       setEditingTierId(null);
+      setDrawerMode(null);
       await loadTiers(selectedCampaignId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save tier");
@@ -134,99 +149,217 @@ export default function TiersManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1400px] space-y-4">
       <div>
-        <h1 className="text-3xl font-semibold">Support Tiers</h1>
-        <p className="text-sm text-slate-500">
-          Configure 3-5 support tiers per campaign and keep impact descriptions current.
+        <p className="text-xs font-medium text-slate-500">
+          Admin / Support Tiers
         </p>
+        <h1 className="text-[30px] font-semibold">Support Tiers</h1>
       </div>
 
       {error ? (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6 text-sm text-red-700">{error}</CardContent>
-        </Card>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[0.95fr,1.2fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Tier Editor</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Select value={selectedCampaignId} onChange={(e) => setSelectedCampaignId(e.target.value)}>
-              {campaigns.map((campaign) => (
-                <option key={campaign.id} value={campaign.id}>
-                  {campaign.title}
-                </option>
-              ))}
-            </Select>
-            <form className="grid gap-3" onSubmit={handleSubmit}>
-              <Input value={form.title} placeholder="Tier title" onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              <Textarea value={form.description} placeholder="Description" onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              <Textarea value={form.impact_description} placeholder="Impact description" onChange={(e) => setForm({ ...form, impact_description: e.target.value })} />
-              <div className="grid gap-3 md:grid-cols-3">
-                <Input value={form.daily_amount} placeholder="Daily" onChange={(e) => setForm({ ...form, daily_amount: e.target.value })} />
-                <Input value={form.monthly_equivalent} placeholder="Monthly" onChange={(e) => setForm({ ...form, monthly_equivalent: e.target.value })} />
-                <Input value={form.display_order} placeholder="Order" onChange={(e) => setForm({ ...form, display_order: e.target.value })} />
-              </div>
-              <Button type="submit" disabled={saving || loading}>
-                {saving ? "Saving..." : editingTierId ? "Update Tier" : "Add Tier"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Campaign Tiers</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {loading ? (
-              <p className="text-sm text-slate-500">Loading tiers...</p>
-            ) : !tiers.length ? (
-              <p className="text-sm text-slate-500">No tiers configured yet.</p>
-            ) : (
-              tiers.map((tier) => (
-                <div key={tier.id} className="rounded-2xl border border-slate-200 p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-slate-900">{tier.title}</p>
-                      <p className="mt-1 text-sm text-slate-500">{tier.description}</p>
-                    </div>
-                    <div className="text-right text-sm text-slate-500">
-                      <p>{formatCurrency(tier.daily_amount)} / day</p>
-                      <p>{formatCurrency(tier.monthly_equivalent)} / month</p>
-                    </div>
-                  </div>
-                  <p className="mt-3 text-sm text-slate-600">{tier.impact_description}</p>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setEditingTierId(tier.id);
-                        setForm({
-                          title: tier.title,
-                          description: tier.description || "",
-                          impact_description: tier.impact_description || "",
-                          daily_amount: String(tier.daily_amount),
-                          monthly_equivalent: String(tier.monthly_equivalent),
-                          display_order: String(tier.display_order),
-                        });
-                      }}
-                    >
-                      Edit Tier
-                    </Button>
-                    <Button variant="destructive" onClick={() => removeTier(tier.id)}>
-                      Delete Tier
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+      <div className="rounded-xl border border-slate-200 bg-white p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            value={selectedCampaignId}
+            onChange={(e) => setSelectedCampaignId(e.target.value)}
+            className="w-full sm:w-[320px]"
+          >
+            {campaigns.map((campaign) => (
+              <option key={campaign.id} value={campaign.id}>
+                {campaign.title}
+              </option>
+            ))}
+          </Select>
+          <Button
+            onClick={() => {
+              setDrawerMode("create");
+              setEditingTierId(null);
+              setForm(emptyForm);
+            }}
+            className="bg-emerald-600 text-white hover:bg-emerald-500"
+          >
+            Add Tier
+          </Button>
+        </div>
       </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white">
+        <div className="border-b border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+          Campaign Tiers
+        </div>
+        <div className="p-2">
+          {loading ? (
+            <p className="px-2 py-3 text-sm text-slate-500">Loading tiers...</p>
+          ) : !tiers.length ? (
+            <p className="px-2 py-3 text-sm text-slate-500">
+              No tiers configured yet.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Tier</TableHead>
+                  <TableHead>Daily</TableHead>
+                  <TableHead>Monthly</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {tiers
+                  .slice()
+                  .sort((a, b) => a.display_order - b.display_order)
+                  .map((tier) => (
+                    <TableRow key={tier.id}>
+                      <TableCell className="font-medium text-slate-900">
+                        {tier.title}
+                        <div className="text-xs text-slate-500">
+                          {tier.description || "-"}
+                        </div>
+                      </TableCell>
+                      <TableCell>{formatCurrency(tier.daily_amount)}</TableCell>
+                      <TableCell>
+                        {formatCurrency(tier.monthly_equivalent)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingTierId(tier.id);
+                              setDrawerMode("edit");
+                              setForm({
+                                title: tier.title,
+                                description: tier.description || "",
+                                impact_description:
+                                  tier.impact_description || "",
+                                daily_amount: String(tier.daily_amount),
+                                monthly_equivalent: String(
+                                  tier.monthly_equivalent,
+                                ),
+                                display_order: String(tier.display_order),
+                              });
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-red-200 text-red-600 hover:bg-red-50"
+                            onClick={() => removeTier(tier.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </div>
+
+      {drawerMode ? (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-slate-900/20"
+            onClick={() => setDrawerMode(null)}
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[520px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-slate-400">Tier Drawer</p>
+                <h2 className="text-[22px] font-semibold text-slate-900">
+                  {drawerMode === "create" ? "Add Tier" : "Edit Tier"}
+                </h2>
+              </div>
+              <Button variant="outline" onClick={() => setDrawerMode(null)}>
+                Close
+              </Button>
+            </div>
+
+            <form className="grid gap-3" onSubmit={handleSubmit}>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Tier Title</p>
+                <Input
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Daily Amount</p>
+                <Input
+                  value={form.daily_amount}
+                  onChange={(e) =>
+                    setForm({ ...form, daily_amount: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Monthly Equivalent</p>
+                <Input
+                  value={form.monthly_equivalent}
+                  onChange={(e) =>
+                    setForm({ ...form, monthly_equivalent: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Display Order</p>
+                <Input
+                  value={form.display_order}
+                  onChange={(e) =>
+                    setForm({ ...form, display_order: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Description</p>
+                <Textarea
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Impact Description</p>
+                <Textarea
+                  value={form.impact_description}
+                  onChange={(e) =>
+                    setForm({ ...form, impact_description: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Button
+                  type="submit"
+                  disabled={saving || loading}
+                  className="bg-emerald-600 text-white hover:bg-emerald-500"
+                >
+                  {saving ? "Saving..." : "Save"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDrawerMode(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </form>
+          </aside>
+        </>
+      ) : null}
     </div>
   );
 }

@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import {
   adminRequest,
@@ -63,6 +70,13 @@ export default function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+    setSelectedUserId(null);
+    setProfile(null);
+  }
 
   async function loadUsers() {
     setLoading(true);
@@ -167,121 +181,136 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1400px] space-y-4">
       <div>
-        <h1 className="text-3xl font-semibold">User Operations</h1>
-        <p className="text-sm text-slate-500">
-          Search and view users, inspect wallets, pledges, donations, adjust
-          balances, and suspend accounts.
-        </p>
+        <p className="text-xs font-medium text-slate-500">Admin / Users</p>
+        <h1 className="text-[30px] font-semibold">User Operations</h1>
       </div>
 
       {error ? (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6 text-sm text-red-700">
-            {error}
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[0.95fr,1.3fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>User Search</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid gap-3 md:grid-cols-[160px,1fr,160px]">
-              <Select
-                value={searchType}
-                onChange={(e) =>
-                  setSearchType(e.target.value as "email" | "name")
-                }
-              >
-                <option value="email">Email</option>
-                <option value="name">Name</option>
-              </Select>
-              <Input
-                value={searchTerm}
-                placeholder="Search users"
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="">All statuses</option>
-                <option value="active">Active</option>
-                <option value="suspended">Suspended</option>
-              </Select>
-            </div>
-            <Button onClick={loadUsers} variant="outline">
-              Run Search
-            </Button>
-            <div className="space-y-3">
-              {loading ? (
-                <p className="text-sm text-slate-500">Loading users...</p>
-              ) : (
-                users.map((user) => (
-                  <button
-                    key={user.id}
-                    type="button"
-                    onClick={() => setSelectedUserId(user.id)}
-                    className={
-                      "w-full rounded-2xl border p-4 text-left transition " +
-                      (selectedUserId === user.id
-                        ? "border-slate-900 bg-slate-900 text-white"
-                        : "border-slate-200 bg-white hover:border-slate-300")
-                    }
-                  >
-                    <p className="font-medium">{user.name}</p>
-                    <p className="text-sm opacity-80">{user.email}</p>
-                    <p className="mt-2 text-xs opacity-70">{user.status}</p>
-                  </button>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="rounded-xl border border-slate-200 bg-white p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            value={searchType}
+            onChange={(e) => setSearchType(e.target.value as "email" | "name")}
+            className="w-full sm:w-[160px]"
+          >
+            <option value="email">Email</option>
+            <option value="name">Name</option>
+          </Select>
+          <Input
+            value={searchTerm}
+            placeholder="Search users"
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="min-w-[220px] flex-1"
+          />
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full sm:w-[180px]"
+          >
+            <option value="">All statuses</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+          </Select>
+          <Button
+            onClick={loadUsers}
+            className="bg-emerald-600 text-white hover:bg-emerald-500"
+          >
+            Run Search
+          </Button>
+        </div>
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>User Profile</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
+      <div className="rounded-xl border border-slate-200 bg-white">
+        <div className="border-b border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+          Users
+        </div>
+        <div className="p-2">
+          {loading ? (
+            <p className="px-2 py-3 text-sm text-slate-500">Loading users...</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow
+                    key={user.id}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedUserId(user.id);
+                      setDrawerOpen(true);
+                    }}
+                  >
+                    <TableCell className="font-medium text-slate-900">
+                      {user.name}
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.status}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </div>
+
+      {drawerOpen ? (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-slate-900/20"
+            onClick={closeDrawer}
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[620px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-slate-400">User Drawer</p>
+                <h2 className="text-[22px] font-semibold text-slate-900">
+                  {profile?.user.name || "User Details"}
+                </h2>
+              </div>
+              <Button variant="outline" onClick={closeDrawer}>
+                Close
+              </Button>
+            </div>
+
             {!profile ? (
-              <p className="text-sm text-slate-500">
-                Select a user to inspect their account.
-              </p>
+              <p className="text-sm text-slate-500">Loading user details...</p>
             ) : (
-              <>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-400">
-                      Wallet
-                    </p>
-                    <p className="mt-3 text-2xl font-semibold">
+              <div className="space-y-4">
+                <div className="grid gap-2 sm:grid-cols-3">
+                  <div className="rounded-lg border border-slate-200 px-3 py-3">
+                    <p className="text-xs text-slate-500">Wallet</p>
+                    <p className="mt-1 text-sm font-semibold">
                       {formatCurrency(profile.wallet?.cached_balance || 0)}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-400">
-                      Pledges
-                    </p>
-                    <p className="mt-3 text-2xl font-semibold">
+                  <div className="rounded-lg border border-slate-200 px-3 py-3">
+                    <p className="text-xs text-slate-500">Pledges</p>
+                    <p className="mt-1 text-sm font-semibold">
                       {profile.pledges.length}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-400">
-                      Donations
-                    </p>
-                    <p className="mt-3 text-2xl font-semibold">
+                  <div className="rounded-lg border border-slate-200 px-3 py-3">
+                    <p className="text-xs text-slate-500">Donations</p>
+                    <p className="mt-1 text-sm font-semibold">
                       {profile.donations.length}
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="rounded-lg border border-slate-200 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="font-medium text-slate-900">
@@ -310,8 +339,8 @@ export default function UserManagement() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
-                  <p className="font-medium text-slate-900">
+                <div className="rounded-lg border border-slate-200 p-4 space-y-2">
+                  <p className="text-sm font-medium text-slate-900">
                     Wallet Adjustment
                   </p>
                   <Input
@@ -324,68 +353,81 @@ export default function UserManagement() {
                     onChange={(e) => setWalletReason(e.target.value)}
                     placeholder="Reason"
                   />
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       onClick={() => updateWallet("credit")}
                       disabled={saving}
                     >
-                      Credit Wallet
+                      Credit
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => updateWallet("debit")}
                       disabled={saving}
                     >
-                      Debit Wallet
+                      Debit
                     </Button>
                   </div>
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-2">
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <p className="font-medium text-slate-900">Pledges</p>
-                    <div className="mt-3 space-y-3 text-sm text-slate-600">
+                <div className="rounded-lg border border-slate-200 p-3">
+                  <p className="mb-2 text-sm font-medium text-slate-900">
+                    Pledges
+                  </p>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Campaign</TableHead>
+                        <TableHead>Tier</TableHead>
+                        <TableHead>Daily</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {profile.pledges.map((pledge) => (
-                        <div
-                          key={pledge.id}
-                          className="rounded-xl bg-slate-50 p-3"
-                        >
-                          <p>{pledge.campaign_title}</p>
-                          <p>
-                            {pledge.tier_title} ·{" "}
-                            {formatCurrency(pledge.daily_amount)}/day
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            {pledge.status}
-                          </p>
-                        </div>
+                        <TableRow key={pledge.id}>
+                          <TableCell>{pledge.campaign_title}</TableCell>
+                          <TableCell>{pledge.tier_title}</TableCell>
+                          <TableCell>
+                            {formatCurrency(pledge.daily_amount)}
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <p className="font-medium text-slate-900">Donations</p>
-                    <div className="mt-3 space-y-3 text-sm text-slate-600">
-                      {profile.donations.map((donation) => (
-                        <div
-                          key={donation.id}
-                          className="rounded-xl bg-slate-50 p-3"
-                        >
-                          <p>{donation.campaign_title}</p>
-                          <p>{formatCurrency(donation.amount)}</p>
-                          <p className="text-xs text-slate-400">
-                            {formatDate(donation.donated_at)}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                    </TableBody>
+                  </Table>
                 </div>
-              </>
+
+                <div className="rounded-lg border border-slate-200 p-3">
+                  <p className="mb-2 text-sm font-medium text-slate-900">
+                    Donations
+                  </p>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Campaign</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {profile.donations.map((donation) => (
+                        <TableRow key={donation.id}>
+                          <TableCell>{donation.campaign_title}</TableCell>
+                          <TableCell>
+                            {formatCurrency(donation.amount)}
+                          </TableCell>
+                          <TableCell>
+                            {formatDate(donation.donated_at)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
+          </aside>
+        </>
+      ) : null}
     </div>
   );
 }

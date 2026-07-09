@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { adminRequest, formatCurrency } from "@/lib/admin";
-import { cn } from "@/lib/utils";
 
 interface CampaignRecord {
   id: string;
@@ -19,6 +25,8 @@ interface CampaignRecord {
   raised_amount: number;
   supporter_count: number;
   status: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
+  description?: string | null;
+  hero_image?: string | null;
 }
 
 interface NgoOption {
@@ -26,14 +34,31 @@ interface NgoOption {
   name: string;
 }
 
+type DrawerMode = "create" | "edit" | null;
+
+const emptyForm = {
+  ngo_id: "",
+  title: "",
+  slug: "",
+  short_description: "",
+  goal_amount: "",
+  status: "DRAFT" as CampaignRecord["status"],
+};
+
 export default function CampaignManagement() {
   const [ngos, setNgos] = useState<NgoOption[]>([]);
   const [campaigns, setCampaigns] = useState<CampaignRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [ngoFilter, setNgoFilter] = useState("");
+  const [drawerMode, setDrawerMode] = useState<DrawerMode>(null);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
+    null,
+  );
+  const [form, setForm] = useState(emptyForm);
 
   const ngoNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -76,129 +101,322 @@ export default function CampaignManagement() {
     });
   }, [campaigns, ngoFilter, search, statusFilter]);
 
+  const selectedCampaign = useMemo(
+    () =>
+      campaigns.find((campaign) => campaign.id === selectedCampaignId) || null,
+    [campaigns, selectedCampaignId],
+  );
+
+  function closeDrawer() {
+    setDrawerMode(null);
+    setSelectedCampaignId(null);
+  }
+
+  async function saveCampaign() {
+    setSaving(true);
+    setError(null);
+
+    try {
+      const payload = {
+        ngo_id: form.ngo_id,
+        title: form.title,
+        slug: form.slug,
+        short_description: form.short_description,
+        goal_amount: Number(form.goal_amount || 0),
+        status: form.status,
+      };
+
+      if (drawerMode === "edit" && selectedCampaignId) {
+        await adminRequest(`/admin/campaigns/${selectedCampaignId}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await adminRequest("/admin/campaigns", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+      }
+
+      closeDrawer();
+      setForm(emptyForm);
+      await loadCampaigns();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save campaign");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   useEffect(() => {
     loadCampaigns();
   }, []);
 
+  useEffect(() => {
+    if (!selectedCampaign) {
+      return;
+    }
+
+    setForm({
+      ngo_id: selectedCampaign.ngo_id,
+      title: selectedCampaign.title,
+      slug: selectedCampaign.slug,
+      short_description: selectedCampaign.short_description || "",
+      goal_amount: String(selectedCampaign.goal_amount || 0),
+      status: selectedCampaign.status,
+    });
+  }, [selectedCampaign]);
+
+  useEffect(() => {
+    if (!form.ngo_id && ngos[0]) {
+      setForm((current) => ({ ...current, ngo_id: ngos[0].id }));
+    }
+  }, [form.ngo_id, ngos]);
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mx-auto max-w-[1400px] space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-semibold">Campaigns</h1>
-          <p className="text-sm text-slate-500">
-            Browse campaigns and open a dedicated detail view to edit each one.
+          <p className="text-xs font-medium text-slate-500">
+            Admin / Campaigns
           </p>
+          <h1 className="text-[30px] font-semibold">Campaigns</h1>
         </div>
-        <Link
-          href="/admin/campaigns/new"
-          className={cn(
-            buttonVariants({ variant: "default" }),
-            "bg-emerald-600 text-white shadow-[0_16px_34px_-16px_rgba(5,150,105,0.95)] transition-transform duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 hover:shadow-[0_22px_44px_-18px_rgba(5,150,105,0.95)] focus-visible:ring-emerald-500/70",
-          )}
+        <Button
+          onClick={() => {
+            setDrawerMode("create");
+            setSelectedCampaignId(null);
+            setForm((current) => ({
+              ...emptyForm,
+              ngo_id: ngos[0]?.id || current.ngo_id,
+            }));
+          }}
+          className="bg-emerald-600 text-white hover:bg-emerald-500"
         >
           + Create Campaign
-        </Link>
+        </Button>
       </div>
 
       {error ? (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6 text-sm text-red-700">
-            {error}
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Campaign List</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <Input
-              value={search}
-              placeholder="Search by title or slug"
-              onChange={(e) => setSearch(e.target.value)}
-              className="min-w-[240px] flex-1"
-            />
-            <Select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-[220px]"
-            >
-              <option value="">All statuses</option>
-              <option value="DRAFT">Draft</option>
-              <option value="ACTIVE">Active</option>
-              <option value="PAUSED">Paused</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="ARCHIVED">Archived</option>
-            </Select>
-            <Select
-              value={ngoFilter}
-              onChange={(e) => setNgoFilter(e.target.value)}
-              className="w-full sm:w-[220px]"
-            >
-              <option value="">All NGOs</option>
-              {ngos.map((ngo) => (
-                <option key={ngo.id} value={ngo.id}>
-                  {ngo.name}
-                </option>
-              ))}
-            </Select>
-            <Button
-              variant="outline"
-              onClick={loadCampaigns}
-              className="w-full sm:w-auto"
-            >
-              Refresh
-            </Button>
-          </div>
+      <div className="rounded-xl border border-slate-200 bg-white p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            value={search}
+            placeholder="Search by title or slug"
+            onChange={(e) => setSearch(e.target.value)}
+            className="min-w-[240px] flex-1 bg-white"
+          />
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full sm:w-[220px]"
+          >
+            <option value="">All statuses</option>
+            <option value="DRAFT">Draft</option>
+            <option value="ACTIVE">Active</option>
+            <option value="PAUSED">Paused</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="ARCHIVED">Archived</option>
+          </Select>
+          <Select
+            value={ngoFilter}
+            onChange={(e) => setNgoFilter(e.target.value)}
+            className="w-full sm:w-[220px]"
+          >
+            <option value="">All NGOs</option>
+            {ngos.map((ngo) => (
+              <option key={ngo.id} value={ngo.id}>
+                {ngo.name}
+              </option>
+            ))}
+          </Select>
+          <Button
+            variant="outline"
+            onClick={loadCampaigns}
+            className="w-full sm:w-auto"
+          >
+            Refresh
+          </Button>
+        </div>
+      </div>
 
-          {loading ? (
-            <p className="text-sm text-slate-500">Loading campaigns...</p>
-          ) : filteredCampaigns.length === 0 ? (
-            <p className="text-sm text-slate-500">No campaigns found.</p>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-2">
+        {loading ? (
+          <p className="px-2 py-3 text-sm text-slate-500">
+            Loading campaigns...
+          </p>
+        ) : filteredCampaigns.length === 0 ? (
+          <p className="px-2 py-3 text-sm text-slate-500">
+            No campaigns found.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Campaign</TableHead>
+                <TableHead>NGO</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Raised</TableHead>
+                <TableHead>Supporters</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredCampaigns.map((campaign) => (
-                <Link
+                <TableRow
                   key={campaign.id}
-                  href={`/admin/campaigns/${campaign.id}`}
-                  className="block h-full rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-slate-300"
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSelectedCampaignId(campaign.id);
+                    setDrawerMode("edit");
+                  }}
                 >
-                  <div className="flex h-full flex-col gap-3">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium text-slate-900">
-                          {campaign.title}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          /{campaign.slug}
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          NGO:{" "}
-                          {ngoNameById.get(campaign.ngo_id) || "Unknown NGO"}
-                        </p>
-                      </div>
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
-                        {campaign.status}
-                      </span>
+                  <TableCell className="font-medium text-slate-900">
+                    {campaign.title}
+                    <div className="text-xs text-slate-500">
+                      /{campaign.slug}
                     </div>
-                    <div>
-                      <p className="text-sm text-slate-600">
-                        {formatCurrency(campaign.raised_amount)} raised of{" "}
-                        {formatCurrency(campaign.goal_amount || 0)}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {campaign.supporter_count} supporters
-                      </p>
-                    </div>
-                  </div>
-                </Link>
+                  </TableCell>
+                  <TableCell>
+                    {ngoNameById.get(campaign.ngo_id) || "Unknown NGO"}
+                  </TableCell>
+                  <TableCell>{campaign.status}</TableCell>
+                  <TableCell>
+                    {formatCurrency(campaign.raised_amount)} /{" "}
+                    {formatCurrency(campaign.goal_amount || 0)}
+                  </TableCell>
+                  <TableCell>{campaign.supporter_count}</TableCell>
+                </TableRow>
               ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
+
+      {drawerMode ? (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-slate-900/20"
+            onClick={closeDrawer}
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[540px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-slate-400">Campaign Drawer</p>
+                <h2 className="text-[22px] font-semibold text-slate-900">
+                  {drawerMode === "create"
+                    ? "Create Campaign"
+                    : selectedCampaign?.title || "Campaign"}
+                </h2>
+              </div>
+              <Button variant="outline" onClick={closeDrawer}>
+                Close
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+
+            <div className="grid gap-3">
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">NGO</p>
+                <Select
+                  value={form.ngo_id}
+                  onChange={(e) => setForm({ ...form, ngo_id: e.target.value })}
+                >
+                  {ngos.map((ngo) => (
+                    <option key={ngo.id} value={ngo.id}>
+                      {ngo.name}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Title</p>
+                <Input
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  placeholder="Campaign title"
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Slug</p>
+                <Input
+                  value={form.slug}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      slug: e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                    })
+                  }
+                  placeholder="campaign-slug"
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Short Description</p>
+                <Input
+                  value={form.short_description}
+                  onChange={(e) =>
+                    setForm({ ...form, short_description: e.target.value })
+                  }
+                  placeholder="One-line summary"
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Goal Amount</p>
+                <Input
+                  value={form.goal_amount}
+                  onChange={(e) =>
+                    setForm({ ...form, goal_amount: e.target.value })
+                  }
+                  placeholder="Goal"
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Status</p>
+                <Select
+                  value={form.status}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      status: e.target.value as CampaignRecord["status"],
+                    })
+                  }
+                >
+                  <option value="DRAFT">Draft</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="PAUSED">Paused</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="ARCHIVED">Archived</option>
+                </Select>
+              </div>
+
+              {drawerMode === "edit" && selectedCampaign ? (
+                <Link
+                  href={`/admin/campaigns/${selectedCampaign.id}`}
+                  className="text-sm text-emerald-700 hover:underline"
+                >
+                  Open full workspace
+                </Link>
+              ) : null}
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Button
+                  onClick={saveCampaign}
+                  disabled={saving}
+                  className="bg-emerald-600 text-white hover:bg-emerald-500"
+                >
+                  {saving ? "Saving..." : "Save"}
+                </Button>
+                <Button variant="outline" onClick={closeDrawer}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          </aside>
+        </>
+      ) : null}
     </div>
   );
 }

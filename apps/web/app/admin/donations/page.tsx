@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { adminRequest, formatCurrency, formatDate } from "@/lib/admin";
 
 interface DonationRecord {
@@ -20,8 +27,15 @@ export default function DonationsPage() {
   const [donations, setDonations] = useState<DonationRecord[]>([]);
   const [campaignId, setCampaignId] = useState("");
   const [ngoId, setNgoId] = useState("");
+  const [selectedDonationId, setSelectedDonationId] = useState<string | null>(
+    null,
+  );
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const selectedDonation =
+    donations.find((donation) => donation.id === selectedDonationId) || null;
 
   async function loadDonations() {
     setLoading(true);
@@ -31,7 +45,9 @@ export default function DonationsPage() {
       if (campaignId) params.set("campaign_id", campaignId);
       if (ngoId) params.set("ngo_id", ngoId);
       const query = params.toString() ? `?${params.toString()}` : "";
-      const data = await adminRequest<DonationRecord[]>(`/admin/donations${query}`);
+      const data = await adminRequest<DonationRecord[]>(
+        `/admin/donations${query}`,
+      );
       setDonations(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load donations");
@@ -45,7 +61,15 @@ export default function DonationsPage() {
   }, []);
 
   function exportCsv() {
-    const header = ["id", "ngo", "campaign", "user", "email", "amount", "donated_at"];
+    const header = [
+      "id",
+      "ngo",
+      "campaign",
+      "user",
+      "email",
+      "amount",
+      "donated_at",
+    ];
     const rows = donations.map((donation) => [
       donation.id,
       donation.ngo_name,
@@ -66,54 +90,159 @@ export default function DonationsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="mx-auto max-w-[1400px] space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-3">
         <div>
-          <h1 className="text-3xl font-semibold">Donations</h1>
-          <p className="text-sm text-slate-500">Search donations and export the filtered list as CSV.</p>
+          <p className="text-xs font-medium text-slate-500">
+            Admin / Donations
+          </p>
+          <h1 className="text-[30px] font-semibold">Donations</h1>
         </div>
-        <Button variant="outline" onClick={exportCsv}>Export CSV</Button>
+        <Button variant="outline" onClick={exportCsv}>
+          Export CSV
+        </Button>
       </div>
 
       {error ? (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6 text-sm text-red-700">{error}</CardContent>
-        </Card>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-[1fr,1fr,160px]">
-          <Input value={ngoId} placeholder="Filter by NGO id" onChange={(e) => setNgoId(e.target.value)} />
-          <Input value={campaignId} placeholder="Filter by campaign id" onChange={(e) => setCampaignId(e.target.value)} />
-          <Button onClick={loadDonations}>Apply Filters</Button>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3">
+        <Input
+          value={ngoId}
+          placeholder="Filter by NGO id"
+          onChange={(e) => setNgoId(e.target.value)}
+        />
+        <Input
+          value={campaignId}
+          placeholder="Filter by campaign id"
+          onChange={(e) => setCampaignId(e.target.value)}
+        />
+        <Button
+          onClick={loadDonations}
+          className="bg-emerald-600 text-white hover:bg-emerald-500"
+        >
+          Apply
+        </Button>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Donation Feed</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
+      <div className="rounded-xl border border-slate-200 bg-white">
+        <div className="border-b border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+          Donation Feed
+        </div>
+        <div className="p-2">
           {loading ? (
-            <p className="text-sm text-slate-500">Loading donations...</p>
-          ) : donations.map((donation) => (
-            <div key={donation.id} className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-slate-900">{donation.campaign_title}</p>
-                  <p className="text-sm text-slate-500">{donation.ngo_name}</p>
-                </div>
-                <p className="text-sm font-medium text-slate-900">{formatCurrency(donation.amount)}</p>
+            <p className="px-2 py-3 text-sm text-slate-500">
+              Loading donations...
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Campaign</TableHead>
+                  <TableHead>NGO</TableHead>
+                  <TableHead>Donor</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {donations.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-sm text-slate-500">
+                      No donations found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  donations.map((donation) => (
+                    <TableRow
+                      key={donation.id}
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setSelectedDonationId(donation.id);
+                        setDrawerOpen(true);
+                      }}
+                    >
+                      <TableCell className="font-medium text-slate-900">
+                        {donation.campaign_title}
+                      </TableCell>
+                      <TableCell>{donation.ngo_name}</TableCell>
+                      <TableCell>
+                        {donation.user_name} · {donation.user_email}
+                      </TableCell>
+                      <TableCell>{formatCurrency(donation.amount)}</TableCell>
+                      <TableCell>{formatDate(donation.donated_at)}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </div>
+
+      {drawerOpen ? (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-slate-900/20"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[520px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-slate-400">Donation Drawer</p>
+                <h2 className="text-[22px] font-semibold text-slate-900">
+                  Donation Details
+                </h2>
               </div>
-              <p className="mt-3 text-sm text-slate-600">{donation.user_name} · {donation.user_email}</p>
-              <p className="mt-1 text-xs text-slate-400">{formatDate(donation.donated_at)}</p>
+              <Button variant="outline" onClick={() => setDrawerOpen(false)}>
+                Close
+              </Button>
             </div>
-          ))}
-        </CardContent>
-      </Card>
+
+            {selectedDonation ? (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-slate-400">Campaign</p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {selectedDonation.campaign_title}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">NGO</p>
+                  <p className="text-sm text-slate-700">
+                    {selectedDonation.ngo_name}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">Donor</p>
+                  <p className="text-sm text-slate-700">
+                    {selectedDonation.user_name} · {selectedDonation.user_email}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">Amount</p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {formatCurrency(selectedDonation.amount)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">Date</p>
+                  <p className="text-sm text-slate-700">
+                    {formatDate(selectedDonation.donated_at)}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">
+                Select a donation from the table.
+              </p>
+            )}
+          </aside>
+        </>
+      ) : null}
     </div>
   );
 }
