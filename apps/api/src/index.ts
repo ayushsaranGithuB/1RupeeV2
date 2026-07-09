@@ -6,6 +6,7 @@ import campaignsRouter from './routes/campaigns';
 import statsRouter from './routes/stats';
 import walletsRouter from './routes/wallets';
 import pledgesRouter from './routes/pledges';
+import adminRouter from './routes/admin';
 import { AuthContext } from './types';
 import { successResponse, errorResponse } from './utils/response';
 
@@ -86,6 +87,37 @@ app.use('/pledges/*', async (c, next) => {
 
 app.route('/wallets', walletsRouter);
 app.route('/pledges', pledgesRouter);
+
+// Admin routes (require admin authentication)
+app.use('/admin/*', async (c, next) => {
+    // Admin auth middleware
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+        return c.json(
+            errorResponse('UNAUTHORIZED', 'Missing or invalid authorization header'),
+            401
+        );
+    }
+
+    // Mock admin user for testing
+    c.set('auth', {
+        user: {
+            id: 'test-admin-id',
+            email: 'admin@1rupee.io',
+            name: 'Admin User',
+            avatar_url: null,
+            role: 'ADMIN',
+            status: 'active',
+            created_at: new Date(),
+            updated_at: new Date(),
+        },
+        role: 'ADMIN',
+    });
+
+    await next();
+});
+
+app.route('/admin', adminRouter);
 
 // 404 handler
 app.notFound((c) => {

@@ -68,3 +68,49 @@ export type AuthContext = {
     user: ApiUser;
     role: 'USER' | 'ADMIN';
 };
+
+// Admin types
+export type ApiNgo = {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo_url: string | null;
+    website: string | null;
+    verified: boolean;
+    created_at: Date;
+    updated_at: Date;
+};
+
+export type ApiTier = {
+    id: string;
+    campaign_id: string;
+    title: string;
+    description: string | null;
+    monthly_amount: number;
+    benefits: string | null;
+    created_at: Date;
+    updated_at: Date;
+};
+
+export type ApiPayout = {
+    id: string;
+    ngo_id: string;
+    period_start: Date;
+    period_end: Date;
+    total_amount: number;
+    status: 'PENDING' | 'APPROVED' | 'PROCESSED' | 'FAILED';
+    razorpay_transfer_id: string | null;
+    notes: string | null;
+    created_at: Date;
+    updated_at: Date;
+};
+
+export type ApiPayoutLine = {
+    id: string;
+    payout_id: string;
+    pledge_id: string;
+    amount: number;
+    month: string;
+    created_at: Date;
+};
