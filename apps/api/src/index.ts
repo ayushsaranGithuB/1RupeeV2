@@ -10,18 +10,60 @@ import adminRouter from './routes/admin';
 import { AuthContext } from './types';
 import { successResponse, errorResponse } from './utils/response';
 
+console.log('🚀 API Server Starting with detailed logging...');
+
 const app = new Hono<{ Variables: { auth?: AuthContext } }>();
 
 // Middleware
+// CORS must be applied FIRST to handle preflight requests
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:3002'],
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(logger());
-app.use(cors());
+
+// Detailed request logging for debugging
+app.use(async (c, next) => {
+    const method = c.req.method;
+    const path = c.req.path;
+    const origin = c.req.header('Origin') || 'no-origin';
+    const auth = c.req.header('Authorization') ? 'present' : 'missing';
+
+    console.log(`[${new Date().toISOString()}] 📨 Incoming Request:`);
+    console.log(`  Method: ${method}`);
+    console.log(`  Path: ${path}`);
+    console.log(`  Origin: ${origin}`);
+    console.log(`  Authorization: ${auth}`);
+
+    const start = Date.now();
+    await next();
+    const duration = Date.now() - start;
+
+    console.log(`  Status: ${c.res.status}`);
+    console.log(`  Duration: ${duration}ms`);
+    console.log('---');
+});
+
 app.use(prettyJSON());
 
 // Health check endpoint
 app.get('/health', (c) => {
+    console.log('👉 /health endpoint called');
     return c.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
+    });
+});
+
+// Debug endpoint
+app.get('/debug', (c) => {
+    console.log('👉 /debug endpoint called');
+    return c.json({
+        timestamp: new Date().toISOString(),
+        message: 'Debug endpoint working'
     });
 });
 
@@ -31,6 +73,11 @@ app.route('/stats', statsRouter);
 
 // Protected routes (require authentication)
 app.use('/wallets/*', async (c, next) => {
+    // Allow OPTIONS requests to pass through (CORS will handle them)
+    if (c.req.method === 'OPTIONS') {
+        return await next();
+    }
+
     // Mock auth middleware - in production, use Better Auth
     const authHeader = c.req.header('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
@@ -59,6 +106,11 @@ app.use('/wallets/*', async (c, next) => {
 });
 
 app.use('/pledges/*', async (c, next) => {
+    // Allow OPTIONS requests to pass through (CORS will handle them)
+    if (c.req.method === 'OPTIONS') {
+        return await next();
+    }
+
     // Mock auth middleware
     const authHeader = c.req.header('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
@@ -90,7 +142,12 @@ app.route('/pledges', pledgesRouter);
 
 // Admin routes (require admin authentication)
 app.use('/admin/*', async (c, next) => {
-    // Admin auth middleware
+    // Allow OPTIONS requests to pass through (CORS will handle them)
+    if (c.req.method === 'OPTIONS') {
+        return await next();
+    }
+
+    // Admin auth middleware - only check auth for non-OPTIONS requests
     const authHeader = c.req.header('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
         return c.json(
@@ -134,3 +191,13 @@ app.onError((err, c) => {
 });
 
 export default app;
+
+// Start server
+if (process.env.NODE_ENV !== 'test') {
+    const port = process.env.API_PORT || 3001;
+    Bun.serve({
+        port,
+        fetch: app.fetch,
+    });
+    console.log(`✅ API Server running at http://localhost:${port}`);
+}

@@ -9,7 +9,10 @@ export class NgoService {
     }
 
     async listNgos(status?: string, search?: string, limit?: number, offset?: number) {
-        return ngoRepository.findMany(status, search, limit, offset);
+        console.log('🎯 [NgoService.listNgos] Called with:', { status, search, limit, offset });
+        const result = await ngoRepository.findMany(status, search, limit, offset);
+        console.log('✅ [NgoService.listNgos] Returning:', result);
+        return result;
     }
 
     async createNgo(data: {
@@ -87,12 +90,14 @@ export class TierService {
 
 export class UserSearchService {
     async searchUsers(email?: string, name?: string, status?: string, limit?: number, offset?: number) {
-        // In a real implementation, we'd query the database with filters
-        // For now, returning mock data structure
-        return {
-            users: [],
-            total: 0,
-        };
+        const searchResults = await userRepository.search(
+            email,
+            name,
+            status,
+            limit || 20,
+            offset || 0
+        );
+        return searchResults;
     }
 
     async getUserDetails(userId: string) {

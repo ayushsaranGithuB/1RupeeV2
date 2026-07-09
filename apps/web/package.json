@@ -10,20 +10,28 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "typescript": "^5.3.3",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
     "drizzle-orm": "^0.30.0",
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "tailwind-merge": "3.6.0",
+    "tailwindcss-animate": "1.0.7",
+    "typescript": "5.9.3",
     "zod": "^3.22.0"
   },
   "devDependencies": {
+    "@eslint/js": "latest",
+    "@tailwindcss/postcss": "4.3.2",
+    "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@types/node": "^20.0.0",
-    "@eslint/js": "latest",
-    "typescript-eslint": "latest",
+    "autoprefixer": "10.5.2",
     "eslint-plugin-react": "latest",
-    "eslint-plugin-react-hooks": "latest"
+    "eslint-plugin-react-hooks": "latest",
+    "postcss": "8.5.16",
+    "tailwindcss": "4.3.2",
+    "typescript-eslint": "latest"
   }
 }

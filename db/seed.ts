@@ -1,4 +1,4 @@
-import { getDb } from '../index';
+import { getDb, closeDb } from './index';
 import {
     users,
     wallets,
@@ -7,7 +7,7 @@ import {
     campaign_tiers,
     pledges,
     donations,
-} from '../schema';
+} from './schema';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -145,8 +145,12 @@ async function seed() {
         console.log(`- 10 NGOs`);
         console.log(`- 20 campaigns`);
         console.log(`- 80 campaign tiers (4 per campaign)`);
+
+        await closeDb();
+        process.exit(0);
     } catch (error) {
         console.error('❌ Seed failed:', error);
+        await closeDb();
         process.exit(1);
     }
 }

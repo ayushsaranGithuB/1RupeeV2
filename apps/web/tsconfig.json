@@ -1,22 +1,41 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "sourceMap": true,
     "jsx": "react-jsx",
     "noEmit": true,
     // "baseUrl": ".",
     "paths": {
-      "@app/*": ["./app/*"],
-      "@components/*": ["../../components/*"],
-      "@features/*": ["../../features/*"],
-      "@lib/*": ["../../lib/*"],
-      "@server/*": ["../../server/*"],
-      "@services/*": ["../../services/*"],
-      "@repositories/*": ["../../repositories/*"],
-      "@schemas/*": ["../../schemas/*"],
-      "@hooks/*": ["../../hooks/*"],
-      "@types/*": ["../../types/*"]
-    }
+      "@/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "@lib/*": ["./lib/*"],
+      "@hooks/*": ["./hooks/*"],
+      "@types/*": ["./types/*"]
+    },
+    "incremental": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

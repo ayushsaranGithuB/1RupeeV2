@@ -17,22 +17,36 @@ export class NgoRepository {
     }
 
     async findMany(status?: string, search?: string, limit = 20, offset = 0) {
-        const db = getDb();
-        const conditions = [];
+        try {
+            console.log('🔍 [NgoRepository.findMany] Starting query with:', { status, search, limit, offset });
 
-        if (status) {
-            conditions.push(eq(ngos.verification_status, status as any));
+            const db = getDb();
+            console.log('✅ [NgoRepository.findMany] Database connection obtained');
+
+            const conditions = [];
+
+            if (status) {
+                conditions.push(eq(ngos.verification_status, status as any));
+            }
+
+            if (search) {
+                conditions.push(ilike(ngos.name, `%${search}%`));
+            }
+
+            const q = db.select().from(ngos);
+            const query = conditions.length > 0 ? q.where(and(...conditions)) : (q as any);
+
+            console.log('🔄 [NgoRepository.findMany] Executing query...');
+            const results = await (query as any).limit(limit).offset(offset);
+
+            console.log(`✅ [NgoRepository.findMany] Query completed, found ${results.length} NGOs`);
+            console.log('📊 [NgoRepository.findMany] Results:', results);
+
+            return results as any[];
+        } catch (error) {
+            console.error('❌ [NgoRepository.findMany] Error:', error);
+            throw error;
         }
-
-        if (search) {
-            conditions.push(ilike(ngos.name, `%${search}%`));
-        }
-
-        const q = db.select().from(ngos);
-        const query = conditions.length > 0 ? q.where(and(...conditions)) : (q as any);
-
-        const results = await (query as any).limit(limit).offset(offset);
-        return results as any[];
     }
 
     async create(data: any) {

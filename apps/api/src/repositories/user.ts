@@ -1,6 +1,6 @@
 import { getDb } from '@db';
 import { users, wallets, wallet_transactions } from '@db/schema';
-import { eq, and, isNull, desc } from 'drizzle-orm';
+import { eq, and, isNull, desc, like, ilike } from 'drizzle-orm';
 import { ApiUser, ApiWallet } from '../types';
 
 export class UserRepository {
@@ -14,6 +14,50 @@ export class UserRepository {
         const db = getDb();
         const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
         return (result[0] as any) || null;
+    }
+
+    async search(
+        email?: string,
+        name?: string,
+        status?: string,
+        limit: number = 20,
+        offset: number = 0
+    ): Promise<{ users: ApiUser[]; total: number }> {
+        const db = getDb();
+        const conditions: any[] = [];
+
+        if (email) {
+            conditions.push(ilike(users.email, `%${email}%`));
+        }
+        if (name) {
+            conditions.push(ilike(users.name, `%${name}%`));
+        }
+        if (status) {
+            conditions.push(eq(users.status, status as any));
+        }
+
+        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+        // Get paginated results
+        const results = await db
+            .select()
+            .from(users)
+            .where(whereClause)
+            .limit(limit)
+            .offset(offset);
+
+        // Get total count - fetch all matching records to count
+        const allResults = await db
+            .select()
+            .from(users)
+            .where(whereClause);
+
+        const total = allResults.length;
+
+        return {
+            users: (results as any[]) || [],
+            total,
+        };
     }
 }
 

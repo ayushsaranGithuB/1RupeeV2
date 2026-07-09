@@ -11,7 +11,8 @@
     "type-check": "turbo run type-check",
     "db:push": "drizzle-kit push:pg",
     "db:generate": "drizzle-kit generate:pg",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "bun run db/seed.ts"
   },
   "workspaces": [
     "apps/*",

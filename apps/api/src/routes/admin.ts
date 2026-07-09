@@ -47,9 +47,13 @@ admin.post('/ngos', async (c) => {
 
 admin.get('/ngos', async (c) => {
     try {
+        console.log('📍 [admin.get /ngos] Route handler called');
         const query = c.req.query();
+        console.log('📝 [admin.get /ngos] Query params:', query);
         const filters = NgoFilterSchema.parse(query);
+        console.log('✅ [admin.get /ngos] Filters parsed:', filters);
         const ngos = await ngoService.listNgos(filters.status, filters.search, filters.limit, filters.offset);
+        console.log('📤 [admin.get /ngos] Returning NGOs count:', ngos.length);
         return c.json(successResponse(ngos));
     } catch (error: any) {
         if (error instanceof z.ZodError) {
