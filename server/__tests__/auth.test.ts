@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'vitest';
 import app from '../index';
 
 // These tests cover the auth/authorization wiring added with Better Auth:

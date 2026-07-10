@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'vitest';
 import { campaignService } from '../services/campaign';
 
 describe('CampaignService', () => {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'vitest';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response';
 
 describe('Response utilities', () => {
