@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { authClient, useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/avatar";
 
 export default function ProfilePage() {
   const { data: session, refetch } = useSession();
   const user = session?.user;
 
   const [name, setName] = useState(user?.name || "");
-  const [avatarUrl, setAvatarUrl] = useState(user?.image || "");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -17,10 +17,7 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
-    const { error } = await authClient.updateUser({
-      name,
-      image: avatarUrl || null,
-    });
+    const { error } = await authClient.updateUser({ name });
     setSaving(false);
     if (error) {
       setMessage({ type: "error", text: error.message || "Could not update your profile." });
@@ -42,6 +39,13 @@ export default function ProfilePage() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="mb-4 flex items-center gap-4">
+          <Avatar name={user.name || user.email} />
+          <div>
+            <p className="text-sm font-medium text-slate-600">Display name</p>
+            <p className="text-lg font-semibold text-slate-900">{user.name || user.email}</p>
+          </div>
+        </div>
         <dl className="grid gap-3 text-sm">
           <div className="flex justify-between">
             <dt className="text-slate-500">Email</dt>
@@ -67,17 +71,6 @@ export default function ProfilePage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
-          />
-        </label>
-
-        <label className="block text-sm font-medium text-slate-700">
-          Avatar URL
-          <input
-            type="url"
-            value={avatarUrl}
-            onChange={(e) => setAvatarUrl(e.target.value)}
-            placeholder="https://…"
             className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
           />
         </label>
