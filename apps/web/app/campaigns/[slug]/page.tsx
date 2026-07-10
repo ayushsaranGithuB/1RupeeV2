@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatInrPaisa, getCampaignBySlug } from "../../../lib/public";
-import { Star, Check, Droplets } from "lucide-react";
+import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/markdown-text";
+import { TierCard } from "@/components/tier-card";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -181,129 +182,19 @@ export default async function CampaignDetailPage({ params }: PageProps) {
             </div>
             <section className="mx-auto max-w-7xl px-6 py-20">
               <div className="grid gap-8 lg:grid-cols-3 items-center">
-                {tiers.map((tier) => {
-                  const dailyRupees = Math.round(tier.daily_amount / 100);
-                  return (
-                    <div
-                      key={tier.id}
-                      className={`
-              relative rounded-3xl border transition-all duration-300
-
-              ${
-                tier.featured
-                  ? "bg-emerald-800 text-white border-emerald-900 shadow-2xl lg:scale-105 py-10"
-                  : "bg-white border-neutral-200 py-8"
-              }
-
-              px-8
-            `}
-                    >
-                      {/* Icon */}
-
-                      <div
-                        className={`
-                mb-6 flex h-16 w-16 items-center justify-center rounded-full
-
-                ${
-                  tier.featured
-                    ? "bg-white text-neutral-950"
-                    : "bg-neutral-100 text-neutral-800"
-                }
-              `}
-                      >
-                        <Droplets size={28} />
-                      </div>
-
-                      {/* Badge */}
-
-                      <span
-                        className={`
-                inline-block rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-wide
-
-                ${
-                  tier.featured
-                    ? "bg-white text-neutral-900"
-                    : "bg-neutral-900 text-white"
-                }
-              `}
-                      >
-                        {tier.title}
-                      </span>
-
-                      {/* Price */}
-
-                      <div className="mt-6 flex items-start">
-                        <span className="mr-1 mt-2 text-xl">₹</span>
-                        <span className="text-6xl font-bold leading-none">
-                          {dailyRupees.toLocaleString()}
-                        </span>
-                        <span className="ml-1 mt-6 text-sm text-neutral-400 tracking-wide">
-                          /day
-                        </span>
-                      </div>
-
-                      {/* Description */}
-
-                      <MarkdownText
-                        className={`mt-6 text-base leading-6 ${
-                          tier.featured
-                            ? "text-neutral-300"
-                            : "text-neutral-600"
-                        }`}
-                      >
-                        {tier.description || ""}
-                      </MarkdownText>
-
-                      {/* Features */}
-
-                      <ul className="mt-8 space-y-5">
-                        {(tier.features ?? []).map((feature) => (
-                          <li key={feature} className="flex items-start gap-3">
-                            <div
-                              className={`
-                      mt-0.5 flex h-5 w-5 items-center justify-center rounded-full
-
-                      ${
-                        tier.featured
-                          ? "bg-white text-neutral-900"
-                          : "bg-neutral-900 text-white"
-                      }
-                    `}
-                            >
-                              <Check size={12} strokeWidth={3} />
-                            </div>
-
-                            <span
-                              className={
-                                tier.featured
-                                  ? "text-neutral-100"
-                                  : "text-neutral-700"
-                              }
-                            >
-                              {feature}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      {/* CTA */}
-
-                      <Button
-                        className={`
-                mt-10 w-full rounded-full py-3 font-medium transition
-
-                ${
-                  tier.featured
-                    ? "bg-white text-neutral-950 hover:bg-neutral-200"
-                    : "border border-neutral-300 hover:bg-neutral-100"
-                }
-              `}
-                      >
-                        Start with ₹{dailyRupees.toLocaleString()} a day
-                      </Button>
-                    </div>
-                  );
-                })}
+                {tiers.map((tier) => (
+                  <TierCard
+                    key={tier.id}
+                    id={tier.id}
+                    title={tier.title}
+                    daily_amount={tier.daily_amount}
+                    description={tier.description}
+                    features={tier.features}
+                    featured={tier.featured}
+                    campaign_id={campaign.id}
+                    campaign_slug={campaign.slug}
+                  />
+                ))}
               </div>
             </section>
           </>

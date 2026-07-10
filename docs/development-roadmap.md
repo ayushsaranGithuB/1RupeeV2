@@ -116,7 +116,36 @@ Notes:
 
 ---
 
-## Phase 8 — CI/CD and UI Test Coverage
+## Phase 8 — Pledge Checkout Flow
+
+- [ ] Campaign detail page with tier selection
+- [ ] Plan selection page (3 months / 6 months / 1 year)
+- [ ] Pricing calculation (daily amount × plan length)
+- [ ] Cart/Review page showing tier + plan + total price
+- [ ] Mock payment gateway page (simulate Razorpay)
+- [ ] Payment success page with transaction details
+- [ ] Payment failure handling with error message and retry
+- [ ] POST /pledges endpoint (create new pledge)
+- [ ] Wallet balance validation (check if user has sufficient balance)
+- [ ] Transaction completion (deduct from wallet, create pledge, log donation if first month paid)
+- [ ] Tests: tier selection, plan calculation, payment flows (success/failure)
+
+Deliverable: Users can pledge to campaigns and be charged daily.
+
+Notes:
+
+- **Tier selection**: Campaign detail page shows all tiers with daily amount, features, and impact descriptions. Select a tier → go to plan selection.
+- **Plan selection**: Show 3 preset options (3/6/12 months) with calculated total (daily_amount × days). E.g., ₹1/day × 90 days = ₹90. Allow custom plan length (1-12 months). Summarize: "You'll be charged ₹X today for a 6-month pledge to [Campaign] at [Tier]."
+- **Payment mock**: Simulate Razorpay with a simple form (amount, card number placeholder). Accept any input for testing; no real charge. Success or error redirects.
+- **Wallet logic**: Before creating pledge, check `GET /wallets` balance ≥ (daily_amount × days). If insufficient, show error and prompt to top up. On success, deduct from wallet via POST /wallets/topup with negative amount (or new POST /wallets/debit endpoint).
+- **Pledge creation**: POST /pledges with { campaign_tier_id, plan_length_months }. API creates pledge row, calculates first month donation amount, deducts from wallet, logs donation to donations table, returns pledge + transaction details.
+- **Success page**: Shows pledge details (campaign, tier, amount, plan length) and transaction details. Links to dashboard/wallet and "see more campaigns".
+- **Error handling**: Form validation, wallet insufficient balance, payment failure — all show clear messages with retry option.
+- **Future Razorpay swap**: The mock payment page (`apps/web/app/checkout/payment/page.tsx`) can be replaced with real Razorpay Checkout.js; the flow upstream (tier selection → plan → summary) stays the same.
+
+---
+
+## Phase 9 — CI/CD and UI Test Coverage
 
 - [ ] CI pipeline for lint, typecheck, unit tests, and build
 - [ ] Branch protections and required status checks
@@ -129,7 +158,7 @@ Deliverable: Reliable release pipeline with test-verified UI quality.
 
 ---
 
-## Phase 9 — Polish
+## Phase 10 — Polish
 
 - [ ] Responsive QA
 - [ ] Accessibility

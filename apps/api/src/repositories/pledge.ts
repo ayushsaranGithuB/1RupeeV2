@@ -49,7 +49,7 @@ export class PledgeRepository {
         return (result as any) || [];
     }
 
-    async create(userId: string, tierId: string): Promise<ApiPledge> {
+    async create(userId: string, tierId: string, planLengthMonths: number = 1): Promise<ApiPledge> {
         const db = getDb();
 
         const pledge = await db.insert(pledges).values({
@@ -58,6 +58,8 @@ export class PledgeRepository {
             campaign_tier_id: tierId,
             status: 'ACTIVE',
             started_at: new Date(),
+            plan_length_months: planLengthMonths,
+            updated_at: new Date(),
         }).returning();
 
         return (pledge[0] as any);

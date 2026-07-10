@@ -209,6 +209,8 @@ export const pledges = pgTable('pledges', {
     started_at: timestamp('started_at').notNull().defaultNow(),
     paused_at: timestamp('paused_at'),
     cancelled_at: timestamp('cancelled_at'),
+    plan_length_months: integer('plan_length_months').notNull().default(1),
+    updated_at: timestamp('updated_at').notNull().defaultNow(),
 });
 
 export const donations = pgTable('donations', {

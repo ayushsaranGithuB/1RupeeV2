@@ -24,7 +24,7 @@ pledges.get('/', async (c) => {
     }
 });
 
-// POST /pledges - Create a pledge
+// POST /pledges - Create a pledge with checkout (deduct from wallet, log donation)
 pledges.post('/', async (c) => {
     try {
         const auth = c.get('auth');
@@ -33,19 +33,41 @@ pledges.post('/', async (c) => {
 
         if (!parsed.success) {
             return c.json(
-                errorResponse(ErrorCodes.VALIDATION_ERROR, 'Invalid request body'),
+                errorResponse(ErrorCodes.VALIDATION_ERROR, parsed.error.issues[0]?.message || 'Invalid request body'),
                 400
             );
         }
 
-        const pledge = await pledgeService.createPledge(auth.user.id, parsed.data);
+        const result = await pledgeService.createPledge(auth.user.id, parsed.data);
 
-        return c.json(successResponse(pledge), 201);
+        return c.json(successResponse(result), 201);
     } catch (error: any) {
         if (error.message === 'PLEDGE_ALREADY_EXISTS') {
             return c.json(
-                errorResponse(ErrorCodes.INVALID_STATUS, 'You already pledged to this tier'),
+                errorResponse(ErrorCodes.INVALID_STATUS, 'You already have an active pledge to this tier'),
                 409
+            );
+        }
+
+        if (error.message === 'TIER_NOT_FOUND') {
+            return c.json(
+                errorResponse(ErrorCodes.NOT_FOUND, 'Campaign tier not found'),
+                404
+            );
+        }
+
+        if (error.message === 'WALLET_NOT_FOUND') {
+            return c.json(
+                errorResponse(ErrorCodes.NOT_FOUND, 'User wallet not found'),
+                404
+            );
+        }
+
+        if (error.message?.startsWith('INSUFFICIENT_BALANCE:')) {
+            const needed = error.message.split(':')[1];
+            return c.json(
+                errorResponse(ErrorCodes.INVALID_STATUS, `Insufficient wallet balance. You need ₹${(parseInt(needed) / 100).toFixed(2)} more.`),
+                402
             );
         }
 
