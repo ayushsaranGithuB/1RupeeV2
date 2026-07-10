@@ -563,7 +563,6 @@ async function seed() {
                     id,
                     email: `user${i + 1}@1rupee.test`,
                     name: `Test User ${i + 1}`,
-                    avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`,
                     role: 'USER',
                     status: 'active',
                 });
@@ -665,7 +664,7 @@ async function seed() {
                         const [insertedTier] = await db.insert(campaign_tiers).values({
                             campaign_id: campaignId,
                             title: tier.title,
-                            impact_description: tier.impact_description,
+                            description: tier.impact_description,
                             features: tier.features,
                             featured: tier.featured,
                             daily_amount: tier.daily_amount,
