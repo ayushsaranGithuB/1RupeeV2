@@ -7,7 +7,8 @@ async function proxyRequest(
     const path = pathArray.join('/');
     const url = new URL(request.url);
     const queryString = url.search;
-    const apiUrl = `http://127.0.0.1:3001/${path}${queryString}`;
+    const apiBase = (process.env.API_URL ?? 'http://127.0.0.1:3001').replace(/\/$/, '');
+    const apiUrl = `${apiBase}/${path}${queryString}`;
 
     try {
         const headers = new Headers();

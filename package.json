@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "build:web": "turbo run build --filter=1rupee-web",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
