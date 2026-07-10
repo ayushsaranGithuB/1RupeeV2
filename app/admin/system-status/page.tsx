@@ -40,7 +40,7 @@ type CheckState = {
 };
 
 async function fetchHealth(): Promise<HealthResponse> {
-  const res = await fetch("/api/proxy/health");
+  const res = await fetch("/api/health");
   return (await res.json()) as HealthResponse;
 }
 

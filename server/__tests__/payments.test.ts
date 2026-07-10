@@ -1,4 +1,4 @@
-import { beforeAll, afterAll, describe, expect, it } from 'bun:test';
+import { beforeAll, afterAll, describe, expect, it } from 'vitest';
 import { createHmac } from 'crypto';
 import app from '../index';
 

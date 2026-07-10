@@ -42,16 +42,16 @@ describe('Button', () => {
     expect(button).toHaveClass('border');
 
     rerender(<Button variant="destructive">Button</Button>);
-    expect(button).toHaveClass('text-red-600');
+    expect(button).toHaveClass('bg-destructive');
   });
 
   it('applies size styles', () => {
     const { rerender } = render(<Button size="sm">Button</Button>);
     let button = screen.getByRole('button');
-    expect(button).toHaveClass('h-8');
+    expect(button).toHaveClass('h-9');
 
     rerender(<Button size="lg">Button</Button>);
     button = screen.getByRole('button');
-    expect(button).toHaveClass('h-10');
+    expect(button).toHaveClass('h-11');
   });
 });

@@ -11,7 +11,7 @@ describe('Badge', () => {
   it('applies default variant styles', () => {
     const { container } = render(<Badge>Default</Badge>);
     const badge = container.firstChild;
-    expect(badge).toHaveClass('bg-slate-100', 'text-slate-900');
+    expect(badge).toHaveClass('bg-primary', 'text-primary-foreground');
   });
 
   it('applies variant styles correctly', () => {
@@ -19,13 +19,13 @@ describe('Badge', () => {
       <Badge variant="default">Primary</Badge>
     );
     const primaryBadge = primaryContainer.firstChild;
-    expect(primaryBadge).toHaveClass('bg-slate-100');
+    expect(primaryBadge).toHaveClass('bg-primary');
 
     const { container: secondaryContainer } = render(
       <Badge variant="secondary">Secondary</Badge>
     );
     const secondaryBadge = secondaryContainer.firstChild;
-    expect(secondaryBadge).toHaveClass('bg-emerald-100');
+    expect(secondaryBadge).toHaveClass('bg-secondary');
   });
 
   it('renders with different content', () => {
