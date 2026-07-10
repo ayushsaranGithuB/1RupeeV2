@@ -20,7 +20,6 @@
    - Verify TypeScript types
    - Execute unit tests
    - Build the project
-   - Deploy a preview to Cloudflare Workers (on pull requests)
 
 4. **Merge once all checks pass** and get approval
 
@@ -35,7 +34,7 @@ All branches have automatic checks:
 - **Test** - Unit tests via Bun
 - **Build** - Turbo build verification
 
-Preview deployments happen automatically for `develop` branch and pull requests.
+Deployment is manual via `flyctl` — see [FLY_DEPLOY.md](FLY_DEPLOY.md).
 
 ## Branch Protection Rules
 
@@ -52,17 +51,16 @@ The following branches have protection enabled:
 ### `develop` (Staging)
 - ✅ Requires all status checks to pass
 - ✅ Requires pull request review (1 approver)
-- ✅ Deploys a Cloudflare Workers preview on pull requests
 
-## Secrets Required
+## Deployment Secrets
 
-These must be set in GitHub Secrets for deployments:
+Deploys run locally via `flyctl` (`fly auth login`). Runtime secrets live on the
+Fly apps, not in GitHub — set them with `fly secrets set` (see
+[FLY_DEPLOY.md](FLY_DEPLOY.md)):
 
 ```
-CLOUDFLARE_API_TOKEN   # Token with Workers Scripts:Edit permission
-CLOUDFLARE_ACCOUNT_ID  # Cloudflare account ID
-NEXT_PUBLIC_API_URL    # (optional) build-time public API URL
-NEXT_PUBLIC_APP_URL    # (optional) build-time public app origin
+DATABASE_URL         # Postgres connection string (api)
+BETTER_AUTH_SECRET   # Auth signing secret (api)
 ```
 
 ## Testing
@@ -101,23 +99,26 @@ Ensures type safety across the codebase.
 
 ## Deployment
 
-The web app runs on **Cloudflare Workers** via the OpenNext adapter:
+The app runs on **Fly.io** as two containers — `1rupee-web` (Next.js, public)
+and `1rupee-api` (Bun/Hono, private, reached over `.internal`). Deploys are
+manual via `flyctl`:
 
-- **Production**: `1rupee-web.<subdomain>.workers.dev` (from `main` branch)
-- Auto-deployed by [`.github/workflows/deploy-workers.yml`](.github/workflows/deploy-workers.yml) on push to `main`.
+```bash
+fly deploy -c fly.api.toml   # API first
+fly deploy -c fly.web.toml   # then web
+```
 
-See [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md) for setup and configuration.
+See [FLY_DEPLOY.md](FLY_DEPLOY.md) for full setup and configuration.
 
 ### Deployment Checklist
-- [ ] Runtime vars/secrets configured on the Worker (e.g. `API_URL`)
-- [ ] Build-time public vars set (`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_APP_URL`)
-- [ ] GitHub secrets configured (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`)
-- [ ] CI pipeline passing
+- [ ] API secrets set on Fly (`DATABASE_URL`, `BETTER_AUTH_SECRET`, ...)
+- [ ] Build-time public vars set (`NEXT_PUBLIC_*` via `[build.args]`)
+- [ ] `bun run build` passes locally
 - [ ] No sensitive data in `.env` files (only `.env.example`)
 
 ## Making a Release
 
-Releases are cut from the `main` branch and follow semantic versioning. Update version in `package.json` and create a git tag. Cloudflare Workers will automatically deploy to production.
+Releases are cut from the `main` branch and follow semantic versioning. Update version in `package.json` and create a git tag, then `fly deploy` the affected apps.
 
 ## Need Help?
 

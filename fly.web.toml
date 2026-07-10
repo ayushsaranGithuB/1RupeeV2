@@ -1,0 +1,30 @@
+# Fly config for the 1Rupee Next.js web app (public).
+#
+# Deploy from the repo root: `fly deploy -c fly.web.toml`.
+app = "1rupee-web"
+primary_region = "bom"
+
+[build]
+  dockerfile = "apps/web/Dockerfile"
+  # Uncomment to inline public vars at build time:
+  # [build.args]
+  #   NEXT_PUBLIC_API_URL = "https://api.example.com"
+  #   NEXT_PUBLIC_APP_URL = "https://1rupee-web.fly.dev"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  HOSTNAME = "0.0.0.0"
+  # Server-side proxy target — Fly private networking to the API app.
+  API_URL = "http://1rupee-api.internal:3001"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

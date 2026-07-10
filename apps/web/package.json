@@ -11,11 +11,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "build:worker": "opennextjs-cloudflare build",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "better-auth": "1.6.23",
@@ -35,7 +31,6 @@
   },
   "devDependencies": {
     "@eslint/js": "latest",
-    "@opennextjs/cloudflare": "1.20.1",
     "@tailwindcss/postcss": "4.3.2",
     "@testing-library/react": "^15.0.0",
     "@testing-library/user-event": "^14.5.0",
@@ -52,7 +47,6 @@
     "tailwindcss": "4.3.2",
     "typescript-eslint": "latest",
     "vite": "^5.0.0",
-    "vitest": "^1.0.0",
-    "wrangler": "4.110.0"
+    "vitest": "^1.0.0"
   }
 }

@@ -65,9 +65,7 @@ Each NGO customizes the impact statement while the platform only stores:
 
 ## Technical Philosophy
 
-Serverless-first.
-
-Deploy to Cloudflare Workers + Neon PostgreSQL.
+Deploy to Fly.io (containers) + Neon PostgreSQL.
 
 Keep infrastructure inexpensive and horizontally scalable.
 

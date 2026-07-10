@@ -49,9 +49,3 @@ Thumbs.db
 apps/web/.next/
 apps/web/next-env.d.ts
 apps/web/tsconfig.tsbuildinfo
-
-# Cloudflare / OpenNext build output
-.open-next/
-.wrangler/
-apps/web/cloudflare-env.d.ts
-.dev.vars
