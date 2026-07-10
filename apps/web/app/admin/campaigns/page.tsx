@@ -178,7 +178,6 @@ export default function CampaignManagement() {
         <Button
           onClick={() => {
             setDrawerMode("create");
-            setSelectedCampaignId(null);
             setForm((current) => ({
               ...emptyForm,
               ngo_id: ngos[0]?.id || current.ngo_id,

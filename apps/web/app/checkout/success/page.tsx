@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,16 @@ type Pledge = {
 };
 
 export default function SuccessPage() {
+  return (
+    <Suspense
+      fallback={<main className="mx-auto max-w-2xl px-6 py-10">Loading...</main>}
+    >
+      <SuccessContent />
+    </Suspense>
+  );
+}
+
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();

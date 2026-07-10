@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,16 @@ type Campaign = {
 };
 
 export default function TierSelectPage() {
+  return (
+    <Suspense
+      fallback={<main className="mx-auto max-w-2xl px-6 py-10">Loading...</main>}
+    >
+      <TierSelectContent />
+    </Suspense>
+  );
+}
+
+function TierSelectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();

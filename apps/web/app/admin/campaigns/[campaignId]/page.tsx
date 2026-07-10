@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -99,6 +99,14 @@ const emptyTierForm = {
 type TierDrawerMode = "create" | "edit" | null;
 
 export default function CampaignDetailsPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-slate-500">Loading...</div>}>
+      <CampaignDetailsContent />
+    </Suspense>
+  );
+}
+
+function CampaignDetailsContent() {
   const params = useParams<{ campaignId: string }>();
   const searchParams = useSearchParams();
   const campaignId = params.campaignId;
