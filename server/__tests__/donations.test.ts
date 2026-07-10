@@ -3,7 +3,7 @@ import app from '../index';
 
 describe('GET /donations', () => {
     it('should reject requests without auth header', async () => {
-        const req = new Request('http://localhost:3000/donations');
+        const req = new Request('http://localhost:3000/api/donations');
         const res = await app.fetch(req);
 
         expect(res.status).toBe(401);
@@ -13,7 +13,7 @@ describe('GET /donations', () => {
     });
 
     it('should reject a bare bearer token (no real session)', async () => {
-        const req = new Request('http://localhost:3000/donations', {
+        const req = new Request('http://localhost:3000/api/donations', {
             headers: { Authorization: 'Bearer test-token' },
         });
         const res = await app.fetch(req);
@@ -22,7 +22,7 @@ describe('GET /donations', () => {
     });
 
     it('should return the authenticated user\'s donation history', async () => {
-        const req = new Request('http://localhost:3000/donations', {
+        const req = new Request('http://localhost:3000/api/donations', {
             headers: { 'x-test-auth': 'user' },
         });
         const res = await app.fetch(req);

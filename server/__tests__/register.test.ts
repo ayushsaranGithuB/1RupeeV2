@@ -3,7 +3,7 @@ import app from '../index';
 
 describe('POST /register', () => {
     it('should reject a missing phone number', async () => {
-        const req = new Request('http://localhost:3000/register', {
+        const req = new Request('http://localhost:3000/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: 'Test', email: 'new-user@example.com' }),
@@ -16,7 +16,7 @@ describe('POST /register', () => {
     });
 
     it('should reject a phone number without the +91 country code', async () => {
-        const req = new Request('http://localhost:3000/register', {
+        const req = new Request('http://localhost:3000/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: 'Test', email: 'new-user@example.com', phone: '9876543210' }),
@@ -28,7 +28,7 @@ describe('POST /register', () => {
 
     it('should reject an email that already has an account', async () => {
         // Seeded by db/seed.ts; present in every dev/test database.
-        const req = new Request('http://localhost:3000/register', {
+        const req = new Request('http://localhost:3000/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

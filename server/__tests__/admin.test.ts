@@ -12,7 +12,7 @@ describe('Admin API Endpoints', () => {
     // Helper function to make requests
     async function makeRequest(method: string, path: string, body?: any) {
         const response = await app.request(
-            new Request(`http://localhost:3000${path}`, {
+            new Request(`http://localhost:3000/api${path}`, {
                 method,
                 headers: adminHeaders,
                 body: body ? JSON.stringify(body) : undefined,
@@ -253,7 +253,7 @@ describe('Admin API Endpoints', () => {
     describe('Auth & Error Handling', () => {
         it('should reject requests without auth header', async () => {
             const response = await app.request(
-                new Request('http://localhost:3000/admin/ngos', {
+                new Request('http://localhost:3000/api/admin/ngos', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                 })
@@ -265,7 +265,7 @@ describe('Admin API Endpoints', () => {
 
         it('should reject invalid auth header format', async () => {
             const response = await app.request(
-                new Request('http://localhost:3000/admin/ngos', {
+                new Request('http://localhost:3000/api/admin/ngos', {
                     method: 'GET',
                     headers: {
                         'Authorization': 'InvalidFormat',
@@ -278,7 +278,7 @@ describe('Admin API Endpoints', () => {
 
         it('should return proper error for non-existent admin endpoint', async () => {
             const response = await app.request(
-                new Request('http://localhost:3000/admin/nonexistent', {
+                new Request('http://localhost:3000/api/admin/nonexistent', {
                     method: 'GET',
                     headers: adminHeaders,
                 })

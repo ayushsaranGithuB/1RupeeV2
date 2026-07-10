@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import app from '../index';
 
 describe('API Endpoints', () => {
-    describe('GET /health', () => {
+    describe('GET /api/health', () => {
         it('should return health status', async () => {
-            const req = new Request('http://localhost:3000/health');
+            const req = new Request('http://localhost:3000/api/health');
             const res = await app.fetch(req);
 
             expect([200, 503]).toContain(res.status);
@@ -16,9 +16,9 @@ describe('API Endpoints', () => {
         });
     });
 
-    describe('GET /campaigns', () => {
+    describe('GET /api/campaigns', () => {
         it('should handle campaigns endpoint', async () => {
-            const req = new Request('http://localhost:3000/campaigns');
+            const req = new Request('http://localhost:3000/api/campaigns');
             const res = await app.fetch(req);
 
             // Accept both 200 (with DB) or 500 (without DB) in test environment
@@ -28,9 +28,9 @@ describe('API Endpoints', () => {
         });
     });
 
-    describe('GET /stats', () => {
+    describe('GET /api/stats', () => {
         it('should handle stats endpoint', async () => {
-            const req = new Request('http://localhost:3000/stats');
+            const req = new Request('http://localhost:3000/api/stats');
             const res = await app.fetch(req);
 
             // Accept both 200 (with DB) or 500 (without DB) in test environment
@@ -42,7 +42,7 @@ describe('API Endpoints', () => {
 
     describe('Protected routes', () => {
         it('should reject requests without auth header', async () => {
-            const req = new Request('http://localhost:3000/wallets');
+            const req = new Request('http://localhost:3000/api/wallets');
             const res = await app.fetch(req);
 
             expect(res.status).toBe(401);
@@ -54,7 +54,7 @@ describe('API Endpoints', () => {
         it('should reject a bare bearer token (no real session)', async () => {
             // Legacy `Bearer <anything>` no longer authenticates now that mock
             // auth is replaced by real Better Auth sessions.
-            const req = new Request('http://localhost:3000/wallets', {
+            const req = new Request('http://localhost:3000/api/wallets', {
                 headers: { Authorization: 'Bearer test-token' },
             });
             const res = await app.fetch(req);
@@ -63,7 +63,7 @@ describe('API Endpoints', () => {
         });
 
         it('should accept requests with an authenticated session', async () => {
-            const req = new Request('http://localhost:3000/wallets', {
+            const req = new Request('http://localhost:3000/api/wallets', {
                 headers: { 'x-test-auth': 'user' },
             });
             const res = await app.fetch(req);
@@ -75,7 +75,7 @@ describe('API Endpoints', () => {
 
     describe('404 handling', () => {
         it('should return 404 for non-existent routes', async () => {
-            const req = new Request('http://localhost:3000/non-existent');
+            const req = new Request('http://localhost:3000/api/non-existent');
             const res = await app.fetch(req);
 
             expect(res.status).toBe(404);

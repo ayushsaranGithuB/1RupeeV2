@@ -3,14 +3,14 @@ import app from '../index';
 
 describe('GET /pledges', () => {
     it('should reject requests without auth header', async () => {
-        const req = new Request('http://localhost:3000/pledges');
+        const req = new Request('http://localhost:3000/api/pledges');
         const res = await app.fetch(req);
 
         expect(res.status).toBe(401);
     });
 
     it('should return the joined campaign/tier fields alongside each pledge', async () => {
-        const req = new Request('http://localhost:3000/pledges', {
+        const req = new Request('http://localhost:3000/api/pledges', {
             headers: { 'x-test-auth': 'user' },
         });
         const res = await app.fetch(req);

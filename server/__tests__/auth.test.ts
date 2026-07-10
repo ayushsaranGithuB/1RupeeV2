@@ -5,7 +5,7 @@ import app from '../index';
 // the session middleware on protected routes and the admin/impersonation gate.
 // They use the test-only `x-test-auth` seam (active only under NODE_ENV=test).
 function req(path: string, headers?: Record<string, string>) {
-    return app.fetch(new Request(`http://localhost:3000${path}`, { headers }));
+    return app.fetch(new Request(`http://localhost:3000/api${path}`, { headers }));
 }
 
 describe('Auth middleware', () => {
@@ -62,9 +62,9 @@ describe('Auth middleware', () => {
     });
 
     describe('Better Auth handler is mounted', () => {
-        it('serves /auth/get-session (returns 200, not the app 404)', async () => {
+        it('serves /api/auth/get-session (returns 200, not the app 404)', async () => {
             const res = await app.fetch(
-                new Request('http://localhost:3000/auth/get-session', {
+                new Request('http://localhost:3000/api/auth/get-session', {
                     method: 'GET',
                 })
             );

@@ -37,7 +37,7 @@ describe('Payments webhook', () => {
             },
         });
 
-        const req = new Request('http://localhost:3000/payments/webhook', {
+        const req = new Request('http://localhost:3000/api/payments/webhook', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ describe('Payments webhook', () => {
         });
         const signature = createHmac('sha256', secret).update(payload).digest('hex');
 
-        const req = new Request('http://localhost:3000/payments/webhook', {
+        const req = new Request('http://localhost:3000/api/payments/webhook', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ describe('Payments webhook', () => {
         });
         const signature = createHmac('sha256', secret).update(payload).digest('hex');
 
-        const req = new Request('http://localhost:3000/payments/webhook', {
+        const req = new Request('http://localhost:3000/api/payments/webhook', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

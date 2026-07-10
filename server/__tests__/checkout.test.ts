@@ -3,7 +3,7 @@ import app from '../index';
 
 describe('POST /pledges - Checkout flow', () => {
     it('should create a pledge and deduct from wallet', async () => {
-        const req = new Request('http://localhost:3000/pledges', {
+        const req = new Request('http://localhost:3000/api/pledges', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ describe('POST /pledges - Checkout flow', () => {
     });
 
     it('should reject pledge with invalid plan length', async () => {
-        const req = new Request('http://localhost:3000/pledges', {
+        const req = new Request('http://localhost:3000/api/pledges', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ describe('POST /pledges - Checkout flow', () => {
     });
 
     it('should reject pledge with plan length < 1', async () => {
-        const req = new Request('http://localhost:3000/pledges', {
+        const req = new Request('http://localhost:3000/api/pledges', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ describe('POST /pledges - Checkout flow', () => {
     });
 
     it('should reject pledge without authentication', async () => {
-        const req = new Request('http://localhost:3000/pledges', {
+        const req = new Request('http://localhost:3000/api/pledges', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ describe('POST /pledges - Checkout flow', () => {
     });
 
     it('should reject pledge with missing campaign_tier_id', async () => {
-        const req = new Request('http://localhost:3000/pledges', {
+        const req = new Request('http://localhost:3000/api/pledges', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
