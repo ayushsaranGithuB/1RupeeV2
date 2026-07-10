@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start -p 8080",
     "lint": "eslint . --ext .ts,.tsx",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "better-auth": "1.6.23",
@@ -28,14 +31,21 @@
   "devDependencies": {
     "@eslint/js": "latest",
     "@tailwindcss/postcss": "4.3.2",
+    "@testing-library/react": "^15.0.0",
+    "@testing-library/user-event": "^14.5.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@vitest/ui": "^1.0.0",
     "autoprefixer": "10.5.2",
     "eslint-plugin-react": "latest",
     "eslint-plugin-react-hooks": "latest",
+    "jsdom": "^24.0.0",
     "postcss": "8.5.16",
     "tailwindcss": "4.3.2",
-    "typescript-eslint": "latest"
+    "typescript-eslint": "latest",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
   }
 }

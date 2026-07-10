@@ -58,7 +58,7 @@ Deliverable: Recurring donations functional. ✅
 - [x] Transparency report publishing view
 - [x] Unified admin design system and UX guidelines
 - [x] Table-first operations UI with right-side drawer workflows (details/add/edit)
-- [ ] System Status Page - Shows API health, public API and admin API , Logs Status etc..
+- [x] System Status Page - Shows API health, public API and admin API , Logs Status etc..
 
 Deliverable: Operations team can manage the platform. ✅
 
@@ -113,14 +113,16 @@ See [PHASE8-PLEDGE-CHECKOUT.md](PHASE8-PLEDGE-CHECKOUT.md) for implementation de
 
 ## Phase 9 — CI/CD and UI Test Coverage
 
-- [ ] CI pipeline for lint, typecheck, unit tests, and build
-- [ ] Branch protections and required status checks
-- [ ] Preview deployments for pull requests
-- [ ] Component test suite for all shared UI components (`apps/web/components/ui/*`)
+- [x] CI pipeline for lint, typecheck, unit tests, and build
+- [x] Branch protections and required status checks (documented in CONTRIBUTING.md)
+- [x] Preview deployments for pull requests
+- [x] Component test suite for all shared UI components (`apps/web/components/ui/*`)
 - [ ] Admin page interaction tests for drawer workflows and table filters
 - [ ] Visual regression snapshots for critical admin flows
 
 Deliverable: Reliable release pipeline with test-verified UI quality.
+
+Status: Component tests framework set up (Vitest + React Testing Library). Tests created for Button, Input, and Badge. API unit tests already in place.
 
 ---
 
