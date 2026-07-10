@@ -14,6 +14,8 @@ import {
     PayoutListFilterSchema,
     PayoutSchema,
     ProcessPayoutSchema,
+    RunMonthlyPayoutSchema,
+    DailyCronRunSchema,
     TierFilterSchema,
     TransparencyReportSchema,
     UpdateTierSchema,
@@ -24,6 +26,7 @@ import {
 import {
     adminReportingService,
     campaignAdminService,
+    dailyDonationProcessorService,
     ngoService,
     payoutService,
     tierService,
@@ -450,6 +453,28 @@ admin.post('/reports', async (c) => {
     }
 });
 
+// CRON Jobs (admin-triggered manual run)
+admin.post('/cron/daily-run', async (c) => {
+    try {
+        const body = await c.req.json().catch(() => ({}));
+        const data = DailyCronRunSchema.parse(body);
+        const summary = await dailyDonationProcessorService.runDailyProcessing(
+            data.run_date ? new Date(data.run_date) : undefined,
+            data.max_pledges
+        );
+
+        return c.json(successResponse(summary));
+    } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
+
+        console.error('Error running daily donation processing:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to run daily donation processing'), 500);
+    }
+});
+
 // Payout Workflow
 admin.post('/payouts', async (c) => {
     try {
@@ -468,6 +493,27 @@ admin.post('/payouts', async (c) => {
         }
         console.error('Error creating payout:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to create payout'), 500);
+    }
+});
+
+admin.post('/payouts/run', async (c) => {
+    try {
+        const body = await c.req.json().catch(() => ({}));
+        const data = RunMonthlyPayoutSchema.parse(body);
+        const summary = await payoutService.runMonthlyPayoutGeneration(
+            data.start_date ? new Date(data.start_date) : undefined,
+            data.end_date ? new Date(data.end_date) : undefined
+        );
+
+        return c.json(successResponse(summary));
+    } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
+
+        console.error('Error running monthly payout generation:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to run monthly payout generation'), 500);
     }
 });
 

@@ -192,6 +192,21 @@ export class PayoutRepository {
         return results as any[];
     }
 
+    async findByNgoAndPeriod(ngoId: string, periodStart: Date, periodEnd: Date) {
+        const db = getDb();
+        const result = await db
+            .select()
+            .from(payouts)
+            .where(and(
+                eq(payouts.ngo_id, ngoId),
+                eq(payouts.period_start, periodStart as any),
+                eq(payouts.period_end, periodEnd as any),
+            ))
+            .limit(1);
+
+        return (result[0] as any) || null;
+    }
+
     async create(data: any) {
         const db = getDb();
         const id = randomUUID();

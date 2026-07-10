@@ -1,5 +1,5 @@
 import { getDb } from '@db';
-import { pledges } from '@db/schema';
+import { pledges, campaign_tiers, campaigns, donations } from '@db/schema';
 import { eq, and } from 'drizzle-orm';
 import { ApiPledge } from '../types';
 
@@ -66,6 +66,50 @@ export class PledgeRepository {
             .returning();
 
         return (updated[0] as any) || null;
+    }
+
+    async findActiveForDailyProcessing(limit = 100) {
+        const db = getDb();
+
+        return db
+            .select({
+                pledge_id: pledges.id,
+                user_id: pledges.user_id,
+                campaign_id: campaign_tiers.campaign_id,
+                daily_amount: campaign_tiers.daily_amount,
+            })
+            .from(pledges)
+            .innerJoin(campaign_tiers, eq(pledges.campaign_tier_id, campaign_tiers.id))
+            .innerJoin(campaigns, eq(campaign_tiers.campaign_id, campaigns.id))
+            .where(and(
+                eq(pledges.status, 'ACTIVE'),
+                eq(campaigns.status, 'ACTIVE'),
+            ))
+            .limit(limit);
+    }
+
+    async createDonationRecord(data: {
+        pledge_id: string;
+        campaign_id: string;
+        wallet_transaction_id: string;
+        amount: number;
+        donated_at: Date;
+    }) {
+        const db = getDb();
+
+        const inserted = await db
+            .insert(donations)
+            .values({
+                id: crypto.randomUUID(),
+                pledge_id: data.pledge_id,
+                campaign_id: data.campaign_id,
+                wallet_transaction_id: data.wallet_transaction_id,
+                amount: data.amount,
+                donated_at: data.donated_at,
+            })
+            .returning();
+
+        return (inserted[0] as any) || null;
     }
 }
 

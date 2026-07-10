@@ -72,3 +72,12 @@ Deploy to Cloudflare Workers + Neon PostgreSQL.
 Keep infrastructure inexpensive and horizontally scalable.
 
 No unnecessary complexity.
+
+---
+
+## Documentation
+
+- [API Reference](docs/API.md)
+- [Payments Guide](docs/PAYMENTS.md)
+- [Architecture](docs/architecture.md)
+- [Development Roadmap](docs/development-roadmap.md)

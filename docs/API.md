@@ -1,5 +1,9 @@
 # Backend API
 
+Related docs:
+
+- [Payments Guide](PAYMENTS.md)
+
 ## Tech Stack
 
 - Hono running on Cloudflare Workers

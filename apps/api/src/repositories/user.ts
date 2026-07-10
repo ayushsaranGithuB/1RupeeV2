@@ -153,17 +153,17 @@ export class WalletRepository {
         amount: number,
         description: string,
         referenceId?: string | null
-    ): Promise<void> {
+    ): Promise<string> {
         const db = getDb();
 
-        await db.insert(wallet_transactions).values({
+        const inserted = await db.insert(wallet_transactions).values({
             id: crypto.randomUUID(),
             wallet_id: walletId,
             type: type as any,
             amount,
             reference_id: referenceId || null,
             description,
-        });
+        }).returning({ id: wallet_transactions.id });
 
         const wallet = await db.select().from(wallets).where(eq(wallets.id, walletId)).limit(1);
         if (wallet[0]) {
@@ -175,6 +175,8 @@ export class WalletRepository {
                 })
                 .where(eq(wallets.id, walletId));
         }
+
+        return inserted[0]?.id as string;
     }
 
     async getBalance(walletId: string): Promise<number | null> {

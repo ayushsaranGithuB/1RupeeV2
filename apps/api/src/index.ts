@@ -7,6 +7,7 @@ import statsRouter from './routes/stats';
 import walletsRouter from './routes/wallets';
 import pledgesRouter from './routes/pledges';
 import adminRouter from './routes/admin';
+import paymentsRouter from './routes/payments';
 import { AuthContext } from './types';
 import { successResponse, errorResponse } from './utils/response';
 import { checkDatabaseHealth } from '@db';
@@ -90,6 +91,7 @@ app.get('/debug', (c) => {
 // Public routes
 app.route('/campaigns', campaignsRouter);
 app.route('/stats', statsRouter);
+app.route('/payments', paymentsRouter);
 
 // Protected routes (require authentication)
 app.use('/wallets/*', async (c, next) => {

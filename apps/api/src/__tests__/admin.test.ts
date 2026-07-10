@@ -154,6 +154,22 @@ describe('Admin API Endpoints', () => {
     });
 
     describe('Payout Workflow', () => {
+        it('POST /admin/cron/daily-run should validate run_date format', async () => {
+            const { status, data } = await makeRequest('POST', '/admin/cron/daily-run', {
+                run_date: 'not-a-valid-date',
+            });
+            expect(status).toBe(400);
+            expect(data.success).toBe(false);
+        });
+
+        it('POST /admin/cron/daily-run should execute or handle DB error', async () => {
+            const { status, data } = await makeRequest('POST', '/admin/cron/daily-run', {
+                max_pledges: 1,
+            });
+            expect([200, 500]).toContain(status);
+            expect(data.success !== undefined).toBe(true);
+        });
+
         it('POST /admin/payouts should validate NGO UUID', async () => {
             const { status, data } = await makeRequest('POST', '/admin/payouts', {
                 ngo_id: 'invalid-uuid',
@@ -176,6 +192,20 @@ describe('Admin API Endpoints', () => {
 
         it('GET /admin/payouts should return pending payouts or handle DB error', async () => {
             const { status, data } = await makeRequest('GET', '/admin/payouts');
+            expect([200, 500]).toContain(status);
+            expect(data.success !== undefined).toBe(true);
+        });
+
+        it('POST /admin/payouts/run should validate paired dates', async () => {
+            const { status, data } = await makeRequest('POST', '/admin/payouts/run', {
+                start_date: new Date().toISOString(),
+            });
+            expect(status).toBe(400);
+            expect(data.success).toBe(false);
+        });
+
+        it('POST /admin/payouts/run should execute or handle DB error', async () => {
+            const { status, data } = await makeRequest('POST', '/admin/payouts/run');
             expect([200, 500]).toContain(status);
             expect(data.success !== undefined).toBe(true);
         });

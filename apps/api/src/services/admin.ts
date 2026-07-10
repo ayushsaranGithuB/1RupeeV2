@@ -14,6 +14,7 @@ import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
 import { ngoRepository, payoutRepository, tierRepository } from '../repositories/admin';
 import { campaignRepository } from '../repositories/campaign';
 import { userRepository, walletRepository } from '../repositories/user';
+import { pledgeRepository } from '../repositories/pledge';
 
 export class NgoService {
     async getNgo(id: string) {
@@ -225,6 +226,136 @@ export class PayoutService {
     async listPayouts(ngoId?: string, status?: string, limit?: number, offset?: number) {
         return payoutRepository.findMany({ ngoId, status, limit, offset });
     }
+
+    async runMonthlyPayoutGeneration(startDate?: Date, endDate?: Date) {
+        const db = getDb();
+
+        const period = this.resolveMonthlyPeriod(startDate, endDate);
+        const payoutTotals = await db
+            .select({
+                ngo_id: campaigns.ngo_id,
+                total_amount: sql<number>`COALESCE(SUM(${donations.amount}), 0)`.mapWith(Number),
+            })
+            .from(donations)
+            .innerJoin(campaigns, eq(donations.campaign_id, campaigns.id))
+            .where(and(
+                gte(donations.donated_at, period.start),
+                lte(donations.donated_at, period.end),
+            ))
+            .groupBy(campaigns.ngo_id);
+
+        let created = 0;
+        let skippedExisting = 0;
+
+        for (const row of payoutTotals) {
+            if (!row.total_amount || row.total_amount <= 0) {
+                continue;
+            }
+
+            const existing = await payoutRepository.findByNgoAndPeriod(row.ngo_id, period.start, period.end);
+            if (existing) {
+                skippedExisting += 1;
+                continue;
+            }
+
+            await payoutRepository.create({
+                ngo_id: row.ngo_id,
+                period_start: period.start,
+                period_end: period.end,
+                total_amount: row.total_amount,
+            });
+
+            created += 1;
+        }
+
+        return {
+            period_start: period.start,
+            period_end: period.end,
+            ngos_with_donations: payoutTotals.length,
+            payouts_created: created,
+            payouts_skipped_existing: skippedExisting,
+        };
+    }
+
+    private resolveMonthlyPeriod(startDate?: Date, endDate?: Date) {
+        if (startDate && endDate) {
+            return { start: startDate, end: endDate };
+        }
+
+        const now = new Date();
+        const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1, 0, 0, 0, 0));
+        const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0, 23, 59, 59, 999));
+
+        return { start, end };
+    }
+}
+
+export class DailyDonationProcessorService {
+    async runDailyProcessing(runDate?: Date, maxPledges = 100) {
+        const activePledges = await pledgeRepository.findActiveForDailyProcessing(maxPledges);
+        const donatedAt = runDate || new Date();
+
+        const summary = {
+            run_date: donatedAt,
+            total_active_pledges: activePledges.length,
+            processed: 0,
+            successful_donations: 0,
+            skipped_missing_wallet: 0,
+            skipped_insufficient_balance: 0,
+            failed: 0,
+            total_amount_donated: 0,
+        };
+
+        for (const pledge of activePledges) {
+            summary.processed += 1;
+
+            try {
+                const wallet = await walletRepository.findByUserId(pledge.user_id);
+                if (!wallet) {
+                    summary.skipped_missing_wallet += 1;
+                    continue;
+                }
+
+                const balance = (await walletRepository.getBalance(wallet.id)) || 0;
+                if (balance < pledge.daily_amount) {
+                    summary.skipped_insufficient_balance += 1;
+                    continue;
+                }
+
+                const walletTransactionId = await walletRepository.addTransaction(
+                    wallet.id,
+                    'DONATION',
+                    pledge.daily_amount * -1,
+                    `Daily donation for pledge ${pledge.pledge_id}`,
+                    pledge.pledge_id
+                );
+
+                await pledgeRepository.createDonationRecord({
+                    pledge_id: pledge.pledge_id,
+                    campaign_id: pledge.campaign_id,
+                    wallet_transaction_id: walletTransactionId,
+                    amount: pledge.daily_amount,
+                    donated_at: donatedAt,
+                });
+
+                const db = getDb();
+                await db.update(campaigns)
+                    .set({
+                        raised_amount: sql`${campaigns.raised_amount} + ${pledge.daily_amount}`,
+                        updated_at: new Date(),
+                    })
+                    .where(eq(campaigns.id, pledge.campaign_id));
+
+                summary.successful_donations += 1;
+                summary.total_amount_donated += pledge.daily_amount;
+            } catch (error) {
+                summary.failed += 1;
+                console.error('Daily donation processing failed for pledge:', pledge.pledge_id, error);
+            }
+        }
+
+        return summary;
+    }
 }
 
 export class AdminReportingService {
@@ -368,3 +499,4 @@ export const tierService = new TierService();
 export const userSearchService = new UserSearchService();
 export const payoutService = new PayoutService();
 export const adminReportingService = new AdminReportingService();
+export const dailyDonationProcessorService = new DailyDonationProcessorService();

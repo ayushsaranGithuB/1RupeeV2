@@ -130,3 +130,22 @@ export const ProcessPayoutSchema = z.object({
     razorpay_transfer_id: z.string(),
     receipt_url: z.string().url().optional(),
 });
+
+export const DailyCronRunSchema = z.object({
+    run_date: z.string().datetime().optional(),
+    max_pledges: z.coerce.number().int().min(1).max(500).default(100),
+});
+
+export const RunMonthlyPayoutSchema = z.object({
+    start_date: z.string().datetime().optional(),
+    end_date: z.string().datetime().optional(),
+}).refine((data) => {
+    if (!data.start_date && !data.end_date) {
+        return true;
+    }
+
+    return Boolean(data.start_date && data.end_date);
+}, {
+    message: 'start_date and end_date must both be provided together',
+    path: ['start_date'],
+});
