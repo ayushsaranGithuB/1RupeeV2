@@ -21,7 +21,6 @@ export type ApiUser = {
     id: string;
     email: string;
     name: string;
-    avatar_url: string | null;
     role: 'USER' | 'ADMIN';
     status: string;
     created_at: Date;

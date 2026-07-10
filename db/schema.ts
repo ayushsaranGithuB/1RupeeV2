@@ -58,7 +58,6 @@ export const users = pgTable('users', {
     id: uuid('id').primaryKey().defaultRandom(),
     email: varchar('email', { length: 255 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
-    avatar_url: text('avatar_url'),
     role: userRoleEnum('role').notNull().default('USER'),
     status: varchar('status', { length: 50 }).notNull().default('active'), // active | suspended
     // Better Auth managed fields. camelCase JS keys intentionally match Better

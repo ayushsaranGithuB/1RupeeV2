@@ -75,7 +75,6 @@ export const auth = betterAuth({
         // only remap the logical fields whose columns are snake_case.
         // (emailVerified/phoneNumber/banned/... already match via camelCase JS keys.)
         fields: {
-            image: 'avatar_url',
             createdAt: 'created_at',
             updatedAt: 'updated_at',
         },
