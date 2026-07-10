@@ -8,7 +8,12 @@ node_modules/
 
 # Next.js
 /.next/
+**/.next/
 /out/
+next-env.d.ts
+
+# TypeScript build cache
+*.tsbuildinfo
 
 # Production
 /build
@@ -41,3 +46,5 @@ Thumbs.db
 # Turbo
 .turbo/
 apps/web/.next/
+apps/web/next-env.d.ts
+apps/web/tsconfig.tsbuildinfo
