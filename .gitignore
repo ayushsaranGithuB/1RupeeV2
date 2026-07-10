@@ -18,6 +18,7 @@ next-env.d.ts
 # Production
 /build
 /dist
+apps/api/dist/
 
 # Misc
 .DS_Store
