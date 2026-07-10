@@ -1,3 +1,11 @@
+export type CampaignCategory =
+    | 'EDUCATION'
+    | 'HEALTHCARE'
+    | 'ANIMAL_WELFARE'
+    | 'ENVIRONMENT'
+    | 'HUNGER'
+    | 'WATER_SANITATION';
+
 export type ApiResponse<T = unknown> = {
     success: true;
     data: T;
@@ -32,14 +40,14 @@ export type ApiWallet = {
 export type ApiCampaign = {
     id: string;
     ngo_id: string;
+    ngo_name?: string | null;
     title: string;
     slug: string;
-    short_description: string | null;
+    category: CampaignCategory | null;
     description: string | null;
-    hero_image: string | null;
     mobile_hero_image: string | null;
-    tablet_hero_image: string | null;
     desktop_hero_image: string | null;
+    impact_highlights: string[] | null;
     goal_amount: number | null;
     raised_amount: number;
     supporter_count: number;
@@ -47,6 +55,20 @@ export type ApiCampaign = {
     created_at: Date;
     updated_at: Date;
     deleted_at?: Date | null;
+};
+
+export type ApiCampaignTier = {
+    id: string;
+    campaign_id: string;
+    title: string;
+    description: string | null;
+    impact_description: string | null;
+    features: string[] | null;
+    featured: boolean;
+    daily_amount: number;
+    monthly_equivalent: number;
+    display_order: number;
+    active: boolean;
 };
 
 export type ApiPledge = {

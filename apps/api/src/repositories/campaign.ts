@@ -1,7 +1,7 @@
 import { getDb } from '@db';
-import { campaigns } from '@db/schema';
-import { eq, and, isNull, sql } from 'drizzle-orm';
-import { ApiCampaign } from '../types';
+import { campaigns, campaign_tiers, ngos } from '@db/schema';
+import { eq, and, isNull, asc, sql } from 'drizzle-orm';
+import { ApiCampaign, ApiCampaignTier } from '../types';
 
 export class CampaignRepository {
     async findById(id: string): Promise<ApiCampaign | null> {
@@ -12,11 +12,29 @@ export class CampaignRepository {
 
     async findBySlug(slug: string): Promise<ApiCampaign | null> {
         const db = getDb();
-        const result = await db.select().from(campaigns).where(eq(campaigns.slug, slug)).limit(1);
-        return (result[0] as any) || null;
+        const result = await db
+            .select()
+            .from(campaigns)
+            .leftJoin(ngos, eq(campaigns.ngo_id, ngos.id))
+            .where(eq(campaigns.slug, slug))
+            .limit(1);
+        if (!result[0]) {
+            return null;
+        }
+        return { ...result[0].campaigns, ngo_name: result[0].ngos?.name ?? null } as any;
     }
 
-    async findMany(ngoId?: string, status?: string, limit = 20, offset = 0): Promise<ApiCampaign[]> {
+    async findActiveTiers(campaignId: string): Promise<ApiCampaignTier[]> {
+        const db = getDb();
+        const result = await db
+            .select()
+            .from(campaign_tiers)
+            .where(and(eq(campaign_tiers.campaign_id, campaignId), eq(campaign_tiers.active, true)))
+            .orderBy(asc(campaign_tiers.display_order));
+        return result as any;
+    }
+
+    async findMany(ngoId?: string, status?: string, limit = 20, offset = 0, category?: string): Promise<ApiCampaign[]> {
         const db = getDb();
         const conditions = [isNull(campaigns.deleted_at)];
 
@@ -26,24 +44,32 @@ export class CampaignRepository {
         if (status) {
             conditions.push(eq(campaigns.status, status as any));
         }
+        if (category) {
+            conditions.push(eq(campaigns.category, category as any));
+        }
 
-        const result = await db.select().from(campaigns)
+        const result = await db
+            .select()
+            .from(campaigns)
+            .leftJoin(ngos, eq(campaigns.ngo_id, ngos.id))
             .where(and(...conditions))
             .limit(limit)
             .offset(offset);
-        return (result as any) || [];
+        return result.map((row) => ({
+            ...row.campaigns,
+            ngo_name: row.ngos?.name ?? null,
+        })) as any;
     }
 
     async create(data: {
         ngo_id: string;
         title: string;
         slug: string;
-        short_description: string;
+        category?: string | null;
         description: string;
-        hero_image?: string | null;
         mobile_hero_image?: string | null;
-        tablet_hero_image?: string | null;
         desktop_hero_image?: string | null;
+        impact_highlights?: string[] | null;
         goal_amount: number;
         status?: 'DRAFT' | 'ACTIVE';
     }): Promise<ApiCampaign> {
@@ -54,12 +80,11 @@ export class CampaignRepository {
             ngo_id: data.ngo_id,
             title: data.title,
             slug: data.slug,
-            short_description: data.short_description,
+            category: (data.category ?? null) as any,
             description: data.description,
-            hero_image: data.hero_image || null,
             mobile_hero_image: data.mobile_hero_image || null,
-            tablet_hero_image: data.tablet_hero_image || null,
             desktop_hero_image: data.desktop_hero_image || null,
+            impact_highlights: data.impact_highlights ?? null,
             goal_amount: data.goal_amount,
             status: (data.status || 'DRAFT') as any,
         }).returning();
@@ -69,18 +94,18 @@ export class CampaignRepository {
 
     async update(id: string, data: {
         title?: string;
-        short_description?: string;
+        category?: string | null;
         description?: string;
-        hero_image?: string | null;
         mobile_hero_image?: string | null;
-        tablet_hero_image?: string | null;
         desktop_hero_image?: string | null;
+        impact_highlights?: string[] | null;
         status?: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'ARCHIVED';
     }): Promise<ApiCampaign | null> {
         const db = getDb();
         const updated = await db.update(campaigns)
             .set({
                 ...data,
+                category: data.category as any,
                 updated_at: new Date(),
             })
             .where(eq(campaigns.id, id))

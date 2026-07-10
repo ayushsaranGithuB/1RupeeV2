@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -24,12 +24,10 @@ interface CampaignRecord {
   ngo_id: string;
   title: string;
   slug: string;
-  short_description: string | null;
   description: string | null;
-  hero_image: string | null;
   mobile_hero_image: string | null;
-  tablet_hero_image: string | null;
   desktop_hero_image: string | null;
+  impact_highlights: string[] | null;
   goal_amount: number | null;
   raised_amount: number;
   supporter_count: number;
@@ -47,6 +45,8 @@ interface TierRecord {
   title: string;
   description: string | null;
   impact_description: string | null;
+  features: string[] | null;
+  featured: boolean;
   daily_amount: number;
   monthly_equivalent: number;
   display_order: number;
@@ -65,12 +65,10 @@ interface DonationRecord {
 
 interface FormState {
   title: string;
-  short_description: string;
   description: string;
-  hero_image: string;
   mobile_hero_image: string;
-  tablet_hero_image: string;
   desktop_hero_image: string;
+  impact_highlights: string;
   status: CampaignRecord["status"];
 }
 
@@ -82,6 +80,19 @@ const TAB_ITEMS: Array<{ key: CampaignTab; label: string }> = [
   { key: "analytics", label: "Analytics" },
   { key: "settings", label: "Settings" },
 ];
+
+const emptyTierForm = {
+  title: "",
+  description: "",
+  impact_description: "",
+  features: "",
+  featured: false,
+  daily_amount: "1",
+  monthly_equivalent: "30",
+  display_order: "0",
+};
+
+type TierDrawerMode = "create" | "edit" | null;
 
 export default function CampaignDetailsPage() {
   const params = useParams<{ campaignId: string }>();
@@ -97,14 +108,16 @@ export default function CampaignDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>({
     title: "",
-    short_description: "",
     description: "",
-    hero_image: "",
     mobile_hero_image: "",
-    tablet_hero_image: "",
     desktop_hero_image: "",
+    impact_highlights: "",
     status: "DRAFT",
   });
+  const [tierForm, setTierForm] = useState(emptyTierForm);
+  const [editingTierId, setEditingTierId] = useState<string | null>(null);
+  const [tierDrawerMode, setTierDrawerMode] = useState<TierDrawerMode>(null);
+  const [tierSaving, setTierSaving] = useState(false);
 
   const selectedCampaign = useMemo(
     () => campaigns.find((campaign) => campaign.id === campaignId) || null,
@@ -186,12 +199,10 @@ export default function CampaignDetailsPage() {
 
     setForm({
       title: selectedCampaign.title,
-      short_description: selectedCampaign.short_description || "",
       description: selectedCampaign.description || "",
-      hero_image: selectedCampaign.hero_image || "",
       mobile_hero_image: selectedCampaign.mobile_hero_image || "",
-      tablet_hero_image: selectedCampaign.tablet_hero_image || "",
       desktop_hero_image: selectedCampaign.desktop_hero_image || "",
+      impact_highlights: (selectedCampaign.impact_highlights ?? []).join("\n"),
       status: selectedCampaign.status,
     });
   }, [selectedCampaign]);
@@ -209,12 +220,13 @@ export default function CampaignDetailsPage() {
         method: "PATCH",
         body: JSON.stringify({
           title: form.title,
-          short_description: form.short_description,
           description: form.description,
-          hero_image: form.hero_image || undefined,
           mobile_hero_image: form.mobile_hero_image || undefined,
-          tablet_hero_image: form.tablet_hero_image || undefined,
           desktop_hero_image: form.desktop_hero_image || undefined,
+          impact_highlights: form.impact_highlights
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean),
           status: statusOverride || form.status,
         }),
       });
@@ -229,6 +241,92 @@ export default function CampaignDetailsPage() {
       );
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function loadTiers() {
+    const data = await adminRequest<TierRecord[]>(
+      `/admin/campaigns/${campaignId}/tiers`,
+    );
+    setTiers(data);
+  }
+
+  function openCreateTier() {
+    setEditingTierId(null);
+    setTierForm(emptyTierForm);
+    setTierDrawerMode("create");
+  }
+
+  function openEditTier(tier: TierRecord) {
+    setEditingTierId(tier.id);
+    setTierForm({
+      title: tier.title,
+      description: tier.description || "",
+      impact_description: tier.impact_description || "",
+      features: (tier.features ?? []).join("\n"),
+      featured: tier.featured,
+      daily_amount: String(tier.daily_amount / 100),
+      monthly_equivalent: String(tier.monthly_equivalent / 100),
+      display_order: String(tier.display_order),
+    });
+    setTierDrawerMode("edit");
+  }
+
+  async function handleTierSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!campaignId) return;
+
+    setTierSaving(true);
+    setError(null);
+
+    const payload = {
+      campaign_id: campaignId,
+      title: tierForm.title,
+      description: tierForm.description,
+      impact_description: tierForm.impact_description,
+      features: tierForm.features
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean),
+      featured: tierForm.featured,
+      daily_amount: Math.round(Number(tierForm.daily_amount) * 100),
+      monthly_equivalent: Math.round(Number(tierForm.monthly_equivalent) * 100),
+      display_order: Number(tierForm.display_order),
+    };
+
+    try {
+      if (editingTierId) {
+        await adminRequest(`/admin/tiers/${editingTierId}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await adminRequest("/admin/tiers", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+      }
+      setTierForm(emptyTierForm);
+      setEditingTierId(null);
+      setTierDrawerMode(null);
+      await loadTiers();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save tier");
+    } finally {
+      setTierSaving(false);
+    }
+  }
+
+  async function removeTier(id: string) {
+    setTierSaving(true);
+    setError(null);
+    try {
+      await adminRequest(`/admin/tiers/${id}`, { method: "DELETE" });
+      await loadTiers();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete tier");
+    } finally {
+      setTierSaving(false);
     }
   }
 
@@ -369,9 +467,7 @@ export default function CampaignDetailsPage() {
                     Description
                   </h2>
                   <p className="text-sm text-slate-700">
-                    {selectedCampaign.description ||
-                      selectedCampaign.short_description ||
-                      "No description added yet."}
+                    {selectedCampaign.description || "No description added yet."}
                   </p>
                 </section>
 
@@ -380,14 +476,13 @@ export default function CampaignDetailsPage() {
                     <h2 className="text-[18px] font-semibold text-slate-900">
                       Support Tiers
                     </h2>
-                    <Link
-                      href="/admin/tiers"
-                      className={cn(
-                        buttonVariants({ variant: "outline", size: "sm" }),
-                      )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setActiveTab("tiers")}
                     >
                       Edit Tiers
-                    </Link>
+                    </Button>
                   </div>
 
                   <Table>
@@ -481,17 +576,21 @@ export default function CampaignDetailsPage() {
             {activeTab === "tiers" ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
-                  <h2 className="text-[18px] font-semibold text-slate-900">
-                    Support Tiers
-                  </h2>
-                  <Link
-                    href="/admin/tiers"
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "sm" }),
-                    )}
+                  <div>
+                    <h2 className="text-[18px] font-semibold text-slate-900">
+                      Support Tiers
+                    </h2>
+                    <p className="text-sm text-slate-500">
+                      Content and pricing here are unique to this campaign.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={openCreateTier}
+                    className="bg-emerald-600 text-white hover:bg-emerald-500"
                   >
-                    Manage in Tier Editor
-                  </Link>
+                    Add Tier
+                  </Button>
                 </div>
 
                 <Table>
@@ -502,13 +601,14 @@ export default function CampaignDetailsPage() {
                       <TableHead>Daily</TableHead>
                       <TableHead>Monthly</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {tiers.length === 0 ? (
                       <TableRow>
                         <TableCell
-                          colSpan={5}
+                          colSpan={6}
                           className="text-sm text-slate-500"
                         >
                           No tiers configured.
@@ -522,6 +622,14 @@ export default function CampaignDetailsPage() {
                           <TableRow key={tier.id}>
                             <TableCell className="font-medium text-slate-900">
                               {tier.title}
+                              {tier.featured ? (
+                                <Badge
+                                  variant="outline"
+                                  className="ml-2 rounded-full border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                                >
+                                  Featured
+                                </Badge>
+                              ) : null}
                             </TableCell>
                             <TableCell>{tier.description || "-"}</TableCell>
                             <TableCell>
@@ -532,6 +640,26 @@ export default function CampaignDetailsPage() {
                             </TableCell>
                             <TableCell>
                               {tier.active ? "Active" : "Inactive"}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openEditTier(tier)}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="border-red-200 text-red-600 hover:bg-red-50"
+                                  onClick={() => removeTier(tier.id)}
+                                  disabled={tierSaving}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))
@@ -631,30 +759,12 @@ export default function CampaignDetailsPage() {
                         <option value="ARCHIVED">Archived</option>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="campaign-short-description"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        One-line Summary
-                      </label>
-                      <Input
-                        id="campaign-short-description"
-                        value={form.short_description}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            short_description: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
                     <div className="xl:col-span-2 space-y-2">
                       <label
                         htmlFor="campaign-description"
                         className="text-sm font-medium text-slate-700"
                       >
-                        Full Description
+                        Description
                       </label>
                       <Textarea
                         id="campaign-description"
@@ -667,18 +777,24 @@ export default function CampaignDetailsPage() {
                     </div>
                     <div className="xl:col-span-2 space-y-2">
                       <label
-                        htmlFor="campaign-hero-image"
+                        htmlFor="campaign-impact-highlights"
                         className="text-sm font-medium text-slate-700"
                       >
-                        Fallback Hero URL
+                        Impact Highlights (one per line)
                       </label>
-                      <Input
-                        id="campaign-hero-image"
-                        value={form.hero_image}
+                      <Textarea
+                        id="campaign-impact-highlights"
+                        value={form.impact_highlights}
                         onChange={(e) =>
-                          setForm({ ...form, hero_image: e.target.value })
+                          setForm({
+                            ...form,
+                            impact_highlights: e.target.value,
+                          })
                         }
-                        placeholder="https://..."
+                        placeholder={
+                          "18,500+ people provided with clean water\n42 villages supported\n67 wells repaired or installed"
+                        }
+                        className="min-h-28"
                       />
                     </div>
                     <div className="space-y-2">
@@ -702,29 +818,10 @@ export default function CampaignDetailsPage() {
                     </div>
                     <div className="space-y-2">
                       <label
-                        htmlFor="campaign-tablet-hero-image"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        Tablet Hero URL (5:3)
-                      </label>
-                      <Input
-                        id="campaign-tablet-hero-image"
-                        value={form.tablet_hero_image}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            tablet_hero_image: e.target.value,
-                          })
-                        }
-                        placeholder="https://..."
-                      />
-                    </div>
-                    <div className="xl:col-span-2 space-y-2">
-                      <label
                         htmlFor="campaign-desktop-hero-image"
                         className="text-sm font-medium text-slate-700"
                       >
-                        Desktop Hero URL (9:3)
+                        Desktop Hero URL (4:3)
                       </label>
                       <Input
                         id="campaign-desktop-hero-image"
@@ -778,26 +875,10 @@ export default function CampaignDetailsPage() {
                     </div>
                     <div className="xl:col-span-2">
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Fallback Hero URL
-                      </p>
-                      <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
-                        {selectedCampaign.hero_image || "-"}
-                      </p>
-                    </div>
-                    <div className="xl:col-span-2">
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                         Mobile Hero URL
                       </p>
                       <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
                         {selectedCampaign.mobile_hero_image || "-"}
-                      </p>
-                    </div>
-                    <div className="xl:col-span-2">
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Tablet Hero URL
-                      </p>
-                      <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
-                        {selectedCampaign.tablet_hero_image || "-"}
                       </p>
                     </div>
                     <div className="xl:col-span-2">
@@ -815,6 +896,137 @@ export default function CampaignDetailsPage() {
           </div>
         </div>
       )}
+
+      {tierDrawerMode ? (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-slate-900/20"
+            onClick={() => setTierDrawerMode(null)}
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[520px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-slate-400">
+                  {selectedCampaign?.title || "Campaign"} / Support Tiers
+                </p>
+                <h2 className="text-[22px] font-semibold text-slate-900">
+                  {tierDrawerMode === "create" ? "Add Tier" : "Edit Tier"}
+                </h2>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setTierDrawerMode(null)}
+              >
+                Close
+              </Button>
+            </div>
+
+            <form className="grid gap-3" onSubmit={handleTierSubmit}>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Tier Title</p>
+                <Input
+                  value={tierForm.title}
+                  onChange={(e) =>
+                    setTierForm({ ...tierForm, title: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Daily Amount (₹)</p>
+                <Input
+                  value={tierForm.daily_amount}
+                  onChange={(e) =>
+                    setTierForm({ ...tierForm, daily_amount: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Monthly Equivalent (₹)</p>
+                <Input
+                  value={tierForm.monthly_equivalent}
+                  onChange={(e) =>
+                    setTierForm({
+                      ...tierForm,
+                      monthly_equivalent: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Display Order</p>
+                <Input
+                  value={tierForm.display_order}
+                  onChange={(e) =>
+                    setTierForm({ ...tierForm, display_order: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Description</p>
+                <Textarea
+                  value={tierForm.description}
+                  onChange={(e) =>
+                    setTierForm({ ...tierForm, description: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Impact Description</p>
+                <Textarea
+                  value={tierForm.impact_description}
+                  onChange={(e) =>
+                    setTierForm({
+                      ...tierForm,
+                      impact_description: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Features (one per line)</p>
+                <Textarea
+                  rows={5}
+                  value={tierForm.features}
+                  onChange={(e) =>
+                    setTierForm({ ...tierForm, features: e.target.value })
+                  }
+                  placeholder={
+                    "Emergency drinking water\nWater purification tablets\nSupports one family"
+                  }
+                />
+              </div>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={tierForm.featured}
+                  onChange={(e) =>
+                    setTierForm({ ...tierForm, featured: e.target.checked })
+                  }
+                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                Featured tier (highlighted on the campaign page)
+              </label>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Button
+                  type="submit"
+                  disabled={tierSaving}
+                  className="bg-emerald-600 text-white hover:bg-emerald-500"
+                >
+                  {tierSaving ? "Saving..." : "Save"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setTierDrawerMode(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </form>
+          </aside>
+        </>
+      ) : null}
     </div>
   );
 }

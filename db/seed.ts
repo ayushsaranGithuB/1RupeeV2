@@ -16,17 +16,505 @@ import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Seed script for development
- * 
+ *
  * Generates:
- * - 10 NGOs
- * - 20 Campaigns (2 per NGO)
- * - 4 tiers per campaign
+ * - 6 NGOs (one per cause area)
+ * - 8 Campaigns spread across cause areas
+ * - 3 support tiers per campaign
  * - 100 users
  * - Random pledges
  * - Random donations
- * 
+ *
+ * All monetary values are stored in paise (₹1 = 100 paise).
+ *
  * Usage: bun run db/seed.ts
  */
+
+const slugify = (value: string) =>
+    value
+        .toLowerCase()
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+type SeedTier = {
+    title: string;
+    impact_description: string;
+    features: string[];
+    featured: boolean;
+    daily_amount: number; // paise per day
+};
+
+type SeedCampaign = {
+    title: string;
+    category:
+        | 'EDUCATION'
+        | 'HEALTHCARE'
+        | 'ANIMAL_WELFARE'
+        | 'ENVIRONMENT'
+        | 'HUNGER'
+        | 'WATER_SANITATION';
+    description: string;
+    impact_highlights: string[];
+    goal_amount: number; // paise
+    raised_amount: number; // paise
+    supporter_count: number;
+    accent: string; // hex for placeholder graphics
+    tiers: SeedTier[];
+};
+
+type SeedNgo = {
+    name: string;
+    description: string;
+    website: string;
+    email: string;
+    phone: string;
+    campaigns: SeedCampaign[];
+};
+
+const heroImages = (accent: string, label: string) => ({
+    desktop_hero_image: `https://placehold.co/1200x900/${accent}/ffffff?text=${encodeURIComponent(label)}`,
+    mobile_hero_image: `https://placehold.co/720x960/${accent}/ffffff?text=${encodeURIComponent(label)}`,
+});
+
+const NGO_SEED: SeedNgo[] = [
+    {
+        name: 'Vidya Jyoti Foundation',
+        description:
+            'Vidya Jyoti Foundation runs learning centres and after-school programmes for first-generation learners across rural Rajasthan and Uttar Pradesh, keeping children in school and out of child labour.',
+        website: 'https://vidyajyoti.org',
+        email: 'connect@vidyajyoti.org',
+        phone: '+919812003401',
+        campaigns: [
+            {
+                title: 'Classrooms for Every Child',
+                category: 'EDUCATION',
+                description:
+                    'Thousands of children in remote villages still study under tin sheds or in the open. This campaign builds weatherproof classrooms, supplies textbooks and mid-day learning kits, and trains local teachers so that every child has a real place to learn.',
+                impact_highlights: [
+                    '12,400+ children back in classrooms',
+                    '38 learning centres built or repaired',
+                    '210 local teachers trained and paid',
+                ],
+                goal_amount: 500_000_000,
+                raised_amount: 324_000_000,
+                supporter_count: 8420,
+                accent: '2563eb',
+                tiers: [
+                    {
+                        title: 'Daily Learner',
+                        impact_description: 'Keeps one child stocked with notebooks and pencils for a month.',
+                        features: ['Digital impact receipt', 'Monthly progress email', 'Supports one child'],
+                        featured: false,
+                        daily_amount: 100,
+                    },
+                    {
+                        title: 'Classroom Patron',
+                        impact_description: 'Sponsors a full learning kit and mid-day support for a child, every month.',
+                        features: [
+                            'Everything in Daily Learner',
+                            'Sponsor a child directly',
+                            'Photos from the classroom',
+                            'Name on the supporter wall',
+                        ],
+                        featured: true,
+                        daily_amount: 500,
+                    },
+                    {
+                        title: 'Education Champion',
+                        impact_description: 'Helps run an entire learning centre for the community.',
+                        features: [
+                            'Fund a learning centre',
+                            'Quarterly impact report',
+                            'Invitation to an annual site visit',
+                        ],
+                        featured: false,
+                        daily_amount: 1500,
+                    },
+                ],
+            },
+            {
+                title: 'Girls Who Code: Rural Digital Literacy',
+                category: 'EDUCATION',
+                description:
+                    'In villages where girls rarely touch a computer, this programme sets up solar-powered digital labs and runs coding and basic-computing classes for adolescent girls — opening doors to jobs their mothers never had.',
+                impact_highlights: [
+                    '3,100 girls enrolled in digital labs',
+                    '14 solar-powered computer labs live',
+                    '76% of graduates pursue further study or work',
+                ],
+                goal_amount: 300_000_000,
+                raised_amount: 118_000_000,
+                supporter_count: 3110,
+                accent: '7c3aed',
+                tiers: [
+                    {
+                        title: 'Daily Ally',
+                        impact_description: 'Covers a girl\'s lab time and materials for a month.',
+                        features: ['Digital impact receipt', 'Monthly progress email', 'Supports one student'],
+                        featured: false,
+                        daily_amount: 100,
+                    },
+                    {
+                        title: 'Lab Sponsor',
+                        impact_description: 'Sponsors a girl through a full term of coding classes.',
+                        features: [
+                            'Everything in Daily Ally',
+                            'Sponsor a student directly',
+                            'Project photos from the lab',
+                            'Name on the supporter wall',
+                        ],
+                        featured: true,
+                        daily_amount: 500,
+                    },
+                    {
+                        title: 'Digital Champion',
+                        impact_description: 'Keeps a solar-powered lab running for the whole cohort.',
+                        features: [
+                            'Fund a digital lab',
+                            'Quarterly impact report',
+                            'Invitation to a demo day',
+                        ],
+                        featured: false,
+                        daily_amount: 1500,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        name: 'Arogya Health Mission',
+        description:
+            'Arogya Health Mission brings primary healthcare to communities that live hours from the nearest clinic — through mobile medical vans, trained community health workers, and maternal & newborn care programmes.',
+        website: 'https://arogyahealth.org',
+        email: 'care@arogyahealth.org',
+        phone: '+919845567120',
+        campaigns: [
+            {
+                title: 'Mobile Health Clinics for Remote Villages',
+                category: 'HEALTHCARE',
+                description:
+                    'A fully-equipped medical van reaches villages with no doctor, offering free check-ups, medicines, diagnostics and referrals. This campaign fuels the vans, stocks medicines and pays the doctors and nurses on board.',
+                impact_highlights: [
+                    '92,000+ consultations delivered',
+                    '6 mobile clinics on the road',
+                    '480 villages on a monthly visit schedule',
+                ],
+                goal_amount: 750_000_000,
+                raised_amount: 589_000_000,
+                supporter_count: 12040,
+                accent: 'dc2626',
+                tiers: [
+                    {
+                        title: 'Daily Healer',
+                        impact_description: 'Funds free medicines for one patient visit each month.',
+                        features: ['Digital impact receipt', 'Monthly progress email', 'Supports one patient'],
+                        featured: false,
+                        daily_amount: 100,
+                    },
+                    {
+                        title: 'Clinic Sponsor',
+                        impact_description: 'Covers a family\'s check-ups and medicines for a month.',
+                        features: [
+                            'Everything in Daily Healer',
+                            'Sponsor a family',
+                            'Field photos from the vans',
+                            'Name on the supporter wall',
+                        ],
+                        featured: true,
+                        daily_amount: 500,
+                    },
+                    {
+                        title: 'Health Champion',
+                        impact_description: 'Helps keep a mobile clinic on the road for a village circuit.',
+                        features: [
+                            'Fund a village circuit',
+                            'Quarterly impact report',
+                            'Invitation to ride along on a clinic day',
+                        ],
+                        featured: false,
+                        daily_amount: 1500,
+                    },
+                ],
+            },
+            {
+                title: 'Newborn Survival Kits',
+                category: 'HEALTHCARE',
+                description:
+                    'Every kit contains a clean-birth pack, warm clothing, a thermometer and essential newborn supplies for mothers delivering in under-resourced clinics — cutting preventable infant deaths in their first fragile weeks.',
+                impact_highlights: [
+                    '5,600 survival kits distributed',
+                    '31% drop in newborn infections at partner clinics',
+                    '9 district hospitals supplied monthly',
+                ],
+                goal_amount: 200_000_000,
+                raised_amount: 76_000_000,
+                supporter_count: 2530,
+                accent: 'e11d48',
+                tiers: [
+                    {
+                        title: 'Daily Guardian',
+                        impact_description: 'Adds essential supplies to a newborn kit each month.',
+                        features: ['Digital impact receipt', 'Monthly progress email', 'Supports one newborn'],
+                        featured: false,
+                        daily_amount: 100,
+                    },
+                    {
+                        title: 'Kit Sponsor',
+                        impact_description: 'Funds a complete survival kit for a newborn every month.',
+                        features: [
+                            'Everything in Daily Guardian',
+                            'Sponsor a full kit',
+                            'Photos from partner clinics',
+                            'Name on the supporter wall',
+                        ],
+                        featured: true,
+                        daily_amount: 500,
+                    },
+                    {
+                        title: 'Newborn Champion',
+                        impact_description: 'Stocks an entire clinic ward with survival kits.',
+                        features: [
+                            'Supply a clinic ward',
+                            'Quarterly impact report',
+                            'Invitation to an annual site visit',
+                        ],
+                        featured: false,
+                        daily_amount: 1500,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        name: 'Paws & Whiskers Trust',
+        description:
+            'Paws & Whiskers Trust rescues, treats and rehomes street animals, and runs mass sterilisation and anti-rabies drives to build humane, healthy cities for both animals and people.',
+        website: 'https://pawsandwhiskers.org',
+        email: 'rescue@pawsandwhiskers.org',
+        phone: '+919920114455',
+        campaigns: [
+            {
+                title: 'Street Dog Rescue & Sterilisation Drive',
+                category: 'ANIMAL_WELFARE',
+                description:
+                    'This campaign funds rescue ambulances, surgeries, vaccinations and recovery care for injured and stray dogs — and humane sterilisation to control the street-dog population without culling.',
+                impact_highlights: [
+                    '7,900 dogs sterilised and vaccinated',
+                    '1,240 injured animals rescued and treated',
+                    '4 recovery shelters operating',
+                ],
+                goal_amount: 180_000_000,
+                raised_amount: 94_500_000,
+                supporter_count: 4180,
+                accent: 'd97706',
+                tiers: [
+                    {
+                        title: 'Daily Friend',
+                        impact_description: 'Feeds and vaccinates one rescued animal for a month.',
+                        features: ['Digital impact receipt', 'Monthly progress email', 'Supports one animal'],
+                        featured: false,
+                        daily_amount: 100,
+                    },
+                    {
+                        title: 'Rescue Sponsor',
+                        impact_description: 'Covers a full rescue, treatment and sterilisation for one dog.',
+                        features: [
+                            'Everything in Daily Friend',
+                            'Sponsor a rescue',
+                            'Before-and-after recovery photos',
+                            'Name on the supporter wall',
+                        ],
+                        featured: true,
+                        daily_amount: 500,
+                    },
+                    {
+                        title: 'Shelter Champion',
+                        impact_description: 'Helps run a recovery shelter for animals healing from surgery.',
+                        features: [
+                            'Fund a recovery shelter',
+                            'Quarterly impact report',
+                            'Invitation to a shelter open day',
+                        ],
+                        featured: false,
+                        daily_amount: 1500,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        name: 'GreenRoots India',
+        description:
+            'GreenRoots India restores degraded land through native-species reforestation, watershed revival and community-led conservation — working hand in hand with farmers and forest villages.',
+        website: 'https://greenroots.org.in',
+        email: 'grow@greenroots.org.in',
+        phone: '+919701223388',
+        campaigns: [
+            {
+                title: 'One Million Trees for the Aravallis',
+                category: 'ENVIRONMENT',
+                description:
+                    'The Aravalli range is turning to dust. This campaign plants and protects native trees, revives dried-up water bodies and pays local families to nurture saplings through their critical first three years.',
+                impact_highlights: [
+                    '640,000 native saplings planted',
+                    '2,300 hectares of land under restoration',
+                    '87% sapling survival rate after year one',
+                ],
+                goal_amount: 400_000_000,
+                raised_amount: 223_000_000,
+                supporter_count: 6890,
+                accent: '16a34a',
+                tiers: [
+                    {
+                        title: 'Daily Grower',
+                        impact_description: 'Plants and protects several native saplings each month.',
+                        features: ['Digital impact receipt', 'Monthly progress email', 'Plants native trees'],
+                        featured: false,
+                        daily_amount: 100,
+                    },
+                    {
+                        title: 'Grove Sponsor',
+                        impact_description: 'Funds a small grove and its care through the first year.',
+                        features: [
+                            'Everything in Daily Grower',
+                            'Sponsor a named grove',
+                            'Geo-tagged photos of your trees',
+                            'Name on the supporter wall',
+                        ],
+                        featured: true,
+                        daily_amount: 500,
+                    },
+                    {
+                        title: 'Forest Champion',
+                        impact_description: 'Restores a full hectare of degraded land.',
+                        features: [
+                            'Restore a hectare',
+                            'Quarterly impact report',
+                            'Invitation to a plantation drive',
+                        ],
+                        featured: false,
+                        daily_amount: 1500,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        name: 'Annapurna Food Relief',
+        description:
+            'Annapurna Food Relief runs community kitchens and school-meal programmes so that no child studies on an empty stomach and no family goes to bed hungry during hard months.',
+        website: 'https://annapurnarelief.org',
+        email: 'meals@annapurnarelief.org',
+        phone: '+919632447788',
+        campaigns: [
+            {
+                title: 'Hot Meals for School Children',
+                category: 'HUNGER',
+                description:
+                    'A hot, nutritious mid-day meal is often the reason a child comes to school — and stays. This campaign funds fresh ingredients, clean kitchens and cooks so children learn on a full stomach.',
+                impact_highlights: [
+                    '4.2 million meals served',
+                    '620 schools covered daily',
+                    '18% rise in attendance at partner schools',
+                ],
+                goal_amount: 600_000_000,
+                raised_amount: 411_000_000,
+                supporter_count: 15320,
+                accent: 'ea580c',
+                tiers: [
+                    {
+                        title: 'Daily Plate',
+                        impact_description: 'Serves a hot meal to a child every school day this month.',
+                        features: ['Digital impact receipt', 'Monthly progress email', 'Feeds one child'],
+                        featured: false,
+                        daily_amount: 100,
+                    },
+                    {
+                        title: 'Meal Sponsor',
+                        impact_description: 'Feeds a small group of children a nutritious meal each day.',
+                        features: [
+                            'Everything in Daily Plate',
+                            'Sponsor a table of children',
+                            'Photos from the kitchen',
+                            'Name on the supporter wall',
+                        ],
+                        featured: true,
+                        daily_amount: 500,
+                    },
+                    {
+                        title: 'Kitchen Champion',
+                        impact_description: 'Helps run a community kitchen serving a whole school.',
+                        features: [
+                            'Fund a community kitchen',
+                            'Quarterly impact report',
+                            'Invitation to serve a meal in person',
+                        ],
+                        featured: false,
+                        daily_amount: 1500,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        name: 'Jal Seva Foundation',
+        description:
+            'Jal Seva Foundation delivers safe drinking water and sanitation to drought-prone and water-stressed villages through wells, rainwater harvesting and hygiene education.',
+        website: 'https://jalseva.org',
+        email: 'water@jalseva.org',
+        phone: '+919554002211',
+        campaigns: [
+            {
+                title: 'Clean Water Wells for Drought-Hit Villages',
+                category: 'WATER_SANITATION',
+                description:
+                    'When the nearest safe water is a two-hour walk away, everything else stops. This campaign builds and repairs wells and handpumps, installs filtration, and trains village committees to maintain them for good.',
+                impact_highlights: [
+                    '186,000 people with year-round safe water',
+                    '142 wells built or repaired',
+                    '54% fewer waterborne illnesses reported',
+                ],
+                goal_amount: 350_000_000,
+                raised_amount: 197_000_000,
+                supporter_count: 5640,
+                accent: '0891b2',
+                tiers: [
+                    {
+                        title: 'Daily Drop',
+                        impact_description: 'Provides safe water to one person for a month.',
+                        features: ['Digital impact receipt', 'Monthly progress email', 'Supports one person'],
+                        featured: false,
+                        daily_amount: 100,
+                    },
+                    {
+                        title: 'Well Sponsor',
+                        impact_description: 'Brings clean water to a family, every single day.',
+                        features: [
+                            'Everything in Daily Drop',
+                            'Sponsor a family',
+                            'Photos of the water point',
+                            'Name on the supporter wall',
+                        ],
+                        featured: true,
+                        daily_amount: 500,
+                    },
+                    {
+                        title: 'Water Champion',
+                        impact_description: 'Helps build a well that serves an entire village.',
+                        features: [
+                            'Fund a village well',
+                            'Quarterly impact report',
+                            'Invitation to a well inauguration',
+                        ],
+                        featured: false,
+                        daily_amount: 1500,
+                    },
+                ],
+            },
+        ],
+    },
+];
 
 async function seed() {
     try {
@@ -96,101 +584,66 @@ async function seed() {
             console.log(`Skipping wallets seed, found ${existingWallets.length} existing rows.`);
         }
 
-        // Create NGOs
+        // Create NGOs, their campaigns, and campaign tiers from structured seed data
         if (existingNgos.length === 0) {
-            console.log('Creating 10 NGOs...');
-            const ngoNames = [
-                'Care India',
-                'Teach for India',
-                'World Vision',
-                'Smile Foundation',
-                'CRY',
-                'IMDR',
-                'IGSSS',
-                'Save the Children',
-                'Akshaya Patra',
-                'Naandi Foundation',
-            ];
+            const campaignCount = NGO_SEED.reduce((sum, ngo) => sum + ngo.campaigns.length, 0);
+            console.log(`Creating ${NGO_SEED.length} NGOs, ${campaignCount} campaigns, and their tiers...`);
 
-            for (let i = 0; i < 10; i++) {
-                const id = uuidv4();
-                ngoIds.push(id);
+            for (const ngo of NGO_SEED) {
+                const ngoId = uuidv4();
+                ngoIds.push(ngoId);
                 await db.insert(ngos).values({
-                    id,
-                    name: ngoNames[i],
-                    slug: ngoNames[i].toLowerCase().replace(/\s+/g, '-'),
-                    logo_url: `https://placehold.co/200?text=${ngoNames[i]}`,
-                    description: `${ngoNames[i]} is working towards creating positive change in society.`,
-                    website: `https://${ngoNames[i].toLowerCase().replace(/\s+/g, '')}.org`,
-                    email: `hello@${ngoNames[i].toLowerCase().replace(/\s+/g, '')}.org`,
-                    phone: `+91${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+                    id: ngoId,
+                    name: ngo.name,
+                    slug: slugify(ngo.name),
+                    logo_url: `https://placehold.co/200?text=${encodeURIComponent(ngo.name)}`,
+                    description: ngo.description,
+                    website: ngo.website,
+                    email: ngo.email,
+                    phone: ngo.phone,
                     verification_status: 'VERIFIED',
                 });
-            }
-        } else {
-            console.log(`Skipping NGOs seed, found ${existingNgos.length} existing rows.`);
-        }
 
-        // Create campaigns
-        if (existingCampaigns.length === 0) {
-            console.log('Creating 20 campaigns...');
-            const campaignTitles = [
-                'Education for Rural Children',
-                'Health Camps in Remote Areas',
-                'Clean Water Initiative',
-                'Women Empowerment Program',
-                'Disaster Relief Fund',
-            ];
-
-            for (let i = 0; i < 20; i++) {
-                const id = uuidv4();
-                campaignIds.push(id);
-                const ngoIndex = Math.floor(i / 2); // 2 campaigns per NGO
-                await db.insert(campaigns).values({
-                    id,
-                    ngo_id: ngoIds[ngoIndex],
-                    title: `${campaignTitles[i % 5]} ${i + 1}`,
-                    slug: `campaign-${i + 1}`.toLowerCase(),
-                    short_description: 'Making a difference one donation at a time',
-                    description: 'This campaign aims to create lasting positive impact in the community.',
-                    hero_image: `https://placehold.co/800x400?text=Campaign+${i + 1}`,
-                    mobile_hero_image: `https://placehold.co/720x960?text=Campaign+${i + 1}+Mobile`,
-                    tablet_hero_image: `https://placehold.co/1500x900?text=Campaign+${i + 1}+Tablet`,
-                    desktop_hero_image: `https://placehold.co/1800x600?text=Campaign+${i + 1}+Desktop`,
-                    goal_amount: Math.floor(Math.random() * 1000000) + 100000,
-                    status: 'ACTIVE',
-                });
-            }
-        } else {
-            console.log(`Skipping campaigns seed, found ${existingCampaigns.length} existing rows.`);
-        }
-
-        // Create campaign tiers
-        if (existingTiers.length === 0) {
-            console.log('Creating campaign tiers...');
-            const tierConfigs = [
-                { title: 'Daily Supporter', daily: 100, monthly: 3000, impact: 'Help sustain the cause.' },
-                { title: 'Impact Supporter', daily: 500, monthly: 15000, impact: 'Provide resources for one child.' },
-                { title: 'Champion', daily: 1000, monthly: 30000, impact: 'Fund a classroom or program.' },
-                { title: 'Major Donor', daily: 5000, monthly: 150000, impact: 'Transform a community.' },
-            ];
-
-            for (const campaignId of campaignIds) {
-                for (let i = 0; i < tierConfigs.length; i++) {
-                    const tier = tierConfigs[i];
-                    await db.insert(campaign_tiers).values({
-                        campaign_id: campaignId,
-                        title: tier.title,
-                        impact_description: tier.impact,
-                        daily_amount: tier.daily,
-                        monthly_equivalent: tier.monthly,
-                        display_order: i + 1,
-                        active: true,
+                for (const campaign of ngo.campaigns) {
+                    const campaignId = uuidv4();
+                    campaignIds.push(campaignId);
+                    await db.insert(campaigns).values({
+                        id: campaignId,
+                        ngo_id: ngoId,
+                        title: campaign.title,
+                        slug: slugify(campaign.title),
+                        category: campaign.category,
+                        description: campaign.description,
+                        ...heroImages(campaign.accent, campaign.title),
+                        impact_highlights: campaign.impact_highlights,
+                        goal_amount: campaign.goal_amount,
+                        raised_amount: campaign.raised_amount,
+                        supporter_count: campaign.supporter_count,
+                        status: 'ACTIVE',
                     });
+
+                    for (let i = 0; i < campaign.tiers.length; i++) {
+                        const tier = campaign.tiers[i];
+                        const [insertedTier] = await db.insert(campaign_tiers).values({
+                            campaign_id: campaignId,
+                            title: tier.title,
+                            impact_description: tier.impact_description,
+                            features: tier.features,
+                            featured: tier.featured,
+                            daily_amount: tier.daily_amount,
+                            monthly_equivalent: tier.daily_amount * 30,
+                            display_order: i + 1,
+                            active: true,
+                        }).returning({ id: campaign_tiers.id });
+
+                        if (insertedTier?.id) {
+                            tierIds.push(insertedTier.id);
+                        }
+                    }
                 }
             }
         } else {
-            console.log(`Skipping campaign tiers seed, found ${existingTiers.length} existing rows.`);
+            console.log(`Skipping NGO/campaign/tier seed, found ${existingNgos.length} existing NGOs.`);
         }
 
         if (existingWalletTransactions.length === 0 && walletIds.length > 0) {

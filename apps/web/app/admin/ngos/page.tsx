@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { adminRequest, formatDate } from "@/lib/admin";
+import { adminRequest, formatCurrency, formatDate } from "@/lib/admin";
 
 interface NgoRecord {
   id: string;
@@ -29,6 +30,17 @@ interface NgoRecord {
     verification_notes?: string;
   } | null;
   created_at?: string;
+}
+
+interface CampaignSummary {
+  id: string;
+  ngo_id: string;
+  title: string;
+  slug: string;
+  status: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
+  goal_amount: number | null;
+  raised_amount: number;
+  supporter_count: number;
 }
 
 const emptyForm = {
@@ -47,6 +59,7 @@ type DrawerMode = "create" | "edit" | null;
 
 export default function NGOManagement() {
   const [ngos, setNgos] = useState<NgoRecord[]>([]);
+  const [campaigns, setCampaigns] = useState<CampaignSummary[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
@@ -61,6 +74,17 @@ export default function NGOManagement() {
     () => ngos.find((ngo) => ngo.id === selectedNgoId) || null,
     [ngos, selectedNgoId],
   );
+
+  const activeCampaignsForSelectedNgo = useMemo(() => {
+    if (!selectedNgoId) {
+      return [];
+    }
+
+    return campaigns.filter(
+      (campaign) =>
+        campaign.ngo_id === selectedNgoId && campaign.status === "ACTIVE",
+    );
+  }, [campaigns, selectedNgoId]);
 
   const filteredNgos = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -89,8 +113,12 @@ export default function NGOManagement() {
     setError(null);
 
     try {
-      const data = await adminRequest<NgoRecord[]>("/admin/ngos");
-      setNgos(data);
+      const [ngoData, campaignData] = await Promise.all([
+        adminRequest<NgoRecord[]>("/admin/ngos"),
+        adminRequest<CampaignSummary[]>("/admin/campaigns"),
+      ]);
+      setNgos(ngoData);
+      setCampaigns(campaignData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load NGOs");
     } finally {
@@ -285,7 +313,7 @@ export default function NGOManagement() {
           <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[540px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs text-slate-400">NGO Drawer</p>
+                <p className="text-xs text-slate-400">NGO Details</p>
                 <h2 className="text-[22px] font-semibold text-slate-900">
                   {drawerMode === "create"
                     ? "Create NGO"
@@ -503,6 +531,50 @@ export default function NGOManagement() {
                       })
                     }
                   />
+                </div>
+                <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-slate-500">
+                      Active Campaigns ({activeCampaignsForSelectedNgo.length})
+                    </p>
+                    <Link
+                      href={`/admin/campaigns?ngo=${selectedNgo.id}`}
+                      className="text-xs font-medium text-emerald-700 hover:underline"
+                    >
+                      View all Campaigns for this NGO
+                    </Link>
+                  </div>
+                  {activeCampaignsForSelectedNgo.length === 0 ? (
+                    <p className="text-xs text-slate-500">
+                      No active campaigns for this NGO.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {activeCampaignsForSelectedNgo.map((campaign) => (
+                        <li key={campaign.id}>
+                          <Link
+                            href={`/admin/campaigns/${campaign.id}`}
+                            className="block rounded-md border border-slate-200 bg-white px-3 py-2 hover:border-emerald-300 hover:bg-emerald-50"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate text-sm font-medium text-slate-900">
+                                {campaign.title}
+                              </span>
+                              <span className="shrink-0 text-xs text-slate-500">
+                                {campaign.supporter_count} supporters
+                              </span>
+                            </div>
+                            <div className="mt-0.5 text-xs text-slate-500">
+                              {formatCurrency(campaign.raised_amount)} raised
+                              {campaign.goal_amount
+                                ? ` / ${formatCurrency(campaign.goal_amount)} goal`
+                                : ""}
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 <p className="text-xs text-slate-500">
                   Added {formatDate(selectedNgo.created_at)}

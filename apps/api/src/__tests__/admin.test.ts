@@ -302,7 +302,6 @@ describe('Admin API Endpoints', () => {
                 ngo_id: '550e8400-e29b-41d4-a716-446655440000',
                 title: 'Valid Campaign Title',
                 slug: 'INVALID-UPPERCASE',
-                short_description: 'Valid short description',
                 description: 'Valid long description with sufficient content',
             });
             expect(status).toBe(400);
@@ -324,7 +323,6 @@ describe('Admin API Endpoints', () => {
                 ngo_id: '550e8400-e29b-41d4-a716-446655440000',
                 title: 'Valid Campaign Title',
                 slug: 'valid-slug',
-                short_description: 'Valid short',
                 description: 'Too short', // Should be 50+ chars
             });
             expect(status).toBe(400);

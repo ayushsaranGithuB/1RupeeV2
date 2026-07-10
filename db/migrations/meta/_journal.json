@@ -15,6 +15,34 @@
       "when": 1783706400000,
       "tag": "0001_wide_heroes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1783792800000,
+      "tag": "0002_slim_heroes",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1783879200000,
+      "tag": "0003_drop_short_description",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1783965600000,
+      "tag": "0004_campaign_highlights_tier_features",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1784052000000,
+      "tag": "0005_campaign_category",
+      "breakpoints": true
     }
   ]
 }

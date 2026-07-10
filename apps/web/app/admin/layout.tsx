@@ -5,17 +5,45 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  Building,
+  HandCoins,
+  IndianRupee,
+  LayoutDashboard,
+  Megaphone,
+  ReceiptText,
+  User,
+} from "lucide-react";
 
 const menuItems = [
-  { label: "Dashboard", href: "/admin" },
-  { label: "NGOs", href: "/admin/ngos" },
-  { label: "Campaigns", href: "/admin/campaigns" },
-  { label: "Support Tiers", href: "/admin/tiers" },
-  { label: "Users", href: "/admin/users" },
-  { label: "Donations", href: "/admin/donations" },
-  { label: "Ledger", href: "/admin/ledger" },
-  { label: "Payouts", href: "/admin/payouts" },
-  { label: "Transparency", href: "/admin/reports" },
+  { label: "Dashboard", href: "/admin", icon: <LayoutDashboard size={16} /> },
+  { label: "NGOs", href: "/admin/ngos", icon: <Building size={16} /> },
+  {
+    label: "Campaigns",
+    href: "/admin/campaigns",
+    icon: <Megaphone size={16} />,
+  },
+  { label: "Users", href: "/admin/users", icon: <User size={16} /> },
+  {
+    label: "Donations",
+    href: "/admin/donations",
+    icon: <HandCoins size={16} />,
+  },
+  {
+    label: "Ledger",
+    href: "/admin/ledger",
+    icon: <ReceiptText size={16} />,
+  },
+  {
+    label: "Payouts",
+    href: "/admin/payouts",
+    icon: <IndianRupee size={16} />,
+  },
+  {
+    label: "Transparency",
+    href: "/admin/reports",
+    icon: <LayoutDashboard size={16} />,
+  },
 ];
 
 export default function AdminLayout({
@@ -46,10 +74,10 @@ export default function AdminLayout({
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-slate-200/80 px-4 py-5">
             <div className={cn("space-y-1", !sidebarOpen && "hidden")}>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-600">
+              <p className="text-xs font-bold uppercase  text-emerald-600">
                 1Rupee
               </p>
-              <h1 className="text-lg font-semibold text-slate-900">
+              <h1 className="text-xs font-semibold text-slate-900">
                 Admin Console
               </h1>
             </div>
@@ -58,13 +86,13 @@ export default function AdminLayout({
               size="icon"
               onClick={() => setSidebarOpen((value) => !value)}
               aria-label="Toggle sidebar"
-              className="border-slate-200 bg-white"
+              className="border-slate-200 bg-white cursor-pointer text-slate-600 hover:bg-slate-50 hover:text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {sidebarOpen ? "-" : "+"}
+              {sidebarOpen ? "<" : ">"}
             </Button>
           </div>
 
-          <nav className="space-y-1.5 p-3">
+          <nav className="space-y-1.5 p-0">
             {menuItems.map((item) => {
               const active = pathname === item.href;
 
@@ -73,23 +101,20 @@ export default function AdminLayout({
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
+                    "flex items-center gap-2  px-4 py-3 text-sm font-medium transition",
                     active
-                      ? "bg-slate-900 text-white shadow-[0_10px_30px_-14px_rgba(15,23,42,0.8)]"
+                      ? "bg-[#7a9775] text-white "
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
                     !sidebarOpen && "justify-center px-2 text-center",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "inline-flex h-7 w-7 items-center justify-center rounded-lg border text-xs font-semibold",
-                      active
-                        ? "border-white/30 bg-white/20 text-white"
-                        : "border-slate-200 bg-white text-slate-500",
-                    )}
-                  >
-                    {item.label.charAt(0)}
-                  </span>
+                  {item.icon && (
+                    <span
+                      className={cn("text-slate-400", active && "text-white")}
+                    >
+                      {item.icon}
+                    </span>
+                  )}
                   <span className={cn(!sidebarOpen && "hidden")}>
                     {item.label}
                   </span>
@@ -101,7 +126,7 @@ export default function AdminLayout({
           <div className={cn("mt-auto px-4 pb-5", !sidebarOpen && "hidden")}>
             <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
-                Platform Health
+                Platform Health [FAKE]
               </p>
               <p className="mt-2 text-sm text-emerald-900">
                 All core admin systems are operational.

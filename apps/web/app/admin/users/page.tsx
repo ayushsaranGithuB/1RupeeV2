@@ -135,7 +135,8 @@ export default function UserManagement() {
           method: "POST",
           body: JSON.stringify({
             type,
-            amount: Number(walletAmount),
+            // Input is in rupees; wallet amounts are stored in paise.
+            amount: Math.round(Number(walletAmount) * 100),
             reason: walletReason,
           }),
         },
@@ -346,7 +347,7 @@ export default function UserManagement() {
                   <Input
                     value={walletAmount}
                     onChange={(e) => setWalletAmount(e.target.value)}
-                    placeholder="Amount"
+                    placeholder="Amount (₹)"
                   />
                   <Textarea
                     value={walletReason}

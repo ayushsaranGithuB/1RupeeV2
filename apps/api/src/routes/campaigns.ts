@@ -22,7 +22,8 @@ campaigns.get('/', async (c) => {
             parsed.data.ngo_id,
             parsed.data.status,
             parsed.data.limit,
-            parsed.data.offset
+            parsed.data.offset,
+            parsed.data.category
         );
 
         return c.json(successResponse(result));

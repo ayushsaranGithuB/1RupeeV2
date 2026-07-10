@@ -37,7 +37,6 @@ describe('Schemas', () => {
                 ngo_id: '550e8400-e29b-41d4-a716-446655440000',
                 title: 'Valid Campaign Title',
                 slug: 'valid-campaign',
-                short_description: 'This is a valid short description',
                 description: 'This is a longer description with more details about the campaign',
                 goal_amount: 100000,
             };

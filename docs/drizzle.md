@@ -198,9 +198,10 @@ Notes
 | ngo_id            | FK             |
 | title             | varchar        |
 | slug              | varchar UNIQUE |
-| short_description | text           |
 | description       | text           |
-| hero_image        | text           |
+| mobile_hero_image  | text           |
+| desktop_hero_image | text           |
+| impact_highlights  | jsonb (string[]) |
 | goal_amount       | integer        |
 | raised_amount     | integer        |
 | supporter_count   | integer        |

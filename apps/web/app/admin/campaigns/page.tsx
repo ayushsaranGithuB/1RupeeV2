@@ -14,21 +14,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { adminRequest, formatCurrency } from "@/lib/admin";
+import { Textarea } from "@/components/ui/textarea";
 
 interface CampaignRecord {
   id: string;
   ngo_id: string;
   title: string;
   slug: string;
-  short_description: string | null;
   goal_amount: number | null;
   raised_amount: number;
   supporter_count: number;
   status: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
   description?: string | null;
-  hero_image?: string | null;
+  impact_highlights?: string[] | null;
   mobile_hero_image?: string | null;
-  tablet_hero_image?: string | null;
   desktop_hero_image?: string | null;
 }
 
@@ -43,10 +42,9 @@ const emptyForm = {
   ngo_id: "",
   title: "",
   slug: "",
-  short_description: "",
-  hero_image: "",
+  description: "",
+  impact_highlights: "",
   mobile_hero_image: "",
-  tablet_hero_image: "",
   desktop_hero_image: "",
   goal_amount: "",
   status: "DRAFT" as CampaignRecord["status"],
@@ -128,12 +126,14 @@ export default function CampaignManagement() {
         ngo_id: form.ngo_id,
         title: form.title,
         slug: form.slug,
-        short_description: form.short_description,
-        hero_image: form.hero_image || undefined,
+        description: form.description,
+        impact_highlights: form.impact_highlights
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean),
         mobile_hero_image: form.mobile_hero_image || undefined,
-        tablet_hero_image: form.tablet_hero_image || undefined,
         desktop_hero_image: form.desktop_hero_image || undefined,
-        goal_amount: Number(form.goal_amount || 0),
+        goal_amount: Math.round(Number(form.goal_amount || 0) * 100),
         status: form.status,
       };
 
@@ -164,6 +164,17 @@ export default function CampaignManagement() {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const ngoParam = new URLSearchParams(window.location.search).get("ngo");
+    if (ngoParam) {
+      setNgoFilter(ngoParam);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!selectedCampaign) {
       return;
     }
@@ -172,12 +183,11 @@ export default function CampaignManagement() {
       ngo_id: selectedCampaign.ngo_id,
       title: selectedCampaign.title,
       slug: selectedCampaign.slug,
-      short_description: selectedCampaign.short_description || "",
-      hero_image: selectedCampaign.hero_image || "",
+      description: selectedCampaign.description || "",
+      impact_highlights: (selectedCampaign.impact_highlights ?? []).join("\n"),
       mobile_hero_image: selectedCampaign.mobile_hero_image || "",
-      tablet_hero_image: selectedCampaign.tablet_hero_image || "",
       desktop_hero_image: selectedCampaign.desktop_hero_image || "",
-      goal_amount: String(selectedCampaign.goal_amount || 0),
+      goal_amount: String((selectedCampaign.goal_amount || 0) / 100),
       status: selectedCampaign.status,
     });
   }, [selectedCampaign]);
@@ -369,23 +379,27 @@ export default function CampaignManagement() {
                 />
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-slate-400">Short Description</p>
-                <Input
-                  value={form.short_description}
+                <p className="text-xs text-slate-400">Description</p>
+                <Textarea
+                  rows={5}
+                  value={form.description}
                   onChange={(e) =>
-                    setForm({ ...form, short_description: e.target.value })
+                    setForm({ ...form, description: e.target.value })
                   }
-                  placeholder="One-line summary"
+                  placeholder="Campaign description"
                 />
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-slate-400">Fallback Hero URL</p>
-                <Input
-                  value={form.hero_image}
+                <p className="text-xs text-slate-400">
+                  Impact Highlights (one per line)
+                </p>
+                <Textarea
+                  rows={4}
+                  value={form.impact_highlights}
                   onChange={(e) =>
-                    setForm({ ...form, hero_image: e.target.value })
+                    setForm({ ...form, impact_highlights: e.target.value })
                   }
-                  placeholder="https://..."
+                  placeholder={"18,500+ people reached\n42 villages supported"}
                 />
               </div>
               <div className="space-y-1">
@@ -399,17 +413,7 @@ export default function CampaignManagement() {
                 />
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-slate-400">Tablet Hero URL (5:3)</p>
-                <Input
-                  value={form.tablet_hero_image}
-                  onChange={(e) =>
-                    setForm({ ...form, tablet_hero_image: e.target.value })
-                  }
-                  placeholder="https://..."
-                />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400">Desktop Hero URL (9:3)</p>
+                <p className="text-xs text-slate-400">Desktop Hero URL (4:3)</p>
                 <Input
                   value={form.desktop_hero_image}
                   onChange={(e) =>
@@ -419,7 +423,7 @@ export default function CampaignManagement() {
                 />
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-slate-400">Goal Amount</p>
+                <p className="text-xs text-slate-400">Goal Amount (₹)</p>
                 <Input
                   value={form.goal_amount}
                   onChange={(e) =>

@@ -5,33 +5,7 @@ export default async function Home() {
   const stats = await getPublicStats();
 
   return (
-    <main className="mx-auto max-w-6xl px-6 pb-16 pt-8 sm:px-10">
-      <header className="mb-16 flex flex-wrap items-center justify-between gap-4">
-        <div className="rounded-full border border-emerald-200 bg-white/80 px-4 py-2 text-sm text-emerald-700 shadow-sm backdrop-blur">
-          1Rupee Public MVP
-        </div>
-        <nav className="flex flex-wrap gap-3 text-sm">
-          <Link
-            className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-emerald-800 transition hover:bg-emerald-50"
-            href="/campaigns"
-          >
-            Campaigns
-          </Link>
-          <Link
-            className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-emerald-800 transition hover:bg-emerald-50"
-            href="/transparency"
-          >
-            Transparency
-          </Link>
-          <Link
-            className="rounded-full bg-emerald-600 px-4 py-2 font-semibold text-white transition hover:bg-emerald-700"
-            href="/auth/sign-in"
-          >
-            Sign in
-          </Link>
-        </nav>
-      </header>
-
+    <main className="mx-auto max-w-6xl px-6 pb-16 pt-8 sm:px-10 bg-white">
       <section className="grid gap-8 rounded-3xl border border-emerald-100 bg-white/80 p-8 shadow-xl backdrop-blur md:grid-cols-[2fr_1fr] md:p-12">
         <div>
           <p className="mb-4 text-sm uppercase tracking-[0.25em] text-emerald-700">

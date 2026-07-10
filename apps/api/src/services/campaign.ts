@@ -1,18 +1,26 @@
 import { campaignRepository } from '../repositories/campaign';
-import { ApiCampaign } from '../types';
+import { ApiCampaign, ApiCampaignTier } from '../types';
 import { CreateCampaign, UpdateCampaign } from '../schemas/campaign';
+
+export type ApiCampaignWithTiers = ApiCampaign & { tiers: ApiCampaignTier[] };
 
 export class CampaignService {
     async getCampaign(id: string): Promise<ApiCampaign | null> {
         return campaignRepository.findById(id);
     }
 
-    async getCampaignBySlug(slug: string): Promise<ApiCampaign | null> {
-        return campaignRepository.findBySlug(slug);
+    async getCampaignBySlug(slug: string): Promise<ApiCampaignWithTiers | null> {
+        const campaign = await campaignRepository.findBySlug(slug);
+        if (!campaign) {
+            return null;
+        }
+
+        const tiers = await campaignRepository.findActiveTiers(campaign.id);
+        return { ...campaign, tiers };
     }
 
-    async listCampaigns(ngoId?: string, status?: string, limit?: number, offset?: number) {
-        return campaignRepository.findMany(ngoId, status, limit, offset);
+    async listCampaigns(ngoId?: string, status?: string, limit?: number, offset?: number, category?: string) {
+        return campaignRepository.findMany(ngoId, status, limit, offset, category);
     }
 
     async createCampaign(data: CreateCampaign): Promise<ApiCampaign> {

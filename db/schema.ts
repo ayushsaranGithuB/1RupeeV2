@@ -27,6 +27,14 @@ export const campaignStatusEnum = pgEnum('campaign_status', [
     'COMPLETED',
     'ARCHIVED',
 ]);
+export const campaignCategoryEnum = pgEnum('campaign_category', [
+    'EDUCATION',
+    'HEALTHCARE',
+    'ANIMAL_WELFARE',
+    'ENVIRONMENT',
+    'HUNGER',
+    'WATER_SANITATION',
+]);
 export const ngoStatusEnum = pgEnum('ngo_status', [
     'PENDING',
     'VERIFIED',
@@ -105,12 +113,11 @@ export const campaigns = pgTable('campaigns', {
         .references(() => ngos.id),
     title: varchar('title', { length: 255 }).notNull(),
     slug: varchar('slug', { length: 255 }).notNull().unique(),
-    short_description: text('short_description'),
+    category: campaignCategoryEnum('category'),
     description: text('description'),
-    hero_image: text('hero_image'),
     mobile_hero_image: text('mobile_hero_image'),
-    tablet_hero_image: text('tablet_hero_image'),
     desktop_hero_image: text('desktop_hero_image'),
+    impact_highlights: jsonb('impact_highlights').$type<string[]>(),
     goal_amount: integer('goal_amount'),
     raised_amount: integer('raised_amount').notNull().default(0),
     supporter_count: integer('supporter_count').notNull().default(0),
@@ -128,6 +135,8 @@ export const campaign_tiers = pgTable('campaign_tiers', {
     title: varchar('title', { length: 255 }).notNull(),
     description: text('description'),
     impact_description: text('impact_description'),
+    features: jsonb('features').$type<string[]>(),
+    featured: boolean('featured').notNull().default(false),
     daily_amount: integer('daily_amount').notNull(),
     monthly_equivalent: integer('monthly_equivalent').notNull(),
     display_order: integer('display_order').notNull(),

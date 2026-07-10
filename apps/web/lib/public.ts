@@ -13,20 +13,51 @@ type ApiFailure = {
 
 type ApiResponse<T> = ApiSuccess<T> | ApiFailure;
 
+export type PublicTier = {
+    id: string;
+    campaign_id: string;
+    title: string;
+    description: string | null;
+    impact_description: string | null;
+    features: string[] | null;
+    featured: boolean;
+    daily_amount: number;
+    monthly_equivalent: number;
+    display_order: number;
+};
+
+export type CampaignCategory =
+    | "EDUCATION"
+    | "HEALTHCARE"
+    | "ANIMAL_WELFARE"
+    | "ENVIRONMENT"
+    | "HUNGER"
+    | "WATER_SANITATION";
+
+export const CAMPAIGN_CATEGORY_LABELS: Record<CampaignCategory, string> = {
+    EDUCATION: "Education",
+    HEALTHCARE: "Healthcare",
+    ANIMAL_WELFARE: "Animal Welfare",
+    ENVIRONMENT: "Environment",
+    HUNGER: "Hunger Relief",
+    WATER_SANITATION: "Water & Sanitation",
+};
+
 export type PublicCampaign = {
     id: string;
     title: string;
     slug: string;
-    short_description: string | null;
+    category: CampaignCategory | null;
+    ngo_name: string | null;
     description: string | null;
-    hero_image: string | null;
     mobile_hero_image: string | null;
-    tablet_hero_image: string | null;
     desktop_hero_image: string | null;
+    impact_highlights: string[] | null;
     goal_amount: number | null;
     raised_amount: number;
     supporter_count: number;
     status: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
+    tiers?: PublicTier[];
 };
 
 export type PublicStats = {
@@ -68,9 +99,20 @@ export async function getPublicStats(): Promise<PublicStats | null> {
     }
 }
 
-export async function getActiveCampaigns(limit = 12): Promise<PublicCampaign[]> {
+export async function getActiveCampaigns(
+    limit = 12,
+    category?: CampaignCategory,
+): Promise<PublicCampaign[]> {
     try {
-        return await fetchApi<PublicCampaign[]>(`/campaigns?status=ACTIVE&limit=${limit}&offset=0`);
+        const params = new URLSearchParams({
+            status: "ACTIVE",
+            limit: String(limit),
+            offset: "0",
+        });
+        if (category) {
+            params.set("category", category);
+        }
+        return await fetchApi<PublicCampaign[]>(`/campaigns?${params.toString()}`);
     } catch {
         return [];
     }

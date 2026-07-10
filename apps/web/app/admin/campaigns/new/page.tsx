@@ -19,11 +19,9 @@ const emptyForm = {
   ngo_id: "",
   title: "",
   slug: "",
-  short_description: "",
   description: "",
-  hero_image: "",
+  impact_highlights: "",
   mobile_hero_image: "",
-  tablet_hero_image: "",
   desktop_hero_image: "",
   goal_amount: "",
   status: "DRAFT",
@@ -70,13 +68,14 @@ export default function CreateCampaignPage() {
           ngo_id: form.ngo_id,
           title: form.title,
           slug: form.slug,
-          short_description: form.short_description,
           description: form.description,
-          hero_image: form.hero_image || undefined,
+          impact_highlights: form.impact_highlights
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean),
           mobile_hero_image: form.mobile_hero_image || undefined,
-          tablet_hero_image: form.tablet_hero_image || undefined,
           desktop_hero_image: form.desktop_hero_image || undefined,
-          goal_amount: Number(form.goal_amount),
+          goal_amount: Math.round(Number(form.goal_amount) * 100),
           status: form.status,
         }),
       });
@@ -149,27 +148,22 @@ export default function CreateCampaignPage() {
             />
             <div className="xl:col-span-2">
               <Textarea
-                value={form.short_description}
-                placeholder="Short description"
-                onChange={(e) =>
-                  setForm({ ...form, short_description: e.target.value })
-                }
-              />
-            </div>
-            <div className="xl:col-span-2">
-              <Textarea
                 value={form.description}
-                placeholder="Detailed description"
+                placeholder="Campaign description"
                 onChange={(e) =>
                   setForm({ ...form, description: e.target.value })
                 }
               />
             </div>
-            <Input
-              value={form.hero_image}
-              placeholder="Hero image URL"
-              onChange={(e) => setForm({ ...form, hero_image: e.target.value })}
-            />
+            <div className="xl:col-span-2">
+              <Textarea
+                value={form.impact_highlights}
+                placeholder={"Impact highlights (one per line)"}
+                onChange={(e) =>
+                  setForm({ ...form, impact_highlights: e.target.value })
+                }
+              />
+            </div>
             <Input
               value={form.mobile_hero_image}
               placeholder="Mobile hero image URL (3:4)"
@@ -178,22 +172,15 @@ export default function CreateCampaignPage() {
               }
             />
             <Input
-              value={form.tablet_hero_image}
-              placeholder="Tablet hero image URL (5:3)"
-              onChange={(e) =>
-                setForm({ ...form, tablet_hero_image: e.target.value })
-              }
-            />
-            <Input
               value={form.desktop_hero_image}
-              placeholder="Desktop hero image URL (9:3)"
+              placeholder="Desktop hero image URL (4:3)"
               onChange={(e) =>
                 setForm({ ...form, desktop_hero_image: e.target.value })
               }
             />
             <Input
               value={form.goal_amount}
-              placeholder="Goal amount"
+              placeholder="Goal amount (₹)"
               onChange={(e) =>
                 setForm({ ...form, goal_amount: e.target.value })
               }
