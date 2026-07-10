@@ -80,5 +80,22 @@
     body {
         background-color: hsl(var(--background));
         color: hsl(var(--foreground));
+        font-family: "Segoe UI Variable Text", "Segoe UI", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+        font-feature-settings: "kern" 1, "liga" 1;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        min-height: 100vh;
+        background-image:
+            radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.1), transparent 35%),
+            radial-gradient(circle at 90% 20%, rgba(245, 158, 11, 0.12), transparent 32%),
+            linear-gradient(180deg, rgba(236, 253, 245, 0.7), rgba(255, 255, 255, 1));
+    }
+
+    h1,
+    h2,
+    h3 {
+        font-family: "Segoe UI Variable Display", "Bahnschrift", "Trebuchet MS", "Segoe UI", sans-serif;
+        letter-spacing: -0.01em;
+        font-weight: 700;
     }
 }

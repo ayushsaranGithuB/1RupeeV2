@@ -111,7 +111,7 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1">
+      <main className="w-full">
         <div className="p-4 sm:p-6">{children}</div>
       </main>
     </div>

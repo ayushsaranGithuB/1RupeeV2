@@ -22,6 +22,9 @@ const emptyForm = {
   short_description: "",
   description: "",
   hero_image: "",
+  mobile_hero_image: "",
+  tablet_hero_image: "",
+  desktop_hero_image: "",
   goal_amount: "",
   status: "DRAFT",
 };
@@ -70,6 +73,9 @@ export default function CreateCampaignPage() {
           short_description: form.short_description,
           description: form.description,
           hero_image: form.hero_image || undefined,
+          mobile_hero_image: form.mobile_hero_image || undefined,
+          tablet_hero_image: form.tablet_hero_image || undefined,
+          desktop_hero_image: form.desktop_hero_image || undefined,
           goal_amount: Number(form.goal_amount),
           status: form.status,
         }),
@@ -163,6 +169,27 @@ export default function CreateCampaignPage() {
               value={form.hero_image}
               placeholder="Hero image URL"
               onChange={(e) => setForm({ ...form, hero_image: e.target.value })}
+            />
+            <Input
+              value={form.mobile_hero_image}
+              placeholder="Mobile hero image URL (3:4)"
+              onChange={(e) =>
+                setForm({ ...form, mobile_hero_image: e.target.value })
+              }
+            />
+            <Input
+              value={form.tablet_hero_image}
+              placeholder="Tablet hero image URL (5:3)"
+              onChange={(e) =>
+                setForm({ ...form, tablet_hero_image: e.target.value })
+              }
+            />
+            <Input
+              value={form.desktop_hero_image}
+              placeholder="Desktop hero image URL (9:3)"
+              onChange={(e) =>
+                setForm({ ...form, desktop_hero_image: e.target.value })
+              }
             />
             <Input
               value={form.goal_amount}

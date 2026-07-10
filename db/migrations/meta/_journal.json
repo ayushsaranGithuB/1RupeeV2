@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1783653177353,
+      "tag": "0000_brown_ogun",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1783706400000,
+      "tag": "0001_wide_heroes",
+      "breakpoints": true
+    }
+  ]
+}

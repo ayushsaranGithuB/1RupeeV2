@@ -34,6 +34,9 @@ export const AdminCreateCampaignSchema = z.object({
     short_description: z.string().min(10, 'Short description must be at least 10 characters').optional(),
     description: z.string().min(50, 'Description must be at least 50 characters').optional(),
     hero_image: z.string().url().optional(),
+    mobile_hero_image: z.string().url().optional(),
+    tablet_hero_image: z.string().url().optional(),
+    desktop_hero_image: z.string().url().optional(),
     goal_amount: z.number().int().positive('Goal amount must be positive').optional(),
     status: z.enum(['DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED', 'ARCHIVED']).optional(),
 });
@@ -148,4 +151,9 @@ export const RunMonthlyPayoutSchema = z.object({
 }, {
     message: 'start_date and end_date must both be provided together',
     path: ['start_date'],
+});
+
+export const JobRunListSchema = z.object({
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    offset: z.coerce.number().int().min(0).default(0),
 });

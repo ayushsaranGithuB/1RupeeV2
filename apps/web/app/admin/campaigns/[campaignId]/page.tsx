@@ -27,6 +27,9 @@ interface CampaignRecord {
   short_description: string | null;
   description: string | null;
   hero_image: string | null;
+  mobile_hero_image: string | null;
+  tablet_hero_image: string | null;
+  desktop_hero_image: string | null;
   goal_amount: number | null;
   raised_amount: number;
   supporter_count: number;
@@ -64,6 +67,10 @@ interface FormState {
   title: string;
   short_description: string;
   description: string;
+  hero_image: string;
+  mobile_hero_image: string;
+  tablet_hero_image: string;
+  desktop_hero_image: string;
   status: CampaignRecord["status"];
 }
 
@@ -92,6 +99,10 @@ export default function CampaignDetailsPage() {
     title: "",
     short_description: "",
     description: "",
+    hero_image: "",
+    mobile_hero_image: "",
+    tablet_hero_image: "",
+    desktop_hero_image: "",
     status: "DRAFT",
   });
 
@@ -177,6 +188,10 @@ export default function CampaignDetailsPage() {
       title: selectedCampaign.title,
       short_description: selectedCampaign.short_description || "",
       description: selectedCampaign.description || "",
+      hero_image: selectedCampaign.hero_image || "",
+      mobile_hero_image: selectedCampaign.mobile_hero_image || "",
+      tablet_hero_image: selectedCampaign.tablet_hero_image || "",
+      desktop_hero_image: selectedCampaign.desktop_hero_image || "",
       status: selectedCampaign.status,
     });
   }, [selectedCampaign]);
@@ -196,6 +211,10 @@ export default function CampaignDetailsPage() {
           title: form.title,
           short_description: form.short_description,
           description: form.description,
+          hero_image: form.hero_image || undefined,
+          mobile_hero_image: form.mobile_hero_image || undefined,
+          tablet_hero_image: form.tablet_hero_image || undefined,
+          desktop_hero_image: form.desktop_hero_image || undefined,
           status: statusOverride || form.status,
         }),
       });
@@ -646,6 +665,79 @@ export default function CampaignDetailsPage() {
                         className="min-h-36"
                       />
                     </div>
+                    <div className="xl:col-span-2 space-y-2">
+                      <label
+                        htmlFor="campaign-hero-image"
+                        className="text-sm font-medium text-slate-700"
+                      >
+                        Fallback Hero URL
+                      </label>
+                      <Input
+                        id="campaign-hero-image"
+                        value={form.hero_image}
+                        onChange={(e) =>
+                          setForm({ ...form, hero_image: e.target.value })
+                        }
+                        placeholder="https://..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="campaign-mobile-hero-image"
+                        className="text-sm font-medium text-slate-700"
+                      >
+                        Mobile Hero URL (3:4)
+                      </label>
+                      <Input
+                        id="campaign-mobile-hero-image"
+                        value={form.mobile_hero_image}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            mobile_hero_image: e.target.value,
+                          })
+                        }
+                        placeholder="https://..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="campaign-tablet-hero-image"
+                        className="text-sm font-medium text-slate-700"
+                      >
+                        Tablet Hero URL (5:3)
+                      </label>
+                      <Input
+                        id="campaign-tablet-hero-image"
+                        value={form.tablet_hero_image}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            tablet_hero_image: e.target.value,
+                          })
+                        }
+                        placeholder="https://..."
+                      />
+                    </div>
+                    <div className="xl:col-span-2 space-y-2">
+                      <label
+                        htmlFor="campaign-desktop-hero-image"
+                        className="text-sm font-medium text-slate-700"
+                      >
+                        Desktop Hero URL (9:3)
+                      </label>
+                      <Input
+                        id="campaign-desktop-hero-image"
+                        value={form.desktop_hero_image}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            desktop_hero_image: e.target.value,
+                          })
+                        }
+                        placeholder="https://..."
+                      />
+                    </div>
                   </div>
                 </section>
 
@@ -686,10 +778,34 @@ export default function CampaignDetailsPage() {
                     </div>
                     <div className="xl:col-span-2">
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Hero Image URL
+                        Fallback Hero URL
                       </p>
                       <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
                         {selectedCampaign.hero_image || "-"}
+                      </p>
+                    </div>
+                    <div className="xl:col-span-2">
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Mobile Hero URL
+                      </p>
+                      <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
+                        {selectedCampaign.mobile_hero_image || "-"}
+                      </p>
+                    </div>
+                    <div className="xl:col-span-2">
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Tablet Hero URL
+                      </p>
+                      <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
+                        {selectedCampaign.tablet_hero_image || "-"}
+                      </p>
+                    </div>
+                    <div className="xl:col-span-2">
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Desktop Hero URL
+                      </p>
+                      <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
+                        {selectedCampaign.desktop_hero_image || "-"}
                       </p>
                     </div>
                   </div>

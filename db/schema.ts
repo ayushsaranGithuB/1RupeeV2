@@ -108,6 +108,9 @@ export const campaigns = pgTable('campaigns', {
     short_description: text('short_description'),
     description: text('description'),
     hero_image: text('hero_image'),
+    mobile_hero_image: text('mobile_hero_image'),
+    tablet_hero_image: text('tablet_hero_image'),
+    desktop_hero_image: text('desktop_hero_image'),
     goal_amount: integer('goal_amount'),
     raised_amount: integer('raised_amount').notNull().default(0),
     supporter_count: integer('supporter_count').notNull().default(0),
@@ -171,6 +174,18 @@ export const payouts = pgTable('payouts', {
     receipt_url: text('receipt_url'),
     status: payoutStatusEnum('status').notNull().default('PENDING'),
     completed_at: timestamp('completed_at'),
+});
+
+export const job_runs = pgTable('job_runs', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    job_type: varchar('job_type', { length: 100 }).notNull(),
+    status: varchar('status', { length: 50 }).notNull().default('RUNNING'),
+    requested_by: varchar('requested_by', { length: 255 }),
+    input: jsonb('input'),
+    summary: jsonb('summary'),
+    error_message: text('error_message'),
+    started_at: timestamp('started_at').notNull().defaultNow(),
+    finished_at: timestamp('finished_at'),
 });
 
 export const transparency_reports = pgTable('transparency_reports', {

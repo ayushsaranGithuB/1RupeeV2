@@ -72,6 +72,31 @@ On successful webhook processing:
 
 If wallet is missing, the API returns not found for that webhook user.
 
+## Daily Donation Idempotency
+
+Daily pledge processing now has a duplicate-protection rule:
+
+- If a pledge already has a donation record for the same UTC date, it is skipped.
+
+This prevents accidental double-charging when CRON runs more than once for the same day.
+
+## Run History and Auditability
+
+CRON and payout generation runs now persist run history in the database.
+
+Each run stores:
+
+- job type
+- start and finish time
+- run input
+- completion status
+- summary output
+- error message (if failed)
+
+Admin endpoint:
+
+- GET /admin/jobs/runs
+
 ## Configuration
 
 Use these environment variables:

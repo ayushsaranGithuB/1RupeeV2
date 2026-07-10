@@ -16,6 +16,7 @@ import {
     ProcessPayoutSchema,
     RunMonthlyPayoutSchema,
     DailyCronRunSchema,
+    JobRunListSchema,
     TierFilterSchema,
     TransparencyReportSchema,
     UpdateTierSchema,
@@ -27,6 +28,7 @@ import {
     adminReportingService,
     campaignAdminService,
     dailyDonationProcessorService,
+    jobRunService,
     ngoService,
     payoutService,
     tierService,
@@ -459,6 +461,7 @@ admin.post('/cron/daily-run', async (c) => {
         const body = await c.req.json().catch(() => ({}));
         const data = DailyCronRunSchema.parse(body);
         const summary = await dailyDonationProcessorService.runDailyProcessing(
+            getAdminId(c),
             data.run_date ? new Date(data.run_date) : undefined,
             data.max_pledges
         );
@@ -501,6 +504,7 @@ admin.post('/payouts/run', async (c) => {
         const body = await c.req.json().catch(() => ({}));
         const data = RunMonthlyPayoutSchema.parse(body);
         const summary = await payoutService.runMonthlyPayoutGeneration(
+            getAdminId(c),
             data.start_date ? new Date(data.start_date) : undefined,
             data.end_date ? new Date(data.end_date) : undefined
         );
@@ -514,6 +518,23 @@ admin.post('/payouts/run', async (c) => {
 
         console.error('Error running monthly payout generation:', error.message);
         return c.json(errorResponse('INTERNAL_ERROR', 'Failed to run monthly payout generation'), 500);
+    }
+});
+
+admin.get('/jobs/runs', async (c) => {
+    try {
+        const query = c.req.query();
+        const filters = JobRunListSchema.parse(query);
+        const runs = await jobRunService.listRuns(filters.limit, filters.offset);
+        return c.json(successResponse(runs));
+    } catch (error: any) {
+        const validation = validationError(error);
+        if (validation) {
+            return c.json(validation, 400);
+        }
+
+        console.error('Error listing job runs:', error.message);
+        return c.json(errorResponse('INTERNAL_ERROR', 'Failed to list job runs'), 500);
     }
 });
 

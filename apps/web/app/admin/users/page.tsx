@@ -193,12 +193,12 @@ export default function UserManagement() {
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-slate-200 bg-white p-3">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="rounded-xl border border-slate-200 bg-white p-3 ">
+        <div className="flex flex-wrap justify-start gap-2 ">
           <Select
             value={searchType}
             onChange={(e) => setSearchType(e.target.value as "email" | "name")}
-            className="w-full sm:w-[160px]"
+            className="w-full sm:w-[160px] bg-neutral-50 text-slate-500"
           >
             <option value="email">Email</option>
             <option value="name">Name</option>
@@ -207,12 +207,12 @@ export default function UserManagement() {
             value={searchTerm}
             placeholder="Search users"
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="min-w-[220px] flex-1"
+            className="w-[220px] bg-neutral-50 text-slate-500"
           />
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-[180px]"
+            className="w-full sm:w-[180px] bg-neutral-50 text-slate-500"
           >
             <option value="">All statuses</option>
             <option value="active">Active</option>
@@ -220,7 +220,7 @@ export default function UserManagement() {
           </Select>
           <Button
             onClick={loadUsers}
-            className="bg-emerald-600 text-white hover:bg-emerald-500"
+            className="bg-emerald-600 text-white hover:bg-emerald-500 ml-auto"
           >
             Run Search
           </Button>

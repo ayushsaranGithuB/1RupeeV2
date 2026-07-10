@@ -38,12 +38,18 @@ Deliverable: Core API complete. ✅
 
 ## Phase 4 — Business Logic
 
-- [ ] Wallet ledger
-- [ ] Daily CRON
-- [ ] Monthly payout generation
-- [ ] Razorpay webhook
+- [x] Wallet ledger
+- [x] Daily CRON
+- [x] Monthly payout generation
+- [x] Razorpay webhook
 
-Deliverable: Recurring donations functional.
+Deliverable: Recurring donations functional. ✅
+
+Notes:
+
+- Daily CRON now includes idempotency guard to prevent duplicate same-day pledge charging.
+- Monthly payout run supports period-level duplicate prevention per NGO.
+- Job run history is stored for CRON and payout run auditability.
 
 ---
 
@@ -72,13 +78,13 @@ Notes:
 
 ## Phase 6 — Public Website
 
-- [ ] Landing page
-- [ ] Campaigns
-- [ ] Campaign details
-- [ ] Transparency
-- [ ] Authentication
+- [x] Landing page
+- [x] Campaigns
+- [x] Campaign details
+- [x] Transparency
+- [x] Authentication
 
-Deliverable: Public MVP.
+Deliverable: Public MVP. ✅
 
 ---
 

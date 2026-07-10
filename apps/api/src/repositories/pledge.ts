@@ -1,6 +1,6 @@
 import { getDb } from '@db';
 import { pledges, campaign_tiers, campaigns, donations } from '@db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, gte, lte } from 'drizzle-orm';
 import { ApiPledge } from '../types';
 
 export class PledgeRepository {
@@ -110,6 +110,40 @@ export class PledgeRepository {
             .returning();
 
         return (inserted[0] as any) || null;
+    }
+
+    async hasDonationForPledgeOnUtcDate(pledgeId: string, date: Date) {
+        const db = getDb();
+        const dayStart = new Date(Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+        ));
+        const dayEnd = new Date(Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            23,
+            59,
+            59,
+            999
+        ));
+
+        const existing = await db
+            .select({ id: donations.id })
+            .from(donations)
+            .where(and(
+                eq(donations.pledge_id, pledgeId),
+                gte(donations.donated_at, dayStart),
+                lte(donations.donated_at, dayEnd),
+            ))
+            .limit(1);
+
+        return existing.length > 0;
     }
 }
 

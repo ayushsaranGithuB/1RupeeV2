@@ -2,6 +2,9 @@ import { Hono } from 'hono';
 import { campaignService } from '../services/campaign';
 import { successResponse, errorResponse, ErrorCodes } from '../utils/response';
 import { ApiStats } from '../types';
+import { getDb } from '@db';
+import { transparency_reports } from '@db/schema';
+import { desc } from 'drizzle-orm';
 
 const stats = new Hono();
 
@@ -24,6 +27,26 @@ stats.get('/', async (c) => {
         console.error('Error fetching stats:', error);
         return c.json(
             errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to fetch stats'),
+            500
+        );
+    }
+});
+
+// GET /stats/reports - Get latest transparency reports
+stats.get('/reports', async (c) => {
+    try {
+        const db = getDb();
+        const reports = await db
+            .select()
+            .from(transparency_reports)
+            .orderBy(desc(transparency_reports.created_at))
+            .limit(10);
+
+        return c.json(successResponse(reports));
+    } catch (error) {
+        console.error('Error fetching transparency reports:', error);
+        return c.json(
+            errorResponse(ErrorCodes.INTERNAL_ERROR, 'Failed to fetch transparency reports'),
             500
         );
     }

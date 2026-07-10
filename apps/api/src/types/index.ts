@@ -37,6 +37,9 @@ export type ApiCampaign = {
     short_description: string | null;
     description: string | null;
     hero_image: string | null;
+    mobile_hero_image: string | null;
+    tablet_hero_image: string | null;
+    desktop_hero_image: string | null;
     goal_amount: number | null;
     raised_amount: number;
     supporter_count: number;

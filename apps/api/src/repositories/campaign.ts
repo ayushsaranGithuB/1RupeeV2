@@ -41,6 +41,9 @@ export class CampaignRepository {
         short_description: string;
         description: string;
         hero_image?: string | null;
+        mobile_hero_image?: string | null;
+        tablet_hero_image?: string | null;
+        desktop_hero_image?: string | null;
         goal_amount: number;
         status?: 'DRAFT' | 'ACTIVE';
     }): Promise<ApiCampaign> {
@@ -54,6 +57,9 @@ export class CampaignRepository {
             short_description: data.short_description,
             description: data.description,
             hero_image: data.hero_image || null,
+            mobile_hero_image: data.mobile_hero_image || null,
+            tablet_hero_image: data.tablet_hero_image || null,
+            desktop_hero_image: data.desktop_hero_image || null,
             goal_amount: data.goal_amount,
             status: (data.status || 'DRAFT') as any,
         }).returning();
@@ -66,6 +72,9 @@ export class CampaignRepository {
         short_description?: string;
         description?: string;
         hero_image?: string | null;
+        mobile_hero_image?: string | null;
+        tablet_hero_image?: string | null;
+        desktop_hero_image?: string | null;
         status?: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'ARCHIVED';
     }): Promise<ApiCampaign | null> {
         const db = getDb();

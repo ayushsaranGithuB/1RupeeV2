@@ -57,6 +57,7 @@ Related docs:
 - `GET /campaigns`
 - `GET /campaigns/:slug`
 - `GET /stats`
+- `GET /stats/reports`
 
 ---
 
@@ -107,6 +108,11 @@ Related docs:
 
 - `GET /admin/payouts` — List payouts
 - `POST /admin/payouts/run` — Generate monthly payouts
+
+### Jobs
+
+- `POST /admin/cron/daily-run` — Run daily pledge processing
+- `GET /admin/jobs/runs` — List CRON and payout run history
 
 ---
 

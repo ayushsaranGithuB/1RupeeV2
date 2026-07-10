@@ -210,6 +210,18 @@ describe('Admin API Endpoints', () => {
             expect(data.success !== undefined).toBe(true);
         });
 
+        it('GET /admin/jobs/runs should validate limit', async () => {
+            const { status, data } = await makeRequest('GET', '/admin/jobs/runs?limit=999');
+            expect(status).toBe(400);
+            expect(data.success).toBe(false);
+        });
+
+        it('GET /admin/jobs/runs should return run history or handle DB error', async () => {
+            const { status, data } = await makeRequest('GET', '/admin/jobs/runs?limit=10&offset=0');
+            expect([200, 500]).toContain(status);
+            expect(data.success !== undefined).toBe(true);
+        });
+
         it('GET /admin/payouts/:id should handle payout details request', async () => {
             const testUUID = '550e8400-e29b-41d4-a716-446655440000';
             const { status, data } = await makeRequest('GET', `/admin/payouts/${testUUID}`);

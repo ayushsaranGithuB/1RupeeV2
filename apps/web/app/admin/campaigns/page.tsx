@@ -27,6 +27,9 @@ interface CampaignRecord {
   status: "DRAFT" | "ACTIVE" | "PAUSED" | "COMPLETED" | "ARCHIVED";
   description?: string | null;
   hero_image?: string | null;
+  mobile_hero_image?: string | null;
+  tablet_hero_image?: string | null;
+  desktop_hero_image?: string | null;
 }
 
 interface NgoOption {
@@ -41,6 +44,10 @@ const emptyForm = {
   title: "",
   slug: "",
   short_description: "",
+  hero_image: "",
+  mobile_hero_image: "",
+  tablet_hero_image: "",
+  desktop_hero_image: "",
   goal_amount: "",
   status: "DRAFT" as CampaignRecord["status"],
 };
@@ -122,6 +129,10 @@ export default function CampaignManagement() {
         title: form.title,
         slug: form.slug,
         short_description: form.short_description,
+        hero_image: form.hero_image || undefined,
+        mobile_hero_image: form.mobile_hero_image || undefined,
+        tablet_hero_image: form.tablet_hero_image || undefined,
+        desktop_hero_image: form.desktop_hero_image || undefined,
         goal_amount: Number(form.goal_amount || 0),
         status: form.status,
       };
@@ -162,6 +173,10 @@ export default function CampaignManagement() {
       title: selectedCampaign.title,
       slug: selectedCampaign.slug,
       short_description: selectedCampaign.short_description || "",
+      hero_image: selectedCampaign.hero_image || "",
+      mobile_hero_image: selectedCampaign.mobile_hero_image || "",
+      tablet_hero_image: selectedCampaign.tablet_hero_image || "",
+      desktop_hero_image: selectedCampaign.desktop_hero_image || "",
       goal_amount: String(selectedCampaign.goal_amount || 0),
       status: selectedCampaign.status,
     });
@@ -361,6 +376,46 @@ export default function CampaignManagement() {
                     setForm({ ...form, short_description: e.target.value })
                   }
                   placeholder="One-line summary"
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Fallback Hero URL</p>
+                <Input
+                  value={form.hero_image}
+                  onChange={(e) =>
+                    setForm({ ...form, hero_image: e.target.value })
+                  }
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Mobile Hero URL (3:4)</p>
+                <Input
+                  value={form.mobile_hero_image}
+                  onChange={(e) =>
+                    setForm({ ...form, mobile_hero_image: e.target.value })
+                  }
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Tablet Hero URL (5:3)</p>
+                <Input
+                  value={form.tablet_hero_image}
+                  onChange={(e) =>
+                    setForm({ ...form, tablet_hero_image: e.target.value })
+                  }
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-400">Desktop Hero URL (9:3)</p>
+                <Input
+                  value={form.desktop_hero_image}
+                  onChange={(e) =>
+                    setForm({ ...form, desktop_hero_image: e.target.value })
+                  }
+                  placeholder="https://..."
                 />
               </div>
               <div className="space-y-1">
