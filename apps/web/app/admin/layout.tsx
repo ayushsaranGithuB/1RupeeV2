@@ -158,18 +158,18 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                   </p>
                 </div>
               )}
-              <button
-                type="button"
+              <Button
+                variant="outline"
                 onClick={() => signOut()}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900",
-                  !sidebarOpen && "justify-center px-2",
+                  "flex w-full items-center gap-2",
+                  !sidebarOpen && "justify-center",
                 )}
                 aria-label="Sign out"
               >
                 <LogOut size={16} />
                 <span className={cn(!sidebarOpen && "hidden")}>Sign out</span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>

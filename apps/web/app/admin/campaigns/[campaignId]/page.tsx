@@ -390,19 +390,14 @@ export default function CampaignDetailsPage() {
       <div className="flex flex-wrap items-center justify-between gap-2 border-y border-slate-200 py-2">
         <div className="flex flex-wrap gap-1">
           {TAB_ITEMS.map((tab) => (
-            <button
+            <Button
               key={tab.key}
-              type="button"
+              variant={activeTab === tab.key ? "default" : "ghost"}
               onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-sm font-medium transition",
-                activeTab === tab.key
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-100",
-              )}
+              className={activeTab === tab.key ? "bg-slate-900 hover:bg-slate-800" : ""}
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
 

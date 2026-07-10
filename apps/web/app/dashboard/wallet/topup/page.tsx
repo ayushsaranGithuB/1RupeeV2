@@ -68,18 +68,15 @@ export default function TopupPage() {
           </p>
           <div className="flex gap-2">
             {PRESET_AMOUNTS_RUPEES.map((preset) => (
-              <button
+              <Button
                 key={preset}
                 type="button"
                 onClick={() => setAmount(preset)}
-                className={
-                  amount === preset
-                    ? "rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
-                    : "rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                }
+                variant={amount === preset ? "default" : "outline"}
+                className={amount === preset ? "rounded-full bg-emerald-600 hover:bg-emerald-700" : "rounded-full"}
               >
                 ₹{preset}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

@@ -297,14 +297,15 @@ export default function CartPage() {
               <p className="text-sm font-medium text-slate-700 mb-2">Quick add</p>
               <div className="grid grid-cols-3 gap-2">
                 {QUICK_TOPUP_AMOUNTS.map((amount) => (
-                  <button
+                  <Button
                     key={amount}
                     onClick={() => handleQuickTopup(amount)}
                     disabled={topupLoading}
-                    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                    variant="outline"
+                    size="sm"
                   >
                     +₹{(amount / 100).toLocaleString()}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>

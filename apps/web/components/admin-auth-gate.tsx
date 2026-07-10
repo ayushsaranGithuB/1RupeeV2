@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useSession, signIn, signOut } from "@/lib/auth-client";
 
 const DEFAULT_ADMIN_EMAIL = "ayushsaran@gmail.com";
@@ -35,13 +36,13 @@ export function AdminAuthGate({ children }: { children: React.ReactNode }) {
           <p className="mt-2 text-sm text-slate-600">
             {data.user?.email} isn&apos;t an admin account.
           </p>
-          <button
-            type="button"
+          <Button
+            variant="outline"
             onClick={() => signOut()}
-            className="mt-6 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            className="mt-6"
           >
             Sign out
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -110,13 +111,13 @@ function AdminLogin() {
                 placeholder="you@example.com"
               />
             </label>
-            <button
-              className="w-full rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+            <Button
+              className="w-full bg-emerald-600 hover:bg-emerald-700"
               type="submit"
               disabled={loading}
             >
               {loading ? "Sending…" : "Send sign-in link"}
-            </button>
+            </Button>
           </form>
         )}
       </div>

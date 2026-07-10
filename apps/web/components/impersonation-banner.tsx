@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useSession, adminAuth } from "@/lib/auth-client";
 
 // Sticky banner shown while an admin is impersonating a user ("log in as
@@ -34,14 +35,14 @@ export function ImpersonationBanner() {
       <span>
         Viewing as <strong>{label}</strong> — admin impersonation session
       </span>
-      <button
-        type="button"
+      <Button
+        size="sm"
         onClick={exitImpersonation}
         disabled={leaving}
-        className="rounded-full bg-amber-950 px-3 py-1 text-xs font-semibold text-amber-50 transition hover:bg-amber-900 disabled:opacity-60"
+        className="bg-amber-950 text-amber-50 hover:bg-amber-900"
       >
         {leaving ? "Exiting…" : "Exit"}
-      </button>
+      </Button>
     </div>
   );
 }

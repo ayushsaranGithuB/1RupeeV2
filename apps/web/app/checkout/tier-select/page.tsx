@@ -193,20 +193,17 @@ export default function TierSelectPage() {
           <p className="mb-3 text-sm font-medium text-slate-700">Choose duration</p>
           <div className="grid grid-cols-3 gap-2">
             {PRESET_PLANS.map((plan) => (
-              <button
+              <Button
                 key={plan.months}
                 onClick={() => {
                   setPlanLength(plan.months);
                   setCustomLength("");
                 }}
-                className={`rounded-lg px-4 py-3 text-sm font-medium transition ${
-                  planLength === plan.months && customLength === ""
-                    ? "bg-emerald-600 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
+                variant={planLength === plan.months && customLength === "" ? "default" : "outline"}
+                className={planLength === plan.months && customLength === "" ? "bg-emerald-600 hover:bg-emerald-700" : ""}
               >
                 {plan.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -263,13 +260,13 @@ export default function TierSelectPage() {
               placeholder="e.g., 2, 5, 8"
               className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
             />
-            <button
+            <Button
               onClick={handleSaveCustomDuration}
-              className="rounded-lg bg-slate-600 text-white px-4 py-2 font-medium hover:bg-slate-700 whitespace-nowrap disabled:opacity-50"
+              className="bg-slate-600 hover:bg-slate-700"
               disabled={!customInputValue}
             >
               Set
-            </button>
+            </Button>
           </div>
           {customInputError && (
             <p className="text-sm text-red-600">{customInputError}</p>
@@ -281,16 +278,17 @@ export default function TierSelectPage() {
             <p className="text-sm text-slate-600">
               Selected: <span className="font-semibold text-slate-900">{customLength} months</span>
             </p>
-            <button
+            <Button
               onClick={() => {
                 setCustomLength("");
                 setCustomInputValue("");
                 setPlanLength(null);
               }}
-              className="text-sm text-emerald-600 hover:text-emerald-700"
+              variant="ghost"
+              size="sm"
             >
               Clear
-            </button>
+            </Button>
           </div>
         )}
 

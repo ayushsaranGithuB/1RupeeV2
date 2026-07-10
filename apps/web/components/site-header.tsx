@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Avatar } from "@/components/avatar";
@@ -55,18 +56,18 @@ export function SiteHeader() {
             </Link>
           ))}
           {session?.user ? (
-            <div className="flex items-center gap-3">
-              <Avatar name={session.user.name || session.user.email} />
-              <button
-                type="button"
+            <div className="flex items-center  rounded-xl border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-900">
+              <Avatar name={session.user.name || session.user.email} size="sm" />
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={async () => {
                   await signOut();
                   router.push("/");
                 }}
-                className="text-sm font-medium text-slate-600 transition hover:text-emerald-700"
               >
                 Sign out
-              </button>
+              </Button>
             </div>
           ) : (
             <>
@@ -86,15 +87,16 @@ export function SiteHeader() {
           )}
         </nav>
 
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon"
           aria-label="Toggle menu"
           aria-expanded={open}
           onClick={() => setOpen((value) => !value)}
-          className="inline-flex items-center justify-center rounded-md p-2 text-slate-700 transition hover:bg-emerald-50 md:hidden"
+          className="md:hidden"
         >
           {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        </Button>
       </div>
 
       <div
@@ -122,17 +124,17 @@ export function SiteHeader() {
                   <p className="text-sm font-semibold text-slate-900">{session.user.name || session.user.email}</p>
                 </div>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={async () => {
                   await signOut();
                   router.push("/");
                   setOpen(false);
                 }}
-                className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
+                className="justify-start"
               >
                 Sign out
-              </button>
+              </Button>
             </>
           ) : (
             <>

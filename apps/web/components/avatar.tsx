@@ -1,4 +1,10 @@
-export function Avatar({ name }: { name: string }) {
+export function Avatar({
+  name,
+  size,
+}: {
+  name: string;
+  size?: "sm" | "md" | "lg";
+}) {
   const initials = name
     .split(" ")
     .slice(0, 2)
@@ -6,8 +12,23 @@ export function Avatar({ name }: { name: string }) {
     .join("")
     .toUpperCase();
 
+  const sizeMap = {
+    sm: 24,
+    md: 32,
+    lg: 48,
+  };
+
+  const pixelSize = size ? sizeMap[size] : sizeMap.md;
+
   return (
-    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-xl font-semibold text-white">
+    <div
+      className="rounded-full bg-emerald-600 font-semibold text-white overflow-hidden flex-shrink-0 flex items-center justify-center"
+      style={{
+        width: pixelSize,
+        height: pixelSize,
+        fontSize: pixelSize / 2,
+      }}
+    >
       {initials}
     </div>
   );

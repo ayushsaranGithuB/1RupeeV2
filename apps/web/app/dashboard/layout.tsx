@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -72,16 +73,16 @@ export default function DashboardLayout({
             })}
           </nav>
 
-          <button
-            type="button"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={async () => {
               await signOut();
               router.push("/sign-in");
             }}
-            className="flex-shrink-0 rounded-full border border-slate-300 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
             Sign out
-          </button>
+          </Button>
         </div>
       </header>
 

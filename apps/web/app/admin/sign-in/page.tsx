@@ -116,16 +116,17 @@ export default function AdminSignInPage() {
         {!emailSent && (
           <div className="mt-6 border-t border-slate-100 pt-4 text-center">
             {!showPhone ? (
-              <button
+              <Button
+                variant="ghost"
                 type="button"
-                className="cursor-pointer text-sm font-medium text-slate-500 hover:text-emerald-700"
+                className="text-slate-500 hover:text-emerald-700"
                 onClick={() => {
                   setShowPhone(true);
                   setError(null);
                 }}
               >
                 Sign in with phone instead
-              </button>
+              </Button>
             ) : otpRequested ? (
               <form className="space-y-4 text-left" onSubmit={handleVerifyOtp}>
                 <label className="block text-sm font-medium text-slate-700">
@@ -149,16 +150,17 @@ export default function AdminSignInPage() {
                 >
                   {loading ? "Verifying…" : "Verify & sign in"}
                 </Button>
-                <button
+                <Button
+                  variant="ghost"
                   type="button"
-                  className="w-full cursor-pointer text-sm text-slate-500 hover:text-slate-700"
+                  className="w-full text-slate-500 hover:text-slate-700"
                   onClick={() => {
                     setOtpRequested(false);
                     setError(null);
                   }}
                 >
                   Use a different number
-                </button>
+                </Button>
               </form>
             ) : (
               <form className="space-y-4 text-left" onSubmit={handleSendOtp}>
@@ -180,16 +182,17 @@ export default function AdminSignInPage() {
                 >
                   {loading ? "Sending…" : "Send OTP"}
                 </Button>
-                <button
+                <Button
+                  variant="ghost"
                   type="button"
-                  className="w-full cursor-pointer text-sm text-slate-500 hover:text-slate-700"
+                  className="w-full text-slate-500 hover:text-slate-700"
                   onClick={() => {
                     setShowPhone(false);
                     setError(null);
                   }}
                 >
                   Use email instead
-                </button>
+                </Button>
               </form>
             )}
           </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { signIn } from "@/lib/auth-client";
 
 type RegisterResponse = {
@@ -106,13 +107,13 @@ export function SignUpForm() {
               placeholder="+91 98765 43210"
             />
           </label>
-          <button
-            className="w-full cursor-pointer rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+          <Button
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
             type="submit"
             disabled={loading}
           >
             {loading ? "Creating account…" : "Create account"}
-          </button>
+          </Button>
         </form>
       )}
 

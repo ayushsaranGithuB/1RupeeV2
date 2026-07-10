@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { formatInrPaisa } from "@/lib/public";
 import { dashboardRequest, formatDate } from "@/lib/dashboard";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -118,9 +119,10 @@ export default function DonationsPage() {
               className="rounded-2xl border border-slate-200 bg-white overflow-hidden"
             >
               {/* Month header - always visible, clickable to expand */}
-              <button
+              <Button
                 onClick={() => toggleMonth(month.yearMonth)}
-                className="w-full px-6 py-4 flex justify-between items-center hover:bg-slate-50 transition"
+                variant="ghost"
+                className="w-full justify-between px-6 py-4"
               >
                 <div className="text-left">
                   <p className="font-semibold text-slate-900">{month.displayMonth}</p>
@@ -134,7 +136,7 @@ export default function DonationsPage() {
                     <ChevronDown className="h-5 w-5 text-slate-400" />
                   )}
                 </div>
-              </button>
+              </Button>
 
               {/* Daily donations - shown when expanded */}
               {expandedMonths.has(month.yearMonth) && (
