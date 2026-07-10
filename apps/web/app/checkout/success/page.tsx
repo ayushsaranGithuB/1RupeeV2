@@ -41,15 +41,14 @@ export default function SuccessPage() {
     async function fetchPledge() {
       try {
         setLoading(true);
-        const result = (await dashboardRequest(`/pledges?limit=100`)) as any;
+        const pledges = (await dashboardRequest(`/pledges`)) as any[];
 
-        if (!result?.success) {
+        if (!Array.isArray(pledges)) {
           setError("Failed to load pledge details");
           return;
         }
 
         // Find the pledge by ID
-        const pledges = (result?.data || []) as any[];
         const foundPledge = pledges.find((p: any) => p.id === pledge_id);
 
         if (!foundPledge) {

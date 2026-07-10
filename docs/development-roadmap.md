@@ -45,12 +45,6 @@ Deliverable: Core API complete. ✅
 
 Deliverable: Recurring donations functional. ✅
 
-Notes:
-
-- Daily CRON now includes idempotency guard to prevent duplicate same-day pledge charging.
-- Monthly payout run supports period-level duplicate prevention per NGO.
-- Job run history is stored for CRON and payout run auditability.
-
 ---
 
 ## Phase 5 — Admin
@@ -67,13 +61,6 @@ Notes:
 - [ ] System Status Page - Shows API health, public API and admin API , Logs Status etc..
 
 Deliverable: Operations team can manage the platform. ✅
-
-Notes:
-
-- Admin dashboard now shows operational KPIs from the platform data.
-- Admin screens now cover donations, ledger review, and transparency reports from `FEATURES.md`.
-- Shared admin proxy now supports mutating requests so the screens work end-to-end.
-- Admin workflow now follows a consistent SaaS interaction model across screens (search/filter table -> drawer -> inline edit -> save).
 
 ---
 
@@ -100,48 +87,27 @@ Deliverable: Public MVP. ✅
 
 Deliverable: Complete donor experience. ✅
 
-Notes:
-
-- Real passwordless auth (Better Auth) now backs the platform: email magic link + phone OTP. Previously all auth was mocked (any `Bearer` token → hardcoded test user/admin); the mock middleware has been replaced with real session verification in `apps/api/src/index.ts`. Admins must now sign in (magic link) to use the admin console. Set the admin via `ADMIN_EMAIL` in the seed (default `ayushsaran@gmail.com`).
-- **Sign-up flow** collects Name, Email, and Phone (all required, phone prefilled with `+91`) via a new `POST /register` endpoint. The endpoint pre-creates the account before sending a magic-link email, so when the user clicks the link, Better Auth's verify step only marks email verified, preserving the name/phone captured at signup. Duplicate email/phone are rejected with a 409.
-- **Sign-in flow** shows email as the primary method; phone OTP is offered as an inline alternate below via a collapsed link (not a tab switcher), keeping the interface streamlined for the common email-based flow.
-- **Wallet auto-creation** now fires for every sign-up path via a `user.create.after` database hook in `apps/api/src/lib/auth.ts`. Pre-registered users (from `POST /register`) also get a wallet provisioned directly. This ensures every authenticated user can immediately access their wallet without a 404.
-- Admin **user impersonation** ("log in as user"): admin-only, session-based (Better Auth `admin` plugin), time-limited (30 min), reversible, and audited to `audit_logs` (`IMPERSONATE_START`). A sticky banner shows while impersonating; admin APIs are blocked during an impersonation session.
-- Phone OTP is mocked to `0000` in development (guarded by `NODE_ENV`/`DEV_PHONE_OTP`); wire an SMS provider (MSG91/Twilio) for production. Magic-link + OTP messages are logged to the API console in dev; wire Resend for production email.
-- DB migration `0006_auth_tables` adds Better Auth `sessions`/`accounts`/`verifications` tables and auth columns on `users`.
-- Donor dashboard now has dedicated pages under `/dashboard`: Overview, Wallet, Wallet top-up, Pledges (with pause/resume/cancel), Donation history, and Profile. A shared layout (`apps/web/app/dashboard/layout.tsx`) handles the auth gate and tab nav. The site header hides on dashboard routes (and admin/auth routes), with a minimal footer component shown on public pages only.
-- Fixed a bug where `pledgeRepository.findManyByUser` returned bare pledge rows with no campaign/tier join, even though the UI expected `campaign_title`/`tier_title`/`daily_amount`. It now joins `campaign_tiers`/`campaigns`.
-- Added a new `GET /donations` endpoint (donor-scoped, mirrors the admin donations join) to back the donation history page.
-- Top-up uses the existing mock-mode `POST /wallets/topup` direct-credit flow (see `docs/PAYMENTS.md`) — there's still no live Razorpay Checkout integration since no Razorpay credentials are configured. Swapping to real Razorpay Checkout later only needs to replace the `submitTopup` function in `apps/web/app/dashboard/wallet/topup/page.tsx`.
-
 ---
 
 ## Phase 8 — Pledge Checkout Flow
 
-- [ ] Campaign detail page with tier selection
-- [ ] Plan selection page (3 months / 6 months / 1 year)
-- [ ] Pricing calculation (daily amount × plan length)
-- [ ] Cart/Review page showing tier + plan + total price
-- [ ] Mock payment gateway page (simulate Razorpay)
-- [ ] Payment success page with transaction details
-- [ ] Payment failure handling with error message and retry
-- [ ] POST /pledges endpoint (create new pledge)
-- [ ] Wallet balance validation (check if user has sufficient balance)
-- [ ] Transaction completion (deduct from wallet, create pledge, log donation if first month paid)
-- [ ] Tests: tier selection, plan calculation, payment flows (success/failure)
+- [x] Campaign detail page with tier selection
+- [x] Plan selection page (3 months / 6 months / 1 year + custom 1-12 months)
+- [x] Pricing calculation (daily amount × plan length)
+- [x] Cart/Review page showing tier + plan + total price + wallet top-up
+- [x] Payment page (Razorpay-ready, simplified to button)
+- [x] Payment success page with transaction details
+- [x] Payment failure handling with error message and retry
+- [x] POST /pledges endpoint (create new pledge)
+- [x] Wallet balance validation
+- [x] Transaction completion (deduct from wallet, create pledge, log donation)
+- [x] Tests: pledge creation with various scenarios
+- [x] Database migrations (plan_length_months column)
+- [x] Auth route restructuring (/auth/* → root-level routes)
 
-Deliverable: Users can pledge to campaigns and be charged daily.
+Deliverable: Users can pledge to campaigns and are charged upfront. ✅
 
-Notes:
-
-- **Tier selection**: Campaign detail page shows all tiers with daily amount, features, and impact descriptions. Select a tier → go to plan selection.
-- **Plan selection**: Show 3 preset options (3/6/12 months) with calculated total (daily_amount × days). E.g., ₹1/day × 90 days = ₹90. Allow custom plan length (1-12 months). Summarize: "You'll be charged ₹X today for a 6-month pledge to [Campaign] at [Tier]."
-- **Payment mock**: Simulate Razorpay with a simple form (amount, card number placeholder). Accept any input for testing; no real charge. Success or error redirects.
-- **Wallet logic**: Before creating pledge, check `GET /wallets` balance ≥ (daily_amount × days). If insufficient, show error and prompt to top up. On success, deduct from wallet via POST /wallets/topup with negative amount (or new POST /wallets/debit endpoint).
-- **Pledge creation**: POST /pledges with { campaign_tier_id, plan_length_months }. API creates pledge row, calculates first month donation amount, deducts from wallet, logs donation to donations table, returns pledge + transaction details.
-- **Success page**: Shows pledge details (campaign, tier, amount, plan length) and transaction details. Links to dashboard/wallet and "see more campaigns".
-- **Error handling**: Form validation, wallet insufficient balance, payment failure — all show clear messages with retry option.
-- **Future Razorpay swap**: The mock payment page (`apps/web/app/checkout/payment/page.tsx`) can be replaced with real Razorpay Checkout.js; the flow upstream (tier selection → plan → summary) stays the same.
+See [PHASE8-PLEDGE-CHECKOUT.md](PHASE8-PLEDGE-CHECKOUT.md) for implementation details, architecture notes, and known issues.
 
 ---
 

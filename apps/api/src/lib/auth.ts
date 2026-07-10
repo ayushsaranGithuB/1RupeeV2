@@ -85,7 +85,7 @@ export const auth = betterAuth({
                 // Point the link at a WEB verify page that completes sign-in via
                 // the auth client (JSON, no redirect) so the session cookie is
                 // set first-party to the web origin the browser actually uses.
-                const link = `${WEB_URL}/auth/verify?token=${token}`;
+                const link = `${WEB_URL}/verify?token=${token}`;
                 await sendEmail({
                     to: email,
                     subject: 'Your 1Rupee sign-in link',

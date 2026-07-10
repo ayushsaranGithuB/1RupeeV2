@@ -47,35 +47,27 @@ export class PledgeService {
         // Create pledge
         const pledge = await pledgeRepository.create(userId, data.campaign_tier_id, data.plan_length_months);
 
-        // Deduct from wallet and log transaction (addTransaction handles balance update)
+        // Deduct from wallet (initial charge covers the full pledge duration upfront)
+        // Daily CRON will create daily donation records as pledges are processed
         const transactionId = await walletRepository.addTransaction(
             wallet.id,
-            'DONATION',
+            'PLEDGE_CHARGE',
             -totalAmountToCharge, // Negative for deduction
-            `Pledge to ${tier.title} (${data.plan_length_months} months)`,
+            `Pledge to ${tier.title} (${data.plan_length_months} months) - deducted upfront`,
             data.reference_id
         );
-
-        // Create donation record for first month
-        await pledgeRepository.createDonationRecord({
-            pledge_id: pledge.id,
-            campaign_id: tier.campaign_id,
-            wallet_transaction_id: transactionId,
-            amount: totalAmountToCharge,
-            donated_at: new Date(),
-        });
 
         return {
             pledge: {
                 ...pledge,
-                campaign_title: tier.title, // Will be fetched properly from the join
+                campaign_title: tier.title,
                 tier_title: tier.title,
                 daily_amount: tier.daily_amount,
             },
             transaction: {
                 id: transactionId,
                 amount: -totalAmountToCharge,
-                type: 'DONATION',
+                type: 'PLEDGE_CHARGE',
                 description: `Pledge to ${tier.title} (${data.plan_length_months} months)`,
             },
             wallet_balance_after: wallet.cached_balance - totalAmountToCharge,

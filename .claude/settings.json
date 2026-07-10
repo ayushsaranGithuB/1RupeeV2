@@ -32,7 +32,19 @@
       "Bash(curl -s http://127.0.0.1:3001/wallets -H \"x-test-auth: user\")",
       "Bash(curl -s http://127.0.0.1:3001/donations -H \"x-test-auth: user\")",
       "Bash(pkill -f \"bun dev\")",
-      "Bash(curl -s -w \"\\\\n\" http://127.0.0.1:3001/pledges -H \"x-test-auth: user\" -H \"Content-Type: application/json\")"
+      "Bash(curl -s -w \"\\\\n\" http://127.0.0.1:3001/pledges -H \"x-test-auth: user\" -H \"Content-Type: application/json\")",
+      "Bash(find /c/Users/ayush/Web/1Rupee/v2/apps/api -name \"*.ts\" -type f | grep -i auth | head -10)",
+      "Bash(grep -r \"POST.*register\\\\|/register\" /c/Users/ayush/Web/1Rupee/v2/apps/api/src --include=\"*.ts\" | head -5)",
+      "Read(//c/Users/ayush/Web/1Rupee/v2/apps/api/src/**)",
+      "Bash(grep -A 20 \"export const campaign_tiers\" /c/Users/ayush/Web/1Rupee/v2/db/schema.ts | head -25)",
+      "Read(//c/Users/ayush/Web/1Rupee/v2/db/**)",
+      "Bash(ls -la /c/Users/ayush/Web/1Rupee/v2/db/migrations/ | grep -i pledge)",
+      "Read(//c/Users/ayush/Web/1Rupee/v2/db/migrations//**)",
+      "Bash(ls -la /c/Users/ayush/Web/1Rupee/v2/docs/)",
+      "Read(//c/Users/ayush/Web/1Rupee/v2/docs//**)",
+      "Bash(grep -i \"\\\\.ts$\")",
+      "Bash(grep -n \"processDaily\\\\|daily.*donation\\\\|cron\" /c/Users/ayush/Web/1Rupee/v2/apps/api/src/services/admin.ts | head -20)",
+      "Read(//c/Users/ayush/Web/1Rupee/v2/apps/api/src/services/**)"
     ],
     "additionalDirectories": [
       "C:\\Users\\ayush\\Web\\1Rupee\\v2\\apps\\web\\app\\dashboard\\wallet"

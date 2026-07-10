@@ -6,7 +6,7 @@ import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { formatInrPaisa } from "@/lib/public";
 import { dashboardRequest } from "@/lib/dashboard";
-import { AlertCircle, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 
 type Tier = {
   id: string;
@@ -34,16 +34,24 @@ export default function PaymentPage() {
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const planLengthMonths = plan_length ? parseInt(plan_length) : 6;
   const daysInPlan = planLengthMonths * 30;
   const totalPrice = tier ? tier.daily_amount * daysInPlan : 0;
+
+  // Try to fetch wallet balance to verify it exists
+  useEffect(() => {
+    if (session?.user) {
+      dashboardRequest("/wallets")
+        .then((wallet: any) => {
+          console.log("Wallet available:", wallet);
+        })
+        .catch((err: any) => {
+          console.warn("Could not fetch wallet:", err.message);
+        });
+    }
+  }, [session?.user]);
 
   useEffect(() => {
     if (!session?.user) {
@@ -111,47 +119,48 @@ export default function PaymentPage() {
     fetchData();
   }, [session, tier_id, campaign_id, plan_length, router]);
 
-  async function handlePayment(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleProceedToPayment() {
     setSubmitting(true);
-    setPaymentError(null);
+    console.log("Attempting to create pledge with:", {
+      campaign_tier_id: tier_id,
+      plan_length_months: planLengthMonths,
+    });
 
     try {
-      // Simulate payment processing delay
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // Mock: 90% success rate
-      const success = Math.random() < 0.9;
-
-      if (!success) {
-        setPaymentError("Payment declined. Insufficient funds.");
-        setSubmitting(false);
-        return;
-      }
-
-      // Create pledge via API
-      const pledgeResult = (await dashboardRequest("/pledges", {
+      // Create pledge via API before redirecting to payment gateway
+      const pledgeResult = await dashboardRequest("/pledges", {
         method: "POST",
         body: JSON.stringify({
           campaign_tier_id: tier_id,
           plan_length_months: planLengthMonths,
           reference_id: crypto.randomUUID(),
         }),
-      })) as any;
+      });
 
-      if (!pledgeResult?.success) {
-        setPaymentError(pledgeResult?.error?.message || "Failed to create pledge");
-        setSubmitting(false);
-        return;
-      }
+      console.log("Pledge created successfully:", pledgeResult);
 
-      // Success - redirect to success page
+      // In production: redirect to Razorpay with order ID
+      // For now: redirect to success page
       router.push(
-        `/checkout/success?pledge_id=${pledgeResult.data?.pledge?.id}`
+        `/checkout/success?pledge_id=${(pledgeResult as any).pledge?.id}`
       );
     } catch (err) {
-      console.error("Payment error:", err);
-      setPaymentError("Payment processing failed. Please try again.");
+      console.error("Pledge creation error:", err);
+      let errorMessage = "Failed to create pledge";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        // Extract API error message if available (format: "StatusCode: message")
+        if (errorMessage.includes("Insufficient wallet balance")) {
+          errorMessage = "Insufficient wallet balance. Please add funds and try again.";
+        } else if (errorMessage.includes("already have an active pledge")) {
+          errorMessage = "You already have an active pledge to this tier.";
+        } else if (errorMessage.includes("not found")) {
+          errorMessage = "Campaign or tier not found. Please try again.";
+        }
+      }
+
+      setError(errorMessage);
       setSubmitting(false);
     }
   }
@@ -208,115 +217,56 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        {/* Payment form */}
-        <form onSubmit={handlePayment} className="space-y-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
-            <h2 className="font-semibold text-slate-900">Payment details</h2>
+        {/* Payment gateway notice */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
+          <h2 className="font-semibold text-slate-900">Ready to pay</h2>
+          <p className="text-sm text-slate-600">
+            You'll be redirected to Razorpay to securely complete your payment.
+          </p>
+          <p className="text-lg font-semibold text-emerald-600">
+            Amount to pay: {formatInrPaisa(totalPrice)}
+          </p>
+        </div>
 
-            {paymentError && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-4 flex gap-3">
-                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-red-700">{paymentError}</div>
-              </div>
+        {/* Error message */}
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+            <p className="text-sm font-semibold text-red-900 mb-2">Payment Error</p>
+            <p className="text-sm text-red-700 mb-4">{error}</p>
+            {error.includes("Insufficient") && (
+              <p className="text-xs text-red-600">
+                💡 Go back to add more funds to your wallet and try again.
+              </p>
             )}
-
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">
-                Card number
-              </span>
-              <input
-                type="text"
-                maxLength={16}
-                value={cardNumber}
-                onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ""))}
-                placeholder="1234 5678 9012 3456"
-                disabled={submitting}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400"
-                required
-              />
-            </label>
-
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">
-                Cardholder name
-              </span>
-              <input
-                type="text"
-                value={cardName}
-                onChange={(e) => setCardName(e.target.value)}
-                placeholder="John Doe"
-                disabled={submitting}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400"
-                required
-              />
-            </label>
-
-            <div className="grid grid-cols-2 gap-4">
-              <label className="block">
-                <span className="text-sm font-medium text-slate-700">Expiry</span>
-                <input
-                  type="text"
-                  maxLength={5}
-                  value={cardExpiry}
-                  onChange={(e) => {
-                    let val = e.target.value.replace(/\D/g, "");
-                    if (val.length >= 2) val = val.slice(0, 2) + "/" + val.slice(2, 4);
-                    setCardExpiry(val);
-                  }}
-                  placeholder="MM/YY"
-                  disabled={submitting}
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400"
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-medium text-slate-700">CVV</span>
-                <input
-                  type="text"
-                  maxLength={3}
-                  value={cardCvv}
-                  onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, ""))}
-                  placeholder="123"
-                  disabled={submitting}
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder-slate-400"
-                  required
-                />
-              </label>
-            </div>
-
-            <p className="text-xs text-slate-500 rounded-lg bg-slate-50 p-3">
-              💡 This is a mock payment gateway for demo purposes. Any values accepted.
-            </p>
           </div>
+        )}
 
-          {/* Actions */}
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-              disabled={submitting}
-              className="flex-1"
-            >
-              Back
-            </Button>
-            <Button
-              type="submit"
-              disabled={submitting || !cardNumber || !cardName || !cardExpiry || !cardCvv}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700"
-            >
-              {submitting ? (
-                <>
-                  <Loader className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                `Pay ${formatInrPaisa(totalPrice)}`
-              )}
-            </Button>
-          </div>
-        </form>
+        {/* Actions */}
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={submitting}
+            className="flex-1"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={handleProceedToPayment}
+            disabled={submitting}
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+          >
+            {submitting ? (
+              <>
+                <Loader className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Proceed to Payment"
+            )}
+          </Button>
+        </div>
       </div>
     </main>
   );

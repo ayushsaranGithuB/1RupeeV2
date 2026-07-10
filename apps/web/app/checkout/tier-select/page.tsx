@@ -36,9 +36,8 @@ export default function TierSelectPage() {
 
   const [tier, setTier] = useState<Tier | null>(null);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [planLength, setPlanLength] = useState(6);
+  const [planLength, setPlanLength] = useState<number | null>(null);
   const [customLength, setCustomLength] = useState("");
-  const [showCustomInput, setShowCustomInput] = useState(false);
   const [customInputValue, setCustomInputValue] = useState("");
   const [customInputError, setCustomInputError] = useState<string | null>(null);
   const [wallet, setWallet] = useState<{ cached_balance: number } | null>(null);
@@ -138,11 +137,11 @@ export default function TierSelectPage() {
     );
   }
 
-  const selectedPlanMonths = customLength ? parseInt(customLength) : planLength;
+  const selectedPlanMonths = customLength ? parseInt(customLength) : (planLength || 0);
   const daysInPlan = selectedPlanMonths * 30;
-  const totalPrice = tier.daily_amount * daysInPlan;
-  const isValidCustom =
-    customLength === "" || (parseInt(customLength) >= 1 && parseInt(customLength) <= 12);
+  const totalPrice = tier ? tier.daily_amount * daysInPlan : 0;
+  const hasSelectedDuration = planLength !== null || customLength !== "";
+  const isValidDuration = customLength === "" || (parseInt(customLength) >= 1 && parseInt(customLength) <= 12);
 
   function handleSaveCustomDuration() {
     if (!customInputValue) {
@@ -157,14 +156,13 @@ export default function TierSelectPage() {
     }
 
     setCustomLength(customInputValue);
-    setPlanLength(6); // Reset preset selection
-    setShowCustomInput(false);
+    setPlanLength(null); // Clear preset selection
     setCustomInputValue("");
     setCustomInputError(null);
   }
 
   function handleNext() {
-    if (!isValidCustom) {
+    if (!hasSelectedDuration || !isValidDuration) {
       return;
     }
     const finalPlanLength = customLength ? parseInt(customLength) : planLength;
@@ -249,18 +247,9 @@ export default function TierSelectPage() {
         )}
 
         {/* Custom amount toggle/form */}
-        {!showCustomInput && !customLength && (
-          <div className="text-center">
-            <button
-              onClick={() => setShowCustomInput(true)}
-              className="text-sm font-medium text-emerald-600 hover:text-emerald-700 underline"
-            >
-              Or enter a custom amount
-            </button>
-          </div>
-        )}
-
-        {showCustomInput && (
+        {/* Custom duration input */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-slate-700">Or enter a custom duration (1-12 months)</label>
           <div className="flex gap-2">
             <input
               type="number"
@@ -271,36 +260,36 @@ export default function TierSelectPage() {
                 setCustomInputValue(e.target.value);
                 setCustomInputError(null);
               }}
-              placeholder="Enter months"
+              placeholder="e.g., 2, 5, 8"
               className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
-              autoFocus
             />
             <button
               onClick={handleSaveCustomDuration}
-              className="rounded-lg bg-emerald-600 text-white px-4 py-2 font-medium hover:bg-emerald-700 whitespace-nowrap"
+              className="rounded-lg bg-slate-600 text-white px-4 py-2 font-medium hover:bg-slate-700 whitespace-nowrap disabled:opacity-50"
+              disabled={!customInputValue}
             >
-              Save
+              Set
             </button>
           </div>
-        )}
+          {customInputError && (
+            <p className="text-sm text-red-600">{customInputError}</p>
+          )}
+        </div>
 
-        {customInputError && (
-          <p className="text-sm text-red-600 -mt-1">{customInputError}</p>
-        )}
-
-        {customLength && !showCustomInput && (
-          <div className="flex justify-between items-center rounded-lg bg-slate-50 p-3">
+        {customLength && (
+          <div className="flex justify-between items-center rounded-lg bg-emerald-50 border border-emerald-100 p-3">
             <p className="text-sm text-slate-600">
-              Custom amount: <span className="font-semibold text-slate-900">{customLength} months</span>
+              Selected: <span className="font-semibold text-slate-900">{customLength} months</span>
             </p>
             <button
               onClick={() => {
-                setShowCustomInput(true);
-                setCustomInputValue(customLength);
+                setCustomLength("");
+                setCustomInputValue("");
+                setPlanLength(null);
               }}
-              className="text-sm text-emerald-600 hover:text-emerald-700 underline"
+              className="text-sm text-emerald-600 hover:text-emerald-700"
             >
-              Change
+              Clear
             </button>
           </div>
         )}
@@ -316,7 +305,7 @@ export default function TierSelectPage() {
           </Button>
           <Button
             onClick={handleNext}
-            disabled={!isValidCustom}
+            disabled={!hasSelectedDuration || !isValidDuration}
             className="flex-1 bg-emerald-600 hover:bg-emerald-700"
           >
             Review & Continue

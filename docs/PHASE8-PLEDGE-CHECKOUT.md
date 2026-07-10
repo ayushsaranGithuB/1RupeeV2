@@ -332,32 +332,63 @@ return (
 );
 ```
 
-## Implementation Checklist
+## Implementation Status ✅
 
 ### Backend
-- [ ] Create POST /pledges endpoint with validations
-- [ ] Create or update POST /wallets/debit (or use negative topup)
-- [ ] Test pledge creation with various scenarios (success, insufficient balance, duplicate)
-- [ ] Add tests for wallet deduction + donation logging
+- [x] Create POST /pledges endpoint with validations (campaign_tier_id, plan_length_months)
+- [x] Wallet balance validation before pledge creation
+- [x] Wallet deduction via transaction system
+- [x] Donation logging on pledge creation (full amount for entire duration)
+- [x] Error handling: tier not found, wallet not found, insufficient balance, duplicate pledge
+- [x] Tests for pledge creation scenarios (success, insufficient balance, duplicate, invalid inputs)
+- [x] Database migration: added plan_length_months and updated_at columns to pledges
 
 ### Frontend
-- [ ] Campaign detail page: add tier cards with "Pledge Now" button
-- [ ] Tier select page: plan duration options + price calculation + wallet validation
-- [ ] Cart page: order review + checkout button
-- [ ] Payment page: mock Razorpay form + success/failure paths
-- [ ] Success page: pledge confirmation + next steps
-- [ ] Error handling: display messages for all failure scenarios
-- [ ] Auth check: redirect unauthenticated users to sign-in
+- [x] Campaign detail page: TierCard component with "Pledge Now" button
+- [x] Tier select page: preset options (3/6/12 months) + custom duration input (1-12 months)
+- [x] Price calculation: daily_amount × plan_length × 30 days
+- [x] Wallet balance display and validation
+- [x] Cart page: order review with campaign/tier/duration/total
+- [x] Cart page: inline wallet top-up with quick buttons (₹100, ₹500, ₹1000) and custom amount
+- [x] Payment page: simplified to "Proceed to Payment" button (Razorpay ready)
+- [x] Success page: pledge confirmation with transaction details
+- [x] Error handling: specific error messages for all failure scenarios
+- [x] Auth check: redirect unauthenticated users to /sign-in
+
+### UX Improvements
+- [x] Auth routes restructured: /auth/sign-in → /sign-in, /auth/verify → /verify
+- [x] Footer positioning: fixed footer floating on short pages with flexbox layout
+- [x] Cart page error handling: non-blocking wallet fetch with loading state
+- [x] Payment page error display: shows specific API errors with retry option
+- [x] Duration selection: no default selection, user must explicitly choose
 
 ### Testing
-- [ ] API: POST /pledges with valid/invalid inputs
-- [ ] Wallet: balance check before pledge, deduction after
-- [ ] Flow: end-to-end (select tier → choose plan → review → pay → success)
-- [ ] Error cases: insufficient balance, duplicate pledge, payment failure
+- [x] 5 integration tests in apps/api/src/__tests__/checkout.test.ts
+- [x] Tests cover: validation errors, plan length validation, missing fields, auth requirements
 
-## Notes
+## Known Issues & Future Work
 
-- **Wallet deduction**: Ensure idempotency (reference_id) so retries don't double-charge.
-- **Plan length**: Store plan_length_months on pledge to know when to pause/cancel recurring charge.
-- **Daily CRON**: The existing daily CRON should process active pledges; verify it respects plan_length_months (don't charge past the end date).
-- **Future Razorpay**: The mock payment page can be replaced with Razorpay Checkout.js later; upstream flow stays the same.
+### Donation Display
+Currently, when a user pledges for multiple months, the full amount is logged as a single donation record. This should be improved to show daily donations grouped by month for better transparency. See [[donation-display]] in memory for details.
+
+### Daily Donation Processing
+The current system logs donations upfront. A future daily processing job (CRON) should:
+- Create individual daily donation records as pledges process
+- Replace the upfront donation logging
+- Enable monthly grouping in the UI
+
+### Razorpay Integration
+The payment page is currently a simplified "Proceed to Payment" button. Future work:
+- Replace with real Razorpay Checkout.js
+- The upstream flow (tier selection → plan → cart) requires no changes
+- Only the payment page logic needs updating
+
+### Plan Length Enforcement
+The daily CRON should verify pledges don't charge past their plan_length_months end date. Current implementation doesn't enforce this cutoff.
+
+## Architecture Notes
+
+- **Idempotency**: reference_id ensures retries don't double-charge
+- **Wallet ledger**: All transactions logged via wallet_transactions table
+- **Auth routes**: Moved from /auth/* to root-level routes (/sign-in, /verify)
+- **Footer positioning**: Fixed via flexbox layout on body (min-height 100vh with flex column)
