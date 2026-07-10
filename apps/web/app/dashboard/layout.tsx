@@ -38,7 +38,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="flex min-h-[50vh] flex-col">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
           <div className="flex-shrink-0">
@@ -85,7 +85,7 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-6 py-8">{children}</main>
+      <main className="flex-1 mx-auto max-w-3xl w-full px-6 py-8">{children}</main>
     </div>
   );
 }
