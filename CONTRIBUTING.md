@@ -98,12 +98,31 @@ bun run type-check
 
 Ensures type safety across the codebase.
 
+## Deployment
+
+The app is hosted on **Cloudflare Pages** (free tier):
+
+- **Production**: `1rupee-web.pages.dev` (from `main` branch)
+- **Staging**: `develop.1rupee-web.pages.dev` (from `develop` branch)
+- **Preview**: `pr-123.1rupee-web.pages.dev` (from pull requests)
+
+See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for setup and configuration.
+
+### Deployment Checklist
+- [ ] Environment variables configured in Cloudflare Pages
+- [ ] API URL set correctly (`NEXT_PUBLIC_API_URL`)
+- [ ] GitHub secrets configured (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`)
+- [ ] CI pipeline passing
+- [ ] No sensitive data in `.env` files (only `.env.example`)
+
 ## Making a Release
 
-Releases are cut from the `main` branch and follow semantic versioning. Update version in `package.json` and create a git tag.
+Releases are cut from the `main` branch and follow semantic versioning. Update version in `package.json` and create a git tag. Cloudflare Pages will automatically deploy to production.
 
 ## Need Help?
 
 - Check the [Development Roadmap](docs/development-roadmap.md)
+- Read [DEPLOYMENT.md](docs/DEPLOYMENT.md) for hosting questions
+- Read [TESTING.md](docs/TESTING.md) for testing guide
 - Read the [Phase 8 Pledge Checkout](docs/PHASE8-PLEDGE-CHECKOUT.md) for implementation details
 - Ask questions in pull request discussions
