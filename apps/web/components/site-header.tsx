@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSession, signOut } from "@/lib/auth-client";
+import { Avatar } from "@/components/avatar";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -16,6 +18,8 @@ const navLinks = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
   const [open, setOpen] = useState(false);
 
   // Admin and dashboard have their own chrome; keep the public nav off those
@@ -50,18 +54,36 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/auth/sign-in"
-            className="text-sm font-medium text-slate-600 transition hover:text-emerald-700"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/auth/sign-up"
-            className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
-          >
-            Register
-          </Link>
+          {session?.user ? (
+            <div className="flex items-center gap-3">
+              <Avatar name={session.user.name || session.user.email} />
+              <button
+                type="button"
+                onClick={async () => {
+                  await signOut();
+                  router.push("/");
+                }}
+                className="text-sm font-medium text-slate-600 transition hover:text-emerald-700"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/auth/sign-in"
+                className="text-sm font-medium text-slate-600 transition hover:text-emerald-700"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/auth/sign-up"
+                className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </nav>
 
         <button
@@ -92,20 +114,44 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/auth/sign-in"
-            onClick={() => setOpen(false)}
-            className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/auth/sign-up"
-            onClick={() => setOpen(false)}
-            className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-center text-sm font-semibold text-white transition hover:bg-emerald-700"
-          >
-            Register
-          </Link>
+          {session?.user ? (
+            <>
+              <div className="flex items-center gap-3 rounded-md px-2 py-2">
+                <Avatar name={session.user.name || session.user.email} />
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{session.user.name || session.user.email}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  await signOut();
+                  router.push("/");
+                  setOpen(false);
+                }}
+                className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/auth/sign-in"
+                onClick={() => setOpen(false)}
+                className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/auth/sign-up"
+                onClick={() => setOpen(false)}
+                className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-center text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </header>
