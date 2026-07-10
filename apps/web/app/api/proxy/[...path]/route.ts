@@ -13,6 +13,10 @@ async function proxyRequest(
         const headers = new Headers();
         const authHeader = request.headers.get('Authorization');
         const contentType = request.headers.get('Content-Type');
+        // Forward the session cookie and origin so Better Auth (mounted on the
+        // API at /auth/*) can read the session and pass its origin/CSRF checks.
+        const cookie = request.headers.get('cookie');
+        const origin = request.headers.get('origin');
 
         if (authHeader) {
             headers.set('Authorization', authHeader);
@@ -20,6 +24,14 @@ async function proxyRequest(
 
         if (contentType) {
             headers.set('Content-Type', contentType);
+        }
+
+        if (cookie) {
+            headers.set('cookie', cookie);
+        }
+
+        if (origin) {
+            headers.set('origin', origin);
         }
 
         const init: RequestInit = {
@@ -35,11 +47,22 @@ async function proxyRequest(
         const responseText = await response.text();
         const responseType = response.headers.get('content-type') || 'application/json';
 
+        const responseHeaders = new Headers({ 'Content-Type': responseType });
+
+        // Relay auth cookies back to the browser (there may be several).
+        const setCookies =
+            typeof (response.headers as any).getSetCookie === 'function'
+                ? (response.headers as any).getSetCookie()
+                : response.headers.get('set-cookie')
+                    ? [response.headers.get('set-cookie') as string]
+                    : [];
+        for (const value of setCookies) {
+            responseHeaders.append('set-cookie', value);
+        }
+
         return new Response(responseText, {
             status: response.status,
-            headers: {
-                'Content-Type': responseType,
-            },
+            headers: responseHeaders,
         });
     } catch (error) {
         console.error('[Proxy Error]', error);

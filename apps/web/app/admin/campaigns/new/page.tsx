@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { adminRequest } from "@/lib/admin";
+import { CAMPAIGN_CATEGORY_OPTIONS } from "@/lib/public";
 import { cn } from "@/lib/utils";
 
 interface NgoOption {
@@ -19,6 +20,7 @@ const emptyForm = {
   ngo_id: "",
   title: "",
   slug: "",
+  category: "",
   description: "",
   impact_highlights: "",
   mobile_hero_image: "",
@@ -68,6 +70,7 @@ export default function CreateCampaignPage() {
           ngo_id: form.ngo_id,
           title: form.title,
           slug: form.slug,
+          category: form.category || undefined,
           description: form.description,
           impact_highlights: form.impact_highlights
             .split("\n")
@@ -146,6 +149,19 @@ export default function CreateCampaignPage() {
                 })
               }
             />
+            <div className="xl:col-span-2">
+              <Select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                <option value="">Select a cause category</option>
+                {CAMPAIGN_CATEGORY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
             <div className="xl:col-span-2">
               <Textarea
                 value={form.description}

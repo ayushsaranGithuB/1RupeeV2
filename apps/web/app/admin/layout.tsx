@@ -5,11 +5,14 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AdminAuthGate } from "@/components/admin-auth-gate";
+import { useSession, signOut } from "@/lib/auth-client";
 import {
   Building,
   HandCoins,
   IndianRupee,
   LayoutDashboard,
+  LogOut,
   Megaphone,
   ReceiptText,
   User,
@@ -51,8 +54,17 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  return (
+    <AdminAuthGate>
+      <AdminShell>{children}</AdminShell>
+    </AdminAuthGate>
+  );
+}
+
+function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { data: session } = useSession();
 
   const currentSection =
     menuItems
@@ -123,14 +135,35 @@ export default function AdminLayout({
             })}
           </nav>
 
-          <div className={cn("mt-auto px-4 pb-5", !sidebarOpen && "hidden")}>
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
-                Platform Health [FAKE]
-              </p>
-              <p className="mt-2 text-sm text-emerald-900">
-                All core admin systems are operational.
-              </p>
+          <div className="mt-auto px-3 pb-5">
+            <div
+              className={cn(
+                "rounded-2xl border border-slate-200 bg-white/70 p-3",
+                !sidebarOpen && "px-2",
+              )}
+            >
+              {sidebarOpen && (
+                <div className="mb-2 min-w-0">
+                  <p className="truncate text-xs font-semibold text-slate-900">
+                    {session?.user?.name || "Admin"}
+                  </p>
+                  <p className="truncate text-xs text-slate-500">
+                    {session?.user?.email}
+                  </p>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className={cn(
+                  "flex w-full items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900",
+                  !sidebarOpen && "justify-center px-2",
+                )}
+                aria-label="Sign out"
+              >
+                <LogOut size={16} />
+                <span className={cn(!sidebarOpen && "hidden")}>Sign out</span>
+              </button>
             </div>
           </div>
         </div>

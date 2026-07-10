@@ -13,24 +13,18 @@ export type AdminApiFailure = {
 
 export type AdminApiResponse<T> = AdminApiSuccess<T> | AdminApiFailure;
 
-const ADMIN_HEADERS = {
-  Authorization: "Bearer test-token",
-};
-
 export async function adminRequest<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
   const headers = new Headers(init?.headers || {});
 
-  for (const [key, value] of Object.entries(ADMIN_HEADERS)) {
-    headers.set(key, value);
-  }
-
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
+  // Auth is the Better Auth session cookie: sent automatically on this
+  // same-origin request and forwarded to the API by the /api/proxy gateway.
   const response = await fetch(`/api/proxy${path}`, {
     ...init,
     headers,

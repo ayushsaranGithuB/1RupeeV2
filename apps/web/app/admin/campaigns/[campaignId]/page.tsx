@@ -17,6 +17,10 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { adminRequest, formatCurrency, formatDate } from "@/lib/admin";
+import {
+  CAMPAIGN_CATEGORY_OPTIONS,
+  type CampaignCategory,
+} from "@/lib/public";
 import { cn } from "@/lib/utils";
 
 interface CampaignRecord {
@@ -24,6 +28,7 @@ interface CampaignRecord {
   ngo_id: string;
   title: string;
   slug: string;
+  category: CampaignCategory | null;
   description: string | null;
   mobile_hero_image: string | null;
   desktop_hero_image: string | null;
@@ -65,6 +70,7 @@ interface DonationRecord {
 
 interface FormState {
   title: string;
+  category: string;
   description: string;
   mobile_hero_image: string;
   desktop_hero_image: string;
@@ -108,6 +114,7 @@ export default function CampaignDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>({
     title: "",
+    category: "",
     description: "",
     mobile_hero_image: "",
     desktop_hero_image: "",
@@ -199,6 +206,7 @@ export default function CampaignDetailsPage() {
 
     setForm({
       title: selectedCampaign.title,
+      category: selectedCampaign.category || "",
       description: selectedCampaign.description || "",
       mobile_hero_image: selectedCampaign.mobile_hero_image || "",
       desktop_hero_image: selectedCampaign.desktop_hero_image || "",
@@ -220,6 +228,7 @@ export default function CampaignDetailsPage() {
         method: "PATCH",
         body: JSON.stringify({
           title: form.title,
+          category: form.category || undefined,
           description: form.description,
           mobile_hero_image: form.mobile_hero_image || undefined,
           desktop_hero_image: form.desktop_hero_image || undefined,
@@ -757,6 +766,28 @@ export default function CampaignDetailsPage() {
                         <option value="PAUSED">Paused</option>
                         <option value="COMPLETED">Completed</option>
                         <option value="ARCHIVED">Archived</option>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="campaign-category"
+                        className="text-sm font-medium text-slate-700"
+                      >
+                        Cause Category
+                      </label>
+                      <Select
+                        id="campaign-category"
+                        value={form.category}
+                        onChange={(e) =>
+                          setForm({ ...form, category: e.target.value })
+                        }
+                      >
+                        <option value="">No category</option>
+                        {CAMPAIGN_CATEGORY_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
                       </Select>
                     </div>
                     <div className="xl:col-span-2 space-y-2">

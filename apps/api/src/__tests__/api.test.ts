@@ -51,15 +51,24 @@ describe('API Endpoints', () => {
             expect(body.error.code).toBe('UNAUTHORIZED');
         });
 
-        it('should accept requests with valid auth header', async () => {
+        it('should reject a bare bearer token (no real session)', async () => {
+            // Legacy `Bearer <anything>` no longer authenticates now that mock
+            // auth is replaced by real Better Auth sessions.
             const req = new Request('http://localhost:3000/wallets', {
-                headers: {
-                    'Authorization': 'Bearer test-token',
-                },
+                headers: { Authorization: 'Bearer test-token' },
             });
             const res = await app.fetch(req);
 
-            // Should not return 401
+            expect(res.status).toBe(401);
+        });
+
+        it('should accept requests with an authenticated session', async () => {
+            const req = new Request('http://localhost:3000/wallets', {
+                headers: { 'x-test-auth': 'user' },
+            });
+            const res = await app.fetch(req);
+
+            // Auth passes; wallet may or may not exist (200/404/500) but not 401.
             expect(res.status).not.toBe(401);
         });
     });

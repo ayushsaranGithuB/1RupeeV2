@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { adminAuth } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -59,6 +61,7 @@ interface UserProfile {
 }
 
 export default function UserManagement() {
+  const router = useRouter();
   const [searchType, setSearchType] = useState<"email" | "name">("email");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -146,6 +149,27 @@ export default function UserManagement() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update wallet");
     } finally {
+      setSaving(false);
+    }
+  }
+
+  async function impersonate() {
+    if (!profile) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const { error } = await adminAuth.impersonateUser({
+        userId: profile.user.id,
+      });
+      if (error) {
+        throw new Error(error.message || "Could not start impersonation");
+      }
+      // Now signed in as the user; view their dashboard.
+      router.push("/dashboard");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to log in as user",
+      );
       setSaving(false);
     }
   }
@@ -324,19 +348,29 @@ export default function UserManagement() {
                         Joined {formatDate(profile.user.created_at)}
                       </p>
                     </div>
-                    <Button
-                      variant={
-                        profile.user.status === "suspended"
-                          ? "outline"
-                          : "destructive"
-                      }
-                      onClick={toggleSuspension}
-                      disabled={saving}
-                    >
-                      {profile.user.status === "suspended"
-                        ? "Reactivate User"
-                        : "Suspend User"}
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="secondary"
+                        onClick={impersonate}
+                        disabled={saving}
+                        title="Start an audited impersonation session and view this user's dashboard"
+                      >
+                        Log in as user
+                      </Button>
+                      <Button
+                        variant={
+                          profile.user.status === "suspended"
+                            ? "outline"
+                            : "destructive"
+                        }
+                        onClick={toggleSuspension}
+                        disabled={saving}
+                      >
+                        {profile.user.status === "suspended"
+                          ? "Reactivate User"
+                          : "Suspend User"}
+                      </Button>
+                    </div>
                   </div>
                 </div>
 

@@ -12,7 +12,13 @@ import {
     audit_logs,
     transparency_reports,
 } from './schema';
+import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+
+// The admin that can sign in (magic link) and use the admin console. Override
+// with ADMIN_EMAIL. This user is created idempotently regardless of whether the
+// bulk user seed ran.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ayushsaran@gmail.com';
 
 /**
  * Seed script for development
@@ -564,6 +570,38 @@ async function seed() {
             }
         } else {
             console.log(`Skipping users seed, found ${existingUsers.length} existing rows.`);
+        }
+
+        // Ensure an ADMIN exists to sign in with (idempotent).
+        const existingAdmin = await db
+            .select({ id: users.id, role: users.role })
+            .from(users)
+            .where(eq(users.email, ADMIN_EMAIL))
+            .limit(1);
+
+        if (existingAdmin.length === 0) {
+            console.log(`Creating admin user ${ADMIN_EMAIL}...`);
+            const adminIdNew = uuidv4();
+            await db.insert(users).values({
+                id: adminIdNew,
+                email: ADMIN_EMAIL,
+                name: '1Rupee Admin',
+                role: 'ADMIN',
+                status: 'active',
+                emailVerified: true,
+            });
+            await db.insert(wallets).values({
+                user_id: adminIdNew,
+                cached_balance: 0,
+            });
+        } else if (existingAdmin[0].role !== 'ADMIN') {
+            console.log(`Promoting ${ADMIN_EMAIL} to ADMIN...`);
+            await db
+                .update(users)
+                .set({ role: 'ADMIN' })
+                .where(eq(users.email, ADMIN_EMAIL));
+        } else {
+            console.log(`Admin ${ADMIN_EMAIL} already present.`);
         }
 
         // Create wallets for each user

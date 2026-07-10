@@ -44,7 +44,7 @@ export type DatabaseHealthCheck = {
     }>;
 };
 
-function getDatabaseUrl() {
+export function getDatabaseUrl() {
     if (process.env.DATABASE_URL) {
         return process.env.DATABASE_URL;
     }

@@ -90,13 +90,21 @@ Deliverable: Public MVP. ✅
 
 ## Phase 7 — User Dashboard
 
+- [x] Signup / Login / Logout Routes - No passwords, Email Magic Link or Phone based OTP
 - [ ] Wallet
-- [ ] Top-up
-- [ ] Pledges
-- [ ] Donation history
-- [ ] Profile
+- [ ] Top-up + Checkout Pages
+- [ ] Current Pledges
+- [ ] Full Donation history
+- [ ] User Profile
 
 Deliverable: Complete donor experience.
+
+Notes:
+
+- Real passwordless auth (Better Auth) now backs the platform: email magic link + phone OTP. Previously all auth was mocked (any `Bearer` token → hardcoded test user/admin); the mock middleware has been replaced with real session verification in `apps/api/src/index.ts`. Admins must now sign in (magic link) to use the admin console. Set the admin via `ADMIN_EMAIL` in the seed (default `ayushsaran@gmail.com`).
+- Admin **user impersonation** ("log in as user"): admin-only, session-based (Better Auth `admin` plugin), time-limited (30 min), reversible, and audited to `audit_logs` (`IMPERSONATE_START`). A sticky banner shows while impersonating; admin APIs are blocked during an impersonation session.
+- Phone OTP is mocked to `0000` in development (guarded by `NODE_ENV`/`DEV_PHONE_OTP`); wire an SMS provider (MSG91/Twilio) for production. Magic-link + OTP messages are logged to the API console in dev; wire Resend for production email.
+- DB migration `0006_auth_tables` adds Better Auth `sessions`/`accounts`/`verifications` tables and auth columns on `users`.
 
 ---
 

@@ -2,19 +2,32 @@
 
 ## Authentication
 
-**Framework:** Better Auth
+**Framework:** Better Auth (`better-auth`), session/cookie based.
 
-**Methods:**
+**Methods (passwordless):**
 
-- Google OAuth
-- Magic Link
+- Email magic link (`magicLink` plugin) — dev logs the link to the API console; wire Resend for production.
+- Phone OTP (`phoneNumber` plugin) — **dev accepts a fixed OTP `0000`** (`DEV_PHONE_OTP`, guarded by `NODE_ENV`); wire an SMS provider (MSG91/Twilio) for production.
 
-**Roles:**
+**Roles:** `USER`, `ADMIN` (existing `users.role` enum). Better Auth's `admin` plugin is configured with a custom access-control `roles` map keyed by these uppercase values (`adminRoles: ['ADMIN']`, `defaultRole: 'USER'`).
 
-- User
-- Admin
+**Where it lives:**
 
-Protect all dashboard routes. Never expose admin APIs without role verification.
+- The Better Auth instance is defined in `apps/api/src/lib/auth.ts` and mounted on the Hono API at `/auth/*` (`app.on(['POST','GET'], '/auth/*', ...)`). It owns `sessions`, `accounts`, `verifications` tables and auth columns on `users` (migration `0006_auth_tables`), reusing the existing `users` table via field mapping.
+- The web app (`apps/web`, port **8080**) talks to auth through the same-origin `/api/proxy` gateway, which forwards `Cookie`/`Origin` and relays `Set-Cookie`, keeping the session cookie first-party. Client: `apps/web/lib/auth-client.ts`.
+
+**Authorization:** All protected API routes require a valid session (`apps/api/src/index.ts` middleware); `/wallets/*` and `/pledges/*` need any user, `/admin/*` needs `role === 'ADMIN'`. Admin APIs are also blocked for impersonating sessions. A test-only seam (`x-test-auth`, active only when `NODE_ENV==='test'`) exists for route tests.
+
+### Admin impersonation ("log in as user")
+
+Admins can start an audited, time-limited session as any user to view their dashboard (support/troubleshooting), via Better Auth's `admin` plugin.
+
+- Start: `admin.impersonateUser({ userId })` from the admin Users screen → creates a session with `session.impersonatedBy = <adminId>` (auto-expires in 30 min).
+- Audit: a `databaseHooks.session.create.after` hook writes an `audit_logs` row (`action = 'IMPERSONATE_START'`, `admin_id`, `user_id`).
+- While impersonating: a sticky banner is shown (`components/impersonation-banner.tsx`) and `/admin/*` APIs return 403.
+- Stop: `admin.stopImpersonating()` restores the admin session.
+
+**Dev admin login:** the seed ensures an `ADMIN` (email from `ADMIN_EMAIL`, default `ayushsaran@gmail.com`); sign in via magic link and copy the link from the API console.
 
 ---
 

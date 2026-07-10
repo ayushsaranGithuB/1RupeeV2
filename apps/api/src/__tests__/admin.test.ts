@@ -2,8 +2,10 @@ import { describe, it, expect, beforeAll } from 'bun:test';
 import app from '../index';
 
 describe('Admin API Endpoints', () => {
+    // Real auth is now Better Auth sessions; use the test-only auth seam
+    // (honored only when NODE_ENV === 'test') to exercise admin route logic.
     const adminHeaders = {
-        'Authorization': 'Bearer admin-token-test',
+        'x-test-auth': 'admin',
         'Content-Type': 'application/json',
     };
 

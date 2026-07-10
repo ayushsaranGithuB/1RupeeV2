@@ -4,12 +4,29 @@ import {
   getPublicStats,
   formatInrPaisa,
   CAMPAIGN_CATEGORY_LABELS,
+  CAMPAIGN_CATEGORY_OPTIONS,
+  type CampaignCategory,
 } from "../../lib/public";
 import { buttonVariants } from "@/components/ui/button";
+import { CampaignGrid } from "@/components/campaign-grid";
+import { cn } from "@/lib/utils";
 
-export default async function CampaignsPage() {
+type CampaignsPageProps = {
+  searchParams: Promise<{ category?: string }>;
+};
+
+export default async function CampaignsPage({
+  searchParams,
+}: CampaignsPageProps) {
+  const { category } = await searchParams;
+  const activeCategory = CAMPAIGN_CATEGORY_OPTIONS.some(
+    (option) => option.value === category,
+  )
+    ? (category as CampaignCategory)
+    : undefined;
+
   const [campaigns, stats] = await Promise.all([
-    getActiveCampaigns(24),
+    getActiveCampaigns(24, activeCategory),
     getPublicStats(),
   ]);
 
@@ -118,125 +135,46 @@ export default async function CampaignsPage() {
           </p>
         </div>
 
-        {campaigns.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center text-slate-600">
-            No active campaigns found yet. Please check back soon.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 ">
-            {campaigns.map((campaign) => {
-              const progress =
-                campaign.goal_amount && campaign.goal_amount > 0
-                  ? Math.min(
-                      100,
-                      Math.round(
-                        (campaign.raised_amount / campaign.goal_amount) * 100,
-                      ),
-                    )
-                  : null;
-              const heroImage =
-                campaign.desktop_hero_image || campaign.mobile_hero_image;
+        {/* Category filter */}
+        <div className="mb-10 flex flex-wrap items-center justify-center gap-2">
+          <Link
+            href="/campaigns#campaigns"
+            className={cn(
+              "rounded-full border px-4 py-1.5 text-sm font-medium transition",
+              !activeCategory
+                ? "border-emerald-600 bg-emerald-600 text-white"
+                : "border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700",
+            )}
+          >
+            All causes
+          </Link>
+          {CAMPAIGN_CATEGORY_OPTIONS.map((option) => {
+            const isActive = activeCategory === option.value;
+            return (
+              <Link
+                key={option.value}
+                href={`/campaigns?category=${option.value}#campaigns`}
+                className={cn(
+                  "rounded-full border px-4 py-1.5 text-sm font-medium transition",
+                  isActive
+                    ? "border-emerald-600 bg-emerald-600 text-white"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700",
+                )}
+              >
+                {option.label}
+              </Link>
+            );
+          })}
+        </div>
 
-              return (
-                <article
-                  key={campaign.id}
-                  className="group flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5"
-                >
-                  <Link
-                    href={`/campaigns/${campaign.slug}`}
-                    className="relative block overflow-hidden"
-                  >
-                    {heroImage ? (
-                      <img
-                        src={heroImage}
-                        alt={campaign.title}
-                        className=" w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className=" w-full bg-gradient-to-br from-emerald-50 via-white to-sky-50" />
-                    )}
-                    <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm backdrop-blur">
-                      Active
-                    </span>
-                    {campaign.category ? (
-                      <span className="absolute right-4 top-4 rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur">
-                        {CAMPAIGN_CATEGORY_LABELS[campaign.category]}
-                      </span>
-                    ) : null}
-                  </Link>
-
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3 className="text-lg font-semibold leading-snug tracking-tight text-slate-900 line-clamp-2">
-                      <Link
-                        href={`/campaigns/${campaign.slug}`}
-                        className="font-medium text-xl text-emerald-700"
-                      >
-                        {campaign.title}
-                      </Link>
-                    </h3>
-                    {campaign.ngo_name ? (
-                      <p className="text-xs text-slate-400">
-                        by {campaign.ngo_name}
-                      </p>
-                    ) : null}
-                    {campaign.description ? (
-                      <p className="mt-2 text-sm leading-relaxed text-slate-600 line-clamp-2">
-                        {campaign.description}
-                      </p>
-                    ) : null}
-
-                    {/* Progress */}
-                    <div className="mt-5">
-                      {progress !== null ? (
-                        <div className="mb-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                          <div
-                            className="h-full rounded-full bg-emerald-500"
-                            style={{ width: `${progress}%` }}
-                          />
-                        </div>
-                      ) : null}
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-semibold text-slate-900">
-                          {formatInrPaisa(campaign.raised_amount)}
-                          <span className="font-normal text-slate-400">
-                            {campaign.goal_amount
-                              ? ` of ${formatInrPaisa(campaign.goal_amount)}`
-                              : " raised"}
-                          </span>
-                        </span>
-                        {progress !== null ? (
-                          <span className="font-semibold text-emerald-600">
-                            {progress}%
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-                      <span className="text-xs text-slate-500">
-                        <span className="font-semibold text-slate-700">
-                          {campaign.supporter_count.toLocaleString("en-IN")}
-                        </span>{" "}
-                        supporters
-                      </span>
-                      <Link
-                        href={`/campaigns/${campaign.slug}`}
-                        className={buttonVariants({
-                          size: "sm",
-                          className:
-                            "rounded-full bg-emerald-600 px-5 text-white hover:bg-emerald-700",
-                        })}
-                      >
-                        Support
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
+        <CampaignGrid
+          campaigns={campaigns}
+          emptyMessage={
+            activeCategory
+              ? `No active ${CAMPAIGN_CATEGORY_LABELS[activeCategory]} campaigns right now. Try another cause.`
+              : "No active campaigns found yet. Please check back soon."
+          }
+        />
       </section>
 
       {/* Closing CTA */}

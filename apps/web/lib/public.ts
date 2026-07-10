@@ -43,6 +43,13 @@ export const CAMPAIGN_CATEGORY_LABELS: Record<CampaignCategory, string> = {
     WATER_SANITATION: "Water & Sanitation",
 };
 
+export const CAMPAIGN_CATEGORY_OPTIONS: Array<{
+    value: CampaignCategory;
+    label: string;
+}> = (Object.keys(CAMPAIGN_CATEGORY_LABELS) as CampaignCategory[]).map(
+    (value) => ({ value, label: CAMPAIGN_CATEGORY_LABELS[value] }),
+);
+
 export type PublicCampaign = {
     id: string;
     title: string;

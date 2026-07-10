@@ -75,6 +75,28 @@ No unnecessary complexity.
 
 ---
 
+## Local Development
+
+```bash
+bun install
+
+# One-time: apply DB migrations to Neon, then seed
+bun run scripts/apply-migration.ts db/migrations/0006_auth_tables.sql
+bun run db:seed          # ensures an ADMIN user (ADMIN_EMAIL, default ayushsaran@gmail.com)
+
+bun run dev              # API on http://localhost:3001, web on http://localhost:8080
+```
+
+### Auth (passwordless)
+
+Auth is [Better Auth](https://better-auth.com) with email magic link + phone OTP. See [Architecture → Authentication](docs/architecture.md#authentication).
+
+- **Email magic link:** sign in at `/auth/sign-in`; in dev the link is printed in the **API server console** (no email is sent unless `RESEND_API_KEY` is set).
+- **Phone OTP:** in dev the OTP is always **`0000`** (`DEV_PHONE_OTP`; no SMS sent unless `MSG91_API_KEY` is set).
+- **Admin login:** sign in with the seeded admin email via magic link. Admins can "Log in as user" (audited, reversible impersonation) from the admin Users screen.
+
+Env: copy `apps/api/.env.example` → `apps/api/.env.local` and set `BETTER_AUTH_SECRET`, `DATABASE_URL`.
+
 ## Documentation
 
 - [API Reference](docs/API.md)

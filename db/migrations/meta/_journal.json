@@ -43,6 +43,13 @@
       "when": 1784052000000,
       "tag": "0005_campaign_category",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1784138400000,
+      "tag": "0006_auth_tables",
+      "breakpoints": true
     }
   ]
 }

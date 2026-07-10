@@ -12,10 +12,11 @@
     "test": "bun test"
   },
   "dependencies": {
-    "hono": "^3.0.0",
-    "typescript": "^5.3.3",
+    "better-auth": "1.6.23",
     "drizzle-orm": "^0.30.0",
+    "hono": "^3.0.0",
     "postgres": "^3.4.0",
+    "typescript": "^5.3.3",
     "uuid": "^9.0.0",
     "zod": "^3.22.0"
   },

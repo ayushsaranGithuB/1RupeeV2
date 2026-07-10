@@ -61,9 +61,64 @@ export const users = pgTable('users', {
     avatar_url: text('avatar_url'),
     role: userRoleEnum('role').notNull().default('USER'),
     status: varchar('status', { length: 50 }).notNull().default('active'), // active | suspended
+    // Better Auth managed fields. camelCase JS keys intentionally match Better
+    // Auth's default field names so the Drizzle adapter maps them without extra
+    // `fields` config; DB columns stay snake_case for consistency.
+    emailVerified: boolean('email_verified').notNull().default(false),
+    phoneNumber: varchar('phone_number', { length: 20 }).unique(),
+    phoneNumberVerified: boolean('phone_number_verified').notNull().default(false),
+    banned: boolean('banned').notNull().default(false),
+    banReason: text('ban_reason'),
+    banExpires: timestamp('ban_expires'),
     created_at: timestamp('created_at').notNull().defaultNow(),
     updated_at: timestamp('updated_at').notNull().defaultNow(),
     deleted_at: timestamp('deleted_at'),
+});
+
+// --- Better Auth core tables ---------------------------------------------
+// Managed by Better Auth (better-auth/adapters/drizzle). JS property keys use
+// camelCase to match Better Auth's expected field names; DB columns are
+// snake_case. `sessions.impersonatedBy` powers the admin "log in as user"
+// (impersonation) feature and is surfaced in the impersonation banner.
+export const sessions = pgTable('sessions', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+        .notNull()
+        .references(() => users.id),
+    token: text('token').notNull().unique(),
+    expiresAt: timestamp('expires_at').notNull(),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    impersonatedBy: uuid('impersonated_by').references(() => users.id),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const accounts = pgTable('accounts', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+        .notNull()
+        .references(() => users.id),
+    accountId: text('account_id').notNull(),
+    providerId: text('provider_id').notNull(),
+    accessToken: text('access_token'),
+    refreshToken: text('refresh_token'),
+    idToken: text('id_token'),
+    accessTokenExpiresAt: timestamp('access_token_expires_at'),
+    refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+    scope: text('scope'),
+    password: text('password'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const verifications = pgTable('verifications', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    identifier: text('identifier').notNull(),
+    value: text('value').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
 export const wallets = pgTable('wallets', {

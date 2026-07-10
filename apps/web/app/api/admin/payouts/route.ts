@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
     try {
         const apiUrl = process.env.API_URL || 'http://localhost:3001';
+        const cookie = request.headers.get('cookie');
         const authHeader = request.headers.get('Authorization');
 
         const response = await fetch(`${apiUrl}/admin/payouts`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                ...(cookie && { cookie }),
                 ...(authHeader && { Authorization: authHeader }),
             },
         });
