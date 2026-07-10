@@ -76,7 +76,32 @@ export function OverviewTab({
         supporterCount={selectedCampaign.supporter_count}
       />
 
- 
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-lg border border-slate-200 px-3 py-3">
+          <p className="text-xs text-slate-500">Raised</p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">
+            {formatCurrency(selectedCampaign.raised_amount)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-200 px-3 py-3">
+          <p className="text-xs text-slate-500">Goal</p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">
+            {formatCurrency(selectedCampaign.goal_amount || 0)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-200 px-3 py-3">
+          <p className="text-xs text-slate-500">Supporters</p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">
+            {selectedCampaign.supporter_count}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-200 px-3 py-3">
+          <p className="text-xs text-slate-500">Status</p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">
+            {selectedCampaign.status}
+          </p>
+        </div>
+      </section>
 
       <section className="space-y-2">
         <h2 className="text-[18px] font-semibold text-slate-900">

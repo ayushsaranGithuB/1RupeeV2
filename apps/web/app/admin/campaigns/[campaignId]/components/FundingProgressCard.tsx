@@ -106,7 +106,7 @@ export function FundingProgressCard({
             <p className="text-sm text-slate-600">
               raised of {formatCurrency(goal_amount || 0)} goal, from{" "}
               <span className="font-semibold text-slate-900">
-                {supporterCount?.toLocaleString()}
+                {supporterCount !== undefined ? supporterCount.toLocaleString() : "0"}
               </span>{" "}
               supporters
             </p>
