@@ -6,6 +6,8 @@ import campaignsRouter from './routes/campaigns';
 import statsRouter from './routes/stats';
 import walletsRouter from './routes/wallets';
 import pledgesRouter from './routes/pledges';
+import donationsRouter from './routes/donations';
+import registerRouter from './routes/register';
 import adminRouter from './routes/admin';
 import paymentsRouter from './routes/payments';
 import { AuthContext, ApiUser } from './types';
@@ -164,6 +166,7 @@ app.on(['POST', 'GET'], '/auth/*', (c) => auth.handler(c.req.raw));
 app.route('/campaigns', campaignsRouter);
 app.route('/stats', statsRouter);
 app.route('/payments', paymentsRouter);
+app.route('/register', registerRouter);
 
 // Protected routes (require an authenticated Better Auth session).
 // The session cookie is carried through the web app's /api/proxy gateway.
@@ -185,9 +188,11 @@ const requireUser = async (c: any, next: any) => {
 
 app.use('/wallets/*', requireUser);
 app.use('/pledges/*', requireUser);
+app.use('/donations/*', requireUser);
 
 app.route('/wallets', walletsRouter);
 app.route('/pledges', pledgesRouter);
+app.route('/donations', donationsRouter);
 
 // Admin routes require an ADMIN session. Impersonating sessions are rejected so
 // an admin viewing-as-user cannot perform admin actions while impersonating.

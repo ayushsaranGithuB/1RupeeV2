@@ -1,11 +1,15 @@
 import Link from "next/link";
-import { getPublicStats, getActiveCampaigns, formatInrPaisa } from "../lib/public";
+import {
+  getPublicStats,
+  getActiveCampaigns,
+  formatInrPaisa,
+} from "../lib/public";
 import { CampaignGrid } from "@/components/campaign-grid";
 
 export default async function Home() {
   const [stats, campaigns] = await Promise.all([
     getPublicStats(),
-    getActiveCampaigns(6),
+    getActiveCampaigns(),
   ]);
 
   return (

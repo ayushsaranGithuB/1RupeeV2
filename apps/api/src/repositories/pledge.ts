@@ -27,7 +27,25 @@ export class PledgeRepository {
             conditions.push(eq(pledges.status, status as any));
         }
 
-        const result = await db.select().from(pledges).where(and(...conditions));
+        const result = await db
+            .select({
+                id: pledges.id,
+                status: pledges.status,
+                started_at: pledges.started_at,
+                paused_at: pledges.paused_at,
+                cancelled_at: pledges.cancelled_at,
+                campaign_tier_id: pledges.campaign_tier_id,
+                campaign_id: campaign_tiers.campaign_id,
+                campaign_title: campaigns.title,
+                tier_title: campaign_tiers.title,
+                daily_amount: campaign_tiers.daily_amount,
+                monthly_equivalent: campaign_tiers.monthly_equivalent,
+            })
+            .from(pledges)
+            .innerJoin(campaign_tiers, eq(pledges.campaign_tier_id, campaign_tiers.id))
+            .innerJoin(campaigns, eq(campaign_tiers.campaign_id, campaigns.id))
+            .where(and(...conditions));
+
         return (result as any) || [];
     }
 

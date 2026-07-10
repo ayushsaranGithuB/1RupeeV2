@@ -15,6 +15,7 @@ import {
   LogOut,
   Megaphone,
   ReceiptText,
+  ServerCrash,
   User,
 } from "lucide-react";
 
@@ -46,6 +47,11 @@ const menuItems = [
     label: "Transparency",
     href: "/admin/reports",
     icon: <LayoutDashboard size={16} />,
+  },
+  {
+    label: "System Status",
+    href: "/admin/system-status",
+    icon: <ServerCrash size={16} />,
   },
 ];
 

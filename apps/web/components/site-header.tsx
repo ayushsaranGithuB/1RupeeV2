@@ -18,8 +18,14 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // Admin has its own chrome; keep the public nav off those routes.
-  if (pathname?.startsWith("/admin")) {
+  // Admin and dashboard have their own chrome; keep the public nav off those
+  // routes. The magic-link verify page is a transient full-screen confirmation —
+  // nav links there just distract from (or short-circuit) the auto-redirect.
+  if (
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/dashboard") ||
+    pathname === "/auth/verify"
+  ) {
     return null;
   }
 
@@ -45,7 +51,13 @@ export function SiteHeader() {
             </Link>
           ))}
           <Link
-            href="/#register"
+            href="/auth/sign-in"
+            className="text-sm font-medium text-slate-600 transition hover:text-emerald-700"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/auth/sign-up"
             className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
           >
             Register
@@ -81,7 +93,14 @@ export function SiteHeader() {
             </Link>
           ))}
           <Link
-            href="/#register"
+            href="/auth/sign-in"
+            onClick={() => setOpen(false)}
+            className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/auth/sign-up"
             onClick={() => setOpen(false)}
             className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-center text-sm font-semibold text-white transition hover:bg-emerald-700"
           >

@@ -11,7 +11,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { getDb, getDatabaseUrl } from '@db';
 import * as schema from '@db/schema';
-import { users, sessions, accounts, verifications, audit_logs } from '@db/schema';
+import { users, sessions, accounts, verifications, audit_logs, wallets } from '@db/schema';
 import { sendEmail, sendSms } from './senders';
 
 // Dedicated schema-aware Drizzle instance for Better Auth. The shared getDb()
@@ -126,6 +126,22 @@ export const auth = betterAuth({
         }),
     ],
     databaseHooks: {
+        user: {
+            create: {
+                // Every user needs a wallet to top up / pledge against. This
+                // covers every account-creation path (magic-link signup,
+                // phone-OTP signup, and our own pre-registration route) since
+                // they all go through the internal adapter that fires this hook.
+                after: async (user) => {
+                    try {
+                        const db = getDb();
+                        await db.insert(wallets).values({ user_id: user.id });
+                    } catch (error) {
+                        console.error('Failed to create wallet for new user:', error);
+                    }
+                },
+            },
+        },
         session: {
             create: {
                 // Audit every impersonation ("log in as user") start. The admin

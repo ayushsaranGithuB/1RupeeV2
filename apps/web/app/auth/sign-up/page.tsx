@@ -1,7 +1,9 @@
-import { redirect } from "next/navigation";
+import { SignUpForm } from "@/components/auth-form";
 
-// Passwordless sign-in and sign-up are the same flow: a first-time email or
-// phone is registered automatically on verification. Send everyone to sign-in.
 export default function SignUpPage() {
-  redirect("/auth/sign-in");
+  return (
+    <main className="mx-auto grid min-h-screen max-w-5xl items-center px-6 py-10 sm:px-10">
+      <SignUpForm />
+    </main>
+  );
 }

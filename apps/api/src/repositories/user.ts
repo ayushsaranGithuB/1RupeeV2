@@ -16,6 +16,31 @@ export class UserRepository {
         return (result[0] as any) || null;
     }
 
+    async findByPhone(phone: string): Promise<ApiUser | null> {
+        const db = getDb();
+        const result = await db.select().from(users).where(eq(users.phoneNumber, phone)).limit(1);
+        return (result[0] as any) || null;
+    }
+
+    // Pre-creates an unverified account ahead of the magic-link email being
+    // sent, so name + phone are captured at sign-up time (the magic-link
+    // plugin itself only ever collects email + name). Also provisions the
+    // wallet directly since this bypasses Better Auth's internal adapter
+    // (and therefore the `user.create` database hook that does this for
+    // every other sign-up path).
+    async createWithPhone(data: { name: string; email: string; phone: string }): Promise<ApiUser> {
+        const db = getDb();
+        const [user] = await db.insert(users).values({
+            name: data.name,
+            email: data.email,
+            phoneNumber: data.phone,
+        }).returning();
+
+        await db.insert(wallets).values({ user_id: user.id });
+
+        return user as any;
+    }
+
     async search(
         email?: string,
         name?: string,

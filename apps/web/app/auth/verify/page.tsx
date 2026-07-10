@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
@@ -11,7 +10,6 @@ type Status = "verifying" | "success" | "error";
 // client (JSON response through the proxy, so the session cookie is set on this
 // origin), shows a confirmation, then auto-continues to the right destination.
 export default function VerifyPage() {
-  const router = useRouter();
   const [status, setStatus] = useState<Status>("verifying");
   const [error, setError] = useState<string | null>(null);
   const [destination, setDestination] = useState("/dashboard");
@@ -42,9 +40,15 @@ export default function VerifyPage() {
 
   useEffect(() => {
     if (status !== "success") return;
-    const timer = setTimeout(() => router.replace(destination), 2500);
+    // A full navigation (not the Next.js client router) so the destination
+    // page reads the session cookie fresh instead of picking up this tab's
+    // not-yet-subscribed session store, which was leaving the admin/dashboard
+    // auth gate briefly rendering its signed-out state after this redirect.
+    const timer = setTimeout(() => {
+      window.location.assign(destination);
+    }, 2500);
     return () => clearTimeout(timer);
-  }, [status, destination, router]);
+  }, [status, destination]);
 
   return (
     <main className="mx-auto grid min-h-screen max-w-md items-center px-6 text-center">
