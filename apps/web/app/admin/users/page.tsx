@@ -138,8 +138,7 @@ export default function UserManagement() {
           method: "POST",
           body: JSON.stringify({
             type,
-            // Input is in rupees; wallet amounts are stored in paise.
-            amount: Math.round(Number(walletAmount) * 100),
+            amount: Number(walletAmount),
             reason: walletReason,
           }),
         },

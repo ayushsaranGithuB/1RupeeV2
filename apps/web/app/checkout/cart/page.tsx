@@ -145,7 +145,7 @@ export default function CartPage() {
       setTopupError("Please enter a valid amount");
       return;
     }
-    await handleTopup(parseInt(topupAmount) * 100); // Convert to paise
+    await handleTopup(parseInt(topupAmount));
   }
 
   async function handleTopup(amount: number) {
@@ -304,7 +304,7 @@ export default function CartPage() {
                     variant="outline"
                     size="sm"
                   >
-                    +₹{(amount / 100).toLocaleString()}
+                    +₹{amount.toLocaleString()}
                   </Button>
                 ))}
               </div>

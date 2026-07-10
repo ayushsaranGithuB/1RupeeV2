@@ -61,7 +61,6 @@ export type ApiCampaignTier = {
     campaign_id: string;
     title: string;
     description: string | null;
-    impact_description: string | null;
     features: string[] | null;
     featured: boolean;
     daily_amount: number;

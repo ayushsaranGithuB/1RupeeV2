@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,11 +17,10 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { adminRequest, formatCurrency, formatDate } from "@/lib/admin";
-import {
-  CAMPAIGN_CATEGORY_OPTIONS,
-  type CampaignCategory,
-} from "@/lib/public";
+import { CAMPAIGN_CATEGORY_OPTIONS, type CampaignCategory } from "@/lib/public";
 import { cn } from "@/lib/utils";
+import { OverviewTab } from "./components/OverviewTab";
+import { AnalyticsTab } from "./components/AnalyticsTab";
 
 interface CampaignRecord {
   id: string;
@@ -49,7 +48,6 @@ interface TierRecord {
   campaign_id: string;
   title: string;
   description: string | null;
-  impact_description: string | null;
   features: string[] | null;
   featured: boolean;
   daily_amount: number;
@@ -76,6 +74,7 @@ interface FormState {
   desktop_hero_image: string;
   impact_highlights: string;
   status: CampaignRecord["status"];
+  goal_amount: string;
 }
 
 type CampaignTab = "overview" | "tiers" | "analytics" | "settings";
@@ -90,7 +89,6 @@ const TAB_ITEMS: Array<{ key: CampaignTab; label: string }> = [
 const emptyTierForm = {
   title: "",
   description: "",
-  impact_description: "",
   features: "",
   featured: false,
   daily_amount: "1",
@@ -102,6 +100,7 @@ type TierDrawerMode = "create" | "edit" | null;
 
 export default function CampaignDetailsPage() {
   const params = useParams<{ campaignId: string }>();
+  const searchParams = useSearchParams();
   const campaignId = params.campaignId;
 
   const [ngos, setNgos] = useState<NgoOption[]>([]);
@@ -120,6 +119,7 @@ export default function CampaignDetailsPage() {
     desktop_hero_image: "",
     impact_highlights: "",
     status: "DRAFT",
+    goal_amount: "",
   });
   const [tierForm, setTierForm] = useState(emptyTierForm);
   const [editingTierId, setEditingTierId] = useState<string | null>(null);
@@ -200,6 +200,13 @@ export default function CampaignDetailsPage() {
   }, [campaignId]);
 
   useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && TAB_ITEMS.some((item) => item.key === tabParam)) {
+      setActiveTab(tabParam as CampaignTab);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (!selectedCampaign) {
       return;
     }
@@ -212,6 +219,7 @@ export default function CampaignDetailsPage() {
       desktop_hero_image: selectedCampaign.desktop_hero_image || "",
       impact_highlights: (selectedCampaign.impact_highlights ?? []).join("\n"),
       status: selectedCampaign.status,
+      goal_amount: String(selectedCampaign.goal_amount || ""),
     });
   }, [selectedCampaign]);
 
@@ -236,6 +244,7 @@ export default function CampaignDetailsPage() {
             .split("\n")
             .map((line) => line.trim())
             .filter(Boolean),
+          goal_amount: form.goal_amount ? Number(form.goal_amount) : undefined,
           status: statusOverride || form.status,
         }),
       });
@@ -271,11 +280,10 @@ export default function CampaignDetailsPage() {
     setTierForm({
       title: tier.title,
       description: tier.description || "",
-      impact_description: tier.impact_description || "",
       features: (tier.features ?? []).join("\n"),
       featured: tier.featured,
-      daily_amount: String(tier.daily_amount / 100),
-      monthly_equivalent: String(tier.monthly_equivalent / 100),
+      daily_amount: String(tier.daily_amount),
+      monthly_equivalent: String(tier.monthly_equivalent),
       display_order: String(tier.display_order),
     });
     setTierDrawerMode("edit");
@@ -292,14 +300,13 @@ export default function CampaignDetailsPage() {
       campaign_id: campaignId,
       title: tierForm.title,
       description: tierForm.description,
-      impact_description: tierForm.impact_description,
       features: tierForm.features
         .split("\n")
         .map((line) => line.trim())
         .filter(Boolean),
       featured: tierForm.featured,
-      daily_amount: Math.round(Number(tierForm.daily_amount) * 100),
-      monthly_equivalent: Math.round(Number(tierForm.monthly_equivalent) * 100),
+      daily_amount: Number(tierForm.daily_amount),
+      monthly_equivalent: Number(tierForm.monthly_equivalent),
       display_order: Number(tierForm.display_order),
     };
 
@@ -386,123 +393,106 @@ export default function CampaignDetailsPage() {
           </div>
         </div>
       </div>
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b mb-3 border-slate-200 py-2">
+          <div className="flex flex-wrap gap-1">
+            {TAB_ITEMS.map((tab) => (
+              <Button
+                key={tab.key}
+                variant={activeTab === tab.key ? "default" : "ghost"}
+                onClick={() => setActiveTab(tab.key)}
+                className={
+                  activeTab === tab.key
+                    ? "bg-emerald-100 "
+                    : "hover:bg-slate-100"
+                }
+              >
+                {tab.label}
+              </Button>
+            ))}
+          </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-y border-slate-200 py-2">
-        <div className="flex flex-wrap gap-1">
-          {TAB_ITEMS.map((tab) => (
+          <div className="flex flex-wrap gap-2">
             <Button
-              key={tab.key}
-              variant={activeTab === tab.key ? "default" : "ghost"}
-              onClick={() => setActiveTab(tab.key)}
-              className={activeTab === tab.key ? "bg-slate-900 hover:bg-slate-800" : ""}
+              variant="outline"
+              onClick={() => saveCampaign("ACTIVE")}
+              disabled={saving || !selectedCampaign}
             >
-              {tab.label}
+              Publish
             </Button>
-          ))}
+            <Button
+              variant="outline"
+              onClick={() => saveCampaign("ARCHIVED")}
+              disabled={saving || !selectedCampaign}
+              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+            >
+              Archive
+            </Button>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            onClick={() => saveCampaign("ACTIVE")}
-            disabled={saving || !selectedCampaign}
-          >
-            Publish
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => saveCampaign("ARCHIVED")}
-            disabled={saving || !selectedCampaign}
-            className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-          >
-            Archive
-          </Button>
-        </div>
-      </div>
+        {error ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        ) : null}
 
-      {error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      ) : null}
+        {loading ? (
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
+            Loading campaign workspace...
+          </div>
+        ) : !selectedCampaign ? (
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
+            Campaign not found.
+          </div>
+        ) : (
+          <div className="">
+            <div className="space-y-6 p-6">
+              {activeTab === "overview" ? (
+                <OverviewTab
+                  selectedCampaign={selectedCampaign}
+                  tiers={tiers}
+                  recentDonations={recentDonations}
+                  completionPercent={completionPercent}
+                />
+              ) : null}
 
-      {loading ? (
-        <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
-          Loading campaign workspace...
-        </div>
-      ) : !selectedCampaign ? (
-        <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
-          Campaign not found.
-        </div>
-      ) : (
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="space-y-6 p-6">
-            {activeTab === "overview" ? (
-              <div className="space-y-6">
-                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                  <div className="rounded-lg border border-slate-200 px-3 py-3">
-                    <p className="text-xs text-slate-500">Raised</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {formatCurrency(selectedCampaign.raised_amount)}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-slate-200 px-3 py-3">
-                    <p className="text-xs text-slate-500">Goal</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {formatCurrency(selectedCampaign.goal_amount || 0)}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-slate-200 px-3 py-3">
-                    <p className="text-xs text-slate-500">Supporters</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {selectedCampaign.supporter_count}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-slate-200 px-3 py-3">
-                    <p className="text-xs text-slate-500">Status</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {selectedCampaign.status}
-                    </p>
-                  </div>
-                </section>
-
-                <section className="space-y-2 border-t border-slate-200 pt-6">
-                  <h2 className="text-[18px] font-semibold text-slate-900">
-                    Description
-                  </h2>
-                  <p className="text-sm text-slate-700">
-                    {selectedCampaign.description || "No description added yet."}
-                  </p>
-                </section>
-
-                <section className="space-y-3 border-t border-slate-200 pt-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-[18px] font-semibold text-slate-900">
-                      Support Tiers
-                    </h2>
+              {activeTab === "tiers" ? (
+                <div className="space-y-4 ">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <h2 className="text-[18px] font-semibold text-slate-900">
+                        Support Tiers
+                      </h2>
+                      <p className="text-sm text-slate-500">
+                        Content and pricing here are unique to this campaign.
+                      </p>
+                    </div>
                     <Button
-                      variant="outline"
                       size="sm"
-                      onClick={() => setActiveTab("tiers")}
+                      onClick={openCreateTier}
+                      className="bg-emerald-600 text-white hover:bg-emerald-500"
                     >
-                      Edit Tiers
+                      Add Tier
                     </Button>
                   </div>
 
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Tier</TableHead>
+                        <TableHead>Tier Name</TableHead>
+                        <TableHead>Description</TableHead>
                         <TableHead>Daily</TableHead>
                         <TableHead>Monthly</TableHead>
-                        <TableHead>Active</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {tiers.length === 0 ? (
                         <TableRow>
                           <TableCell
-                            colSpan={4}
+                            colSpan={6}
                             className="text-sm text-slate-500"
                           >
                             No tiers configured.
@@ -516,547 +506,422 @@ export default function CampaignDetailsPage() {
                             <TableRow key={tier.id}>
                               <TableCell className="font-medium text-slate-900">
                                 {tier.title}
+                                {tier.featured ? (
+                                  <Badge
+                                    variant="outline"
+                                    className="ml-2 rounded-full border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                                  >
+                                    Featured
+                                  </Badge>
+                                ) : null}
                               </TableCell>
+                              <TableCell>{tier.description || "-"}</TableCell>
                               <TableCell>
-                                {formatCurrency(tier.daily_amount)}/day
+                                {formatCurrency(tier.daily_amount)}
                               </TableCell>
                               <TableCell>
                                 {formatCurrency(tier.monthly_equivalent)}
                               </TableCell>
                               <TableCell>
-                                {tier.active ? "Yes" : "No"}
+                                {tier.active ? "Active" : "Inactive"}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-wrap gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => openEditTier(tier)}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-red-200 text-red-600 hover:bg-red-50"
+                                    onClick={() => removeTier(tier.id)}
+                                    disabled={tierSaving}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))
                       )}
                     </TableBody>
                   </Table>
-                </section>
-
-                <section className="space-y-3 border-t border-slate-200 pt-6">
-                  <h2 className="text-[18px] font-semibold text-slate-900">
-                    Recent Activity
-                  </h2>
-
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Donor</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Date</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {recentDonations.length === 0 ? (
-                        <TableRow>
-                          <TableCell
-                            colSpan={3}
-                            className="text-sm text-slate-500"
-                          >
-                            No recent donations.
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        recentDonations.map((donation) => (
-                          <TableRow key={donation.id}>
-                            <TableCell className="font-medium text-slate-900">
-                              {donation.user_name}
-                            </TableCell>
-                            <TableCell>
-                              {formatCurrency(donation.amount)}
-                            </TableCell>
-                            <TableCell>
-                              {formatDate(donation.donated_at)}
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </section>
-              </div>
-            ) : null}
-
-            {activeTab === "tiers" ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <h2 className="text-[18px] font-semibold text-slate-900">
-                      Support Tiers
-                    </h2>
-                    <p className="text-sm text-slate-500">
-                      Content and pricing here are unique to this campaign.
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={openCreateTier}
-                    className="bg-emerald-600 text-white hover:bg-emerald-500"
-                  >
-                    Add Tier
-                  </Button>
                 </div>
+              ) : null}
 
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tier Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Daily</TableHead>
-                      <TableHead>Monthly</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {tiers.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={6}
-                          className="text-sm text-slate-500"
+              {activeTab === "analytics" ? (
+                <AnalyticsTab
+                  selectedCampaign={selectedCampaign}
+                  tiers={tiers}
+                  recentDonations={recentDonations}
+                  completionPercent={completionPercent}
+                  tierSummary={tierSummary}
+                />
+              ) : null}
+
+              {activeTab === "settings" ? (
+                <div className="space-y-6">
+                  <section className="space-y-4">
+                    <h2 className="text-[18px] font-semibold text-slate-900">
+                      Basic Information
+                    </h2>
+                    <div className="grid gap-4 xl:grid-cols-2">
+                      <div className="xl:col-span-2 space-y-2">
+                        <label
+                          htmlFor="campaign-title"
+                          className="text-sm font-medium text-slate-700"
                         >
-                          No tiers configured.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      tiers
-                        .slice()
-                        .sort((a, b) => a.display_order - b.display_order)
-                        .map((tier) => (
-                          <TableRow key={tier.id}>
-                            <TableCell className="font-medium text-slate-900">
-                              {tier.title}
-                              {tier.featured ? (
-                                <Badge
-                                  variant="outline"
-                                  className="ml-2 rounded-full border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
-                                >
-                                  Featured
-                                </Badge>
-                              ) : null}
-                            </TableCell>
-                            <TableCell>{tier.description || "-"}</TableCell>
-                            <TableCell>
-                              {formatCurrency(tier.daily_amount)}
-                            </TableCell>
-                            <TableCell>
-                              {formatCurrency(tier.monthly_equivalent)}
-                            </TableCell>
-                            <TableCell>
-                              {tier.active ? "Active" : "Inactive"}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => openEditTier(tier)}
-                                >
-                                  Edit
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="border-red-200 text-red-600 hover:bg-red-50"
-                                  onClick={() => removeTier(tier.id)}
-                                  disabled={tierSaving}
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : null}
+                          Campaign Title
+                        </label>
+                        <Input
+                          id="campaign-title"
+                          value={form.title}
+                          onChange={(e) =>
+                            setForm({ ...form, title: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="campaign-status"
+                          className="text-sm font-medium text-slate-700"
+                        >
+                          Publishing Status
+                        </label>
+                        <Select
+                          id="campaign-status"
+                          value={form.status}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              status: e.target
+                                .value as CampaignRecord["status"],
+                            })
+                          }
+                        >
+                          <option value="DRAFT">Draft</option>
+                          <option value="ACTIVE">Active</option>
+                          <option value="PAUSED">Paused</option>
+                          <option value="COMPLETED">Completed</option>
+                          <option value="ARCHIVED">Archived</option>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="campaign-goal"
+                          className="text-sm font-medium text-slate-700"
+                        >
+                          Fundraising Goal (₹)
+                        </label>
+                        <Input
+                          id="campaign-goal"
+                          type="number"
+                          value={form.goal_amount}
+                          onChange={(e) =>
+                            setForm({ ...form, goal_amount: e.target.value })
+                          }
+                          placeholder="e.g., 100000"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="campaign-category"
+                          className="text-sm font-medium text-slate-700"
+                        >
+                          Cause Category
+                        </label>
+                        <Select
+                          id="campaign-category"
+                          value={form.category}
+                          onChange={(e) =>
+                            setForm({ ...form, category: e.target.value })
+                          }
+                        >
+                          <option value="">No category</option>
+                          {CAMPAIGN_CATEGORY_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </Select>
+                      </div>
+                      <div className="xl:col-span-2 space-y-2">
+                        <label
+                          htmlFor="campaign-description"
+                          className="text-sm font-medium text-slate-700"
+                        >
+                          Description
+                        </label>
+                        <Textarea
+                          id="campaign-description"
+                          value={form.description}
+                          onChange={(e) =>
+                            setForm({ ...form, description: e.target.value })
+                          }
+                          className="min-h-36"
+                        />
+                        <p className="text-xs text-slate-400">
+                          Supports Markdown: **bold**, *italic*, - lists, and
+                          line breaks.
+                        </p>
+                      </div>
+                      <div className="xl:col-span-2 space-y-2">
+                        <label
+                          htmlFor="campaign-impact-highlights"
+                          className="text-sm font-medium text-slate-700"
+                        >
+                          Impact Highlights (one per line)
+                        </label>
+                        <Textarea
+                          id="campaign-impact-highlights"
+                          value={form.impact_highlights}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              impact_highlights: e.target.value,
+                            })
+                          }
+                          placeholder={
+                            "18,500+ people provided with clean water\n42 villages supported\n67 wells repaired or installed"
+                          }
+                          className="min-h-28"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="campaign-mobile-hero-image"
+                          className="text-sm font-medium text-slate-700"
+                        >
+                          Mobile Hero URL (3:4)
+                        </label>
+                        <Input
+                          id="campaign-mobile-hero-image"
+                          value={form.mobile_hero_image}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              mobile_hero_image: e.target.value,
+                            })
+                          }
+                          placeholder="https://..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="campaign-desktop-hero-image"
+                          className="text-sm font-medium text-slate-700"
+                        >
+                          Desktop Hero URL (4:3)
+                        </label>
+                        <Input
+                          id="campaign-desktop-hero-image"
+                          value={form.desktop_hero_image}
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              desktop_hero_image: e.target.value,
+                            })
+                          }
+                          placeholder="https://..."
+                        />
+                      </div>
+                    </div>
+                  </section>
 
-            {activeTab === "analytics" ? (
-              <div className="space-y-6">
-                <section className="space-y-3">
-                  <h2 className="text-[18px] font-semibold text-slate-900">
-                    Funding Progress
-                  </h2>
-                  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full bg-emerald-500"
-                      style={{ width: `${completionPercent}%` }}
-                    />
-                  </div>
-                  <p className="text-sm text-slate-600">
-                    {completionPercent}% of goal reached
-                  </p>
-                </section>
+                  <section className="space-y-4 border-t border-slate-200 pt-6">
+                    <h2 className="text-[18px] font-semibold text-slate-900">
+                      Danger Zone
+                    </h2>
+                    <Button
+                      variant="outline"
+                      onClick={() => saveCampaign("ARCHIVED")}
+                      disabled={saving}
+                      className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                      Archive Campaign
+                    </Button>
+                  </section>
 
-                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  <div className="rounded-lg border border-slate-200 px-3 py-3">
-                    <p className="text-xs text-slate-500">Daily Tier Range</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {tiers.length
-                        ? `${formatCurrency(
-                            tierSummary.min,
-                          )} - ${formatCurrency(tierSummary.max)}`
-                        : "-"}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-slate-200 px-3 py-3">
-                    <p className="text-xs text-slate-500">Recent Donations</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {recentDonations.length}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border border-slate-200 px-3 py-3">
-                    <p className="text-xs text-slate-500">Campaign Status</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {selectedCampaign.status}
-                    </p>
-                  </div>
-                </section>
-              </div>
-            ) : null}
-
-            {activeTab === "settings" ? (
-              <div className="space-y-6">
-                <section className="space-y-4">
-                  <h2 className="text-[18px] font-semibold text-slate-900">
-                    Basic Information
-                  </h2>
-                  <div className="grid gap-4 xl:grid-cols-2">
-                    <div className="xl:col-span-2 space-y-2">
-                      <label
-                        htmlFor="campaign-title"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        Campaign Title
-                      </label>
-                      <Input
-                        id="campaign-title"
-                        value={form.title}
-                        onChange={(e) =>
-                          setForm({ ...form, title: e.target.value })
-                        }
-                      />
+                  <details className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                    <summary className="cursor-pointer text-sm font-medium text-slate-700">
+                      Developer
+                    </summary>
+                    <div className="mt-3 grid gap-3 text-sm text-slate-600 xl:grid-cols-2">
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                          Campaign ID
+                        </p>
+                        <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
+                          {selectedCampaign.id}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                          Slug
+                        </p>
+                        <p className="mt-1 rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
+                          /{selectedCampaign.slug}
+                        </p>
+                      </div>
+                      <div className="xl:col-span-2">
+                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                          Mobile Hero URL
+                        </p>
+                        <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
+                          {selectedCampaign.mobile_hero_image || "-"}
+                        </p>
+                      </div>
+                      <div className="xl:col-span-2">
+                        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                          Desktop Hero URL
+                        </p>
+                        <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
+                          {selectedCampaign.desktop_hero_image || "-"}
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="campaign-status"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        Publishing Status
-                      </label>
-                      <Select
-                        id="campaign-status"
-                        value={form.status}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            status: e.target.value as CampaignRecord["status"],
-                          })
-                        }
-                      >
-                        <option value="DRAFT">Draft</option>
-                        <option value="ACTIVE">Active</option>
-                        <option value="PAUSED">Paused</option>
-                        <option value="COMPLETED">Completed</option>
-                        <option value="ARCHIVED">Archived</option>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="campaign-category"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        Cause Category
-                      </label>
-                      <Select
-                        id="campaign-category"
-                        value={form.category}
-                        onChange={(e) =>
-                          setForm({ ...form, category: e.target.value })
-                        }
-                      >
-                        <option value="">No category</option>
-                        {CAMPAIGN_CATEGORY_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </Select>
-                    </div>
-                    <div className="xl:col-span-2 space-y-2">
-                      <label
-                        htmlFor="campaign-description"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        Description
-                      </label>
-                      <Textarea
-                        id="campaign-description"
-                        value={form.description}
-                        onChange={(e) =>
-                          setForm({ ...form, description: e.target.value })
-                        }
-                        className="min-h-36"
-                      />
-                      <p className="text-xs text-slate-400">
-                        Supports Markdown: **bold**, *italic*, - lists, and line
-                        breaks.
-                      </p>
-                    </div>
-                    <div className="xl:col-span-2 space-y-2">
-                      <label
-                        htmlFor="campaign-impact-highlights"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        Impact Highlights (one per line)
-                      </label>
-                      <Textarea
-                        id="campaign-impact-highlights"
-                        value={form.impact_highlights}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            impact_highlights: e.target.value,
-                          })
-                        }
-                        placeholder={
-                          "18,500+ people provided with clean water\n42 villages supported\n67 wells repaired or installed"
-                        }
-                        className="min-h-28"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="campaign-mobile-hero-image"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        Mobile Hero URL (3:4)
-                      </label>
-                      <Input
-                        id="campaign-mobile-hero-image"
-                        value={form.mobile_hero_image}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            mobile_hero_image: e.target.value,
-                          })
-                        }
-                        placeholder="https://..."
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="campaign-desktop-hero-image"
-                        className="text-sm font-medium text-slate-700"
-                      >
-                        Desktop Hero URL (4:3)
-                      </label>
-                      <Input
-                        id="campaign-desktop-hero-image"
-                        value={form.desktop_hero_image}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            desktop_hero_image: e.target.value,
-                          })
-                        }
-                        placeholder="https://..."
-                      />
-                    </div>
-                  </div>
-                </section>
-
-                <section className="space-y-4 border-t border-slate-200 pt-6">
-                  <h2 className="text-[18px] font-semibold text-slate-900">
-                    Danger Zone
-                  </h2>
-                  <Button
-                    variant="outline"
-                    onClick={() => saveCampaign("ARCHIVED")}
-                    disabled={saving}
-                    className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  >
-                    Archive Campaign
-                  </Button>
-                </section>
-
-                <details className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-                  <summary className="cursor-pointer text-sm font-medium text-slate-700">
-                    Developer
-                  </summary>
-                  <div className="mt-3 grid gap-3 text-sm text-slate-600 xl:grid-cols-2">
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Campaign ID
-                      </p>
-                      <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
-                        {selectedCampaign.id}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Slug
-                      </p>
-                      <p className="mt-1 rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
-                        /{selectedCampaign.slug}
-                      </p>
-                    </div>
-                    <div className="xl:col-span-2">
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Mobile Hero URL
-                      </p>
-                      <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
-                        {selectedCampaign.mobile_hero_image || "-"}
-                      </p>
-                    </div>
-                    <div className="xl:col-span-2">
-                      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                        Desktop Hero URL
-                      </p>
-                      <p className="mt-1 break-all rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-xs text-slate-700">
-                        {selectedCampaign.desktop_hero_image || "-"}
-                      </p>
-                    </div>
-                  </div>
-                </details>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      )}
-
-      {tierDrawerMode ? (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-slate-900/20"
-            onClick={() => setTierDrawerMode(null)}
-          />
-          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[520px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs text-slate-400">
-                  {selectedCampaign?.title || "Campaign"} / Support Tiers
-                </p>
-                <h2 className="text-[22px] font-semibold text-slate-900">
-                  {tierDrawerMode === "create" ? "Add Tier" : "Edit Tier"}
-                </h2>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => setTierDrawerMode(null)}
-              >
-                Close
-              </Button>
+                  </details>
+                </div>
+              ) : null}
             </div>
+          </div>
+        )}
 
-            <form className="grid gap-3" onSubmit={handleTierSubmit}>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400">Tier Title</p>
-                <Input
-                  value={tierForm.title}
-                  onChange={(e) =>
-                    setTierForm({ ...tierForm, title: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400">Daily Amount (₹)</p>
-                <Input
-                  value={tierForm.daily_amount}
-                  onChange={(e) =>
-                    setTierForm({ ...tierForm, daily_amount: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400">Monthly Equivalent (₹)</p>
-                <Input
-                  value={tierForm.monthly_equivalent}
-                  onChange={(e) =>
-                    setTierForm({
-                      ...tierForm,
-                      monthly_equivalent: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400">Display Order</p>
-                <Input
-                  value={tierForm.display_order}
-                  onChange={(e) =>
-                    setTierForm({ ...tierForm, display_order: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400">Description</p>
-                <Textarea
-                  value={tierForm.description}
-                  onChange={(e) =>
-                    setTierForm({ ...tierForm, description: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400">Impact Description</p>
-                <Textarea
-                  value={tierForm.impact_description}
-                  onChange={(e) =>
-                    setTierForm({
-                      ...tierForm,
-                      impact_description: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-slate-400">Features (one per line)</p>
-                <Textarea
-                  rows={5}
-                  value={tierForm.features}
-                  onChange={(e) =>
-                    setTierForm({ ...tierForm, features: e.target.value })
-                  }
-                  placeholder={
-                    "Emergency drinking water\nWater purification tablets\nSupports one family"
-                  }
-                />
-              </div>
-              <label className="flex items-center gap-2 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={tierForm.featured}
-                  onChange={(e) =>
-                    setTierForm({ ...tierForm, featured: e.target.checked })
-                  }
-                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                />
-                Featured tier (highlighted on the campaign page)
-              </label>
-
-              <div className="flex flex-wrap gap-2 pt-2">
+        {tierDrawerMode ? (
+          <>
+            <div
+              className="fixed inset-0 z-40 bg-slate-900/20"
+              onClick={() => setTierDrawerMode(null)}
+            />
+            <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-[520px] overflow-y-auto border-l border-slate-200 bg-white p-5 shadow-2xl">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs text-slate-400">
+                    {selectedCampaign?.title || "Campaign"} / Support Tiers
+                  </p>
+                  <h2 className="text-[22px] font-semibold text-slate-900">
+                    {tierDrawerMode === "create" ? "Add Tier" : "Edit Tier"}
+                  </h2>
+                </div>
                 <Button
-                  type="submit"
-                  disabled={tierSaving}
-                  className="bg-emerald-600 text-white hover:bg-emerald-500"
-                >
-                  {tierSaving ? "Saving..." : "Save"}
-                </Button>
-                <Button
-                  type="button"
                   variant="outline"
                   onClick={() => setTierDrawerMode(null)}
                 >
                   Close
                 </Button>
               </div>
-            </form>
-          </aside>
-        </>
-      ) : null}
+
+              <form className="grid gap-3" onSubmit={handleTierSubmit}>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Tier Title</p>
+                  <Input
+                    value={tierForm.title}
+                    onChange={(e) =>
+                      setTierForm({ ...tierForm, title: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Daily Amount (₹)</p>
+                  <Input
+                    value={tierForm.daily_amount}
+                    onChange={(e) =>
+                      setTierForm({ ...tierForm, daily_amount: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">
+                    Monthly Equivalent (₹)
+                  </p>
+                  <Input
+                    value={tierForm.monthly_equivalent}
+                    onChange={(e) =>
+                      setTierForm({
+                        ...tierForm,
+                        monthly_equivalent: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">Display Order</p>
+                  <Input
+                    value={tierForm.display_order}
+                    onChange={(e) =>
+                      setTierForm({
+                        ...tierForm,
+                        display_order: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Link
+                    href={`?tab=settings`}
+                    className="text-xs text-slate-400 hover:text-emerald-600 hover:underline"
+                  >
+                    Description
+                  </Link>
+                  <Textarea
+                    value={tierForm.description}
+                    onChange={(e) =>
+                      setTierForm({ ...tierForm, description: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-slate-400">
+                    Features (one per line)
+                  </p>
+                  <Textarea
+                    rows={5}
+                    value={tierForm.features}
+                    onChange={(e) =>
+                      setTierForm({ ...tierForm, features: e.target.value })
+                    }
+                    placeholder={
+                      "Emergency drinking water\nWater purification tablets\nSupports one family"
+                    }
+                  />
+                </div>
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={tierForm.featured}
+                    onChange={(e) =>
+                      setTierForm({ ...tierForm, featured: e.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  Featured tier (highlighted on the campaign page)
+                </label>
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={tierSaving}
+                    className="bg-emerald-600 text-white hover:bg-emerald-500"
+                  >
+                    {tierSaving ? "Saving..." : "Save"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setTierDrawerMode(null)}
+                  >
+                    Close
+                  </Button>
+                </div>
+              </form>
+            </aside>
+          </>
+        ) : null}
+      </div>{" "}
     </div>
   );
 }

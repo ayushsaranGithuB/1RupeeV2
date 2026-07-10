@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ interface NgoOption {
   name: string;
 }
 
-type DrawerMode = "create" | "edit" | null;
+type DrawerMode = "create" | null;
 
 const emptyForm = {
   ngo_id: "",
@@ -51,6 +51,7 @@ const emptyForm = {
 };
 
 export default function CampaignManagement() {
+  const router = useRouter();
   const [ngos, setNgos] = useState<NgoOption[]>([]);
   const [campaigns, setCampaigns] = useState<CampaignRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,9 +61,6 @@ export default function CampaignManagement() {
   const [statusFilter, setStatusFilter] = useState("");
   const [ngoFilter, setNgoFilter] = useState("");
   const [drawerMode, setDrawerMode] = useState<DrawerMode>(null);
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
-    null,
-  );
   const [form, setForm] = useState(emptyForm);
 
   const ngoNameById = useMemo(() => {
@@ -106,15 +104,9 @@ export default function CampaignManagement() {
     });
   }, [campaigns, ngoFilter, search, statusFilter]);
 
-  const selectedCampaign = useMemo(
-    () =>
-      campaigns.find((campaign) => campaign.id === selectedCampaignId) || null,
-    [campaigns, selectedCampaignId],
-  );
 
   function closeDrawer() {
     setDrawerMode(null);
-    setSelectedCampaignId(null);
   }
 
   async function saveCampaign() {
@@ -133,21 +125,14 @@ export default function CampaignManagement() {
           .filter(Boolean),
         mobile_hero_image: form.mobile_hero_image || undefined,
         desktop_hero_image: form.desktop_hero_image || undefined,
-        goal_amount: Math.round(Number(form.goal_amount || 0) * 100),
+        goal_amount: Number(form.goal_amount || 0),
         status: form.status,
       };
 
-      if (drawerMode === "edit" && selectedCampaignId) {
-        await adminRequest(`/admin/campaigns/${selectedCampaignId}`, {
-          method: "PATCH",
-          body: JSON.stringify(payload),
-        });
-      } else {
-        await adminRequest("/admin/campaigns", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-      }
+      await adminRequest("/admin/campaigns", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
 
       closeDrawer();
       setForm(emptyForm);
@@ -174,23 +159,6 @@ export default function CampaignManagement() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!selectedCampaign) {
-      return;
-    }
-
-    setForm({
-      ngo_id: selectedCampaign.ngo_id,
-      title: selectedCampaign.title,
-      slug: selectedCampaign.slug,
-      description: selectedCampaign.description || "",
-      impact_highlights: (selectedCampaign.impact_highlights ?? []).join("\n"),
-      mobile_hero_image: selectedCampaign.mobile_hero_image || "",
-      desktop_hero_image: selectedCampaign.desktop_hero_image || "",
-      goal_amount: String((selectedCampaign.goal_amount || 0) / 100),
-      status: selectedCampaign.status,
-    });
-  }, [selectedCampaign]);
 
   useEffect(() => {
     if (!form.ngo_id && ngos[0]) {
@@ -295,10 +263,7 @@ export default function CampaignManagement() {
                 <TableRow
                   key={campaign.id}
                   className="cursor-pointer"
-                  onClick={() => {
-                    setSelectedCampaignId(campaign.id);
-                    setDrawerMode("edit");
-                  }}
+                  onClick={() => router.push(`/admin/campaigns/${campaign.id}`)}
                 >
                   <TableCell className="font-medium text-slate-900">
                     {campaign.title}
@@ -333,9 +298,7 @@ export default function CampaignManagement() {
               <div>
                 <p className="text-xs text-slate-400">Campaign Drawer</p>
                 <h2 className="text-[22px] font-semibold text-slate-900">
-                  {drawerMode === "create"
-                    ? "Create Campaign"
-                    : selectedCampaign?.title || "Campaign"}
+                  Create Campaign
                 </h2>
               </div>
               <Button variant="outline" onClick={closeDrawer}>
@@ -450,15 +413,6 @@ export default function CampaignManagement() {
                   <option value="ARCHIVED">Archived</option>
                 </Select>
               </div>
-
-              {drawerMode === "edit" && selectedCampaign ? (
-                <Link
-                  href={`/admin/campaigns/${selectedCampaign.id}`}
-                  className="text-sm text-emerald-700 hover:underline"
-                >
-                  Open full workspace
-                </Link>
-              ) : null}
 
               <div className="flex flex-wrap gap-2 pt-2">
                 <Button

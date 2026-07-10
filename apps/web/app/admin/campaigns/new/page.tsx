@@ -78,7 +78,7 @@ export default function CreateCampaignPage() {
             .filter(Boolean),
           mobile_hero_image: form.mobile_hero_image || undefined,
           desktop_hero_image: form.desktop_hero_image || undefined,
-          goal_amount: Math.round(Number(form.goal_amount) * 100),
+          goal_amount: Number(form.goal_amount),
           status: form.status,
         }),
       });

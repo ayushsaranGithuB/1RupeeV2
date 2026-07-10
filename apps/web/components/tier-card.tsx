@@ -29,7 +29,7 @@ export function TierCard({
 }: TierCardProps) {
   const router = useRouter();
   const { data: session } = useSession();
-  const dailyRupees = Math.round(daily_amount / 100);
+  const dailyRupees = daily_amount;
 
   function handlePledgeClick() {
     if (!session?.user) {

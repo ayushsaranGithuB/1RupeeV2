@@ -29,7 +29,7 @@ export default async function TransparencyPage() {
           <p className="text-sm text-emerald-700">Platform Donation Volume</p>
           <p className="text-2xl font-bold text-emerald-900">
             {stats
-              ? `Rs ${Math.round(stats.total_raised / 100).toLocaleString(
+              ? `Rs ${Math.round(stats.total_raised).toLocaleString(
                   "en-IN",
                 )}`
               : "Loading"}

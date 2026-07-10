@@ -188,7 +188,6 @@ export const campaign_tiers = pgTable('campaign_tiers', {
         .references(() => campaigns.id),
     title: varchar('title', { length: 255 }).notNull(),
     description: text('description'),
-    impact_description: text('impact_description'),
     features: jsonb('features').$type<string[]>(),
     featured: boolean('featured').notNull().default(false),
     daily_amount: integer('daily_amount').notNull(),

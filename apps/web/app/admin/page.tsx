@@ -154,28 +154,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white">
-          <div className="border-b border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
-            Operations Checklist
-          </div>
-          <div className="divide-y divide-slate-200">
-            <div className="px-4 py-3 text-sm text-slate-600">
-              NGO approvals and archive controls
-            </div>
-            <div className="px-4 py-3 text-sm text-slate-600">
-              Campaign creation, editing, and hero image management
-            </div>
-            <div className="px-4 py-3 text-sm text-slate-600">
-              3-5 tier configuration with impact description editing
-            </div>
-            <div className="px-4 py-3 text-sm text-slate-600">
-              User search, profile review, wallet actions, and suspension
-            </div>
-            <div className="px-4 py-3 text-sm text-slate-600">
-              Donation search, ledger visibility, payouts, and reports
-            </div>
-          </div>
-        </div>
+       
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ async function submitTopup(amountRupees: number) {
   return dashboardRequest("/wallets/topup", {
     method: "POST",
     body: JSON.stringify({
-      amount: amountRupees * 100,
+      amount: amountRupees,
       reference_id: referenceId,
     }),
   });

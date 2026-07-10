@@ -129,7 +129,6 @@ export class TierRepository {
                 campaign_id: data.campaign_id,
                 title: data.title,
                 description: data.description,
-                impact_description: data.impact_description,
                 features: data.features ?? null,
                 featured: data.featured ?? false,
                 daily_amount: data.daily_amount,
@@ -147,7 +146,6 @@ export class TierRepository {
             .set({
                 ...(data.title && { title: data.title }),
                 ...(data.description !== undefined && { description: data.description }),
-                ...(data.impact_description !== undefined && { impact_description: data.impact_description }),
                 ...(data.features !== undefined && { features: data.features }),
                 ...(data.featured !== undefined && { featured: data.featured }),
                 ...(data.daily_amount && { daily_amount: data.daily_amount }),

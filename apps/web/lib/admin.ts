@@ -52,14 +52,13 @@ export async function adminRequest<T>(
   return payload.data;
 }
 
-// Amounts are stored in paise across the platform; format them as INR rupees.
-export function formatCurrency(amountInPaise: number) {
-  const rupees = Math.round((amountInPaise || 0) / 100);
+// Amounts are stored in rupees; format them as INR currency
+export function formatCurrency(amountInRupees: number) {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 0,
-  }).format(rupees);
+  }).format(amountInRupees || 0);
 }
 
 export function formatDate(value?: string | Date | null) {

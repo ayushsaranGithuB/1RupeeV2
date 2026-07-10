@@ -54,7 +54,6 @@ export const CreateTierSchema = z.object({
     campaign_id: z.string().uuid('Invalid campaign ID'),
     title: z.string().min(3, 'Tier title must be at least 3 characters'),
     description: z.string().min(10, 'Description must be at least 10 characters').optional(),
-    impact_description: z.string().optional(),
     features: z.array(z.string()).optional(),
     featured: z.boolean().optional(),
     daily_amount: z.number().int().positive('Daily amount must be positive'),

@@ -66,7 +66,7 @@ pledges.post('/', async (c) => {
         if (error.message?.startsWith('INSUFFICIENT_BALANCE:')) {
             const needed = error.message.split(':')[1];
             return c.json(
-                errorResponse(ErrorCodes.INVALID_STATUS, `Insufficient wallet balance. You need ₹${(parseInt(needed) / 100).toFixed(2)} more.`),
+                errorResponse(ErrorCodes.INVALID_STATUS, `Insufficient wallet balance. You need ₹${parseInt(needed)} more.`),
                 402
             );
         }
