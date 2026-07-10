@@ -45,16 +45,23 @@ export function CampaignGrid({
           >
             <Link
               href={`/campaigns/${campaign.slug}`}
-              className="relative block overflow-hidden"
+              className="relative block aspect-[16/9] overflow-hidden bg-slate-100"
             >
               {heroImage ? (
-                <img
-                  src={heroImage}
-                  alt={campaign.title}
-                  className=" w-full object-cover transition duration-500 group-hover:scale-105"
-                />
+                <>
+                  <img
+                    src={heroImage}
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full scale-110 object-cover object-center blur-2xl brightness-95"
+                  />
+                  <img
+                    src={heroImage}
+                    alt={campaign.title}
+                    className="absolute inset-0 h-full w-full object-contain"
+                  />
+                </>
               ) : (
-                <div className=" w-full bg-gradient-to-br from-emerald-50 via-white to-sky-50" />
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-sky-50" />
               )}
               <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm backdrop-blur">
                 Active

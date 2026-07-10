@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { formatInrPaisa, getCampaignBySlug } from "../../../lib/public";
 import { Star, Check, Droplets } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MarkdownText } from "@/components/markdown-text";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
@@ -48,24 +49,38 @@ export default async function CampaignDetailPage({ params }: PageProps) {
           </p>
         ) : null}
         <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50">
-          {mobileHero ? (
-            <img
-              src={mobileHero}
-              alt={`${campaign.title} mobile hero`}
-              className="block aspect-[3/4] w-full object-cover md:hidden"
-            />
-          ) : (
-            <div className="block aspect-[3/4] bg-slate-100 md:hidden" />
-          )}
-          {desktopHero ? (
-            <img
-              src={desktopHero}
-              alt={`${campaign.title} desktop hero`}
-              className="hidden aspect-[4/3] w-full object-cover md:block"
-            />
-          ) : (
-            <div className="hidden aspect-[4/3] bg-slate-100 md:block" />
-          )}
+          <div className="relative block aspect-[3/4] bg-slate-100 md:hidden">
+            {mobileHero ? (
+              <>
+                <img
+                  src={mobileHero}
+                  aria-hidden
+                  className="absolute inset-0 h-full w-full scale-110 object-cover object-center blur-2xl brightness-95"
+                />
+                <img
+                  src={mobileHero}
+                  alt={`${campaign.title} mobile hero`}
+                  className="absolute inset-0 h-full w-full object-contain"
+                />
+              </>
+            ) : null}
+          </div>
+          <div className="relative hidden aspect-[4/3] bg-slate-100 md:block">
+            {desktopHero ? (
+              <>
+                <img
+                  src={desktopHero}
+                  aria-hidden
+                  className="absolute inset-0 h-full w-full scale-110 object-cover object-center blur-2xl brightness-95"
+                />
+                <img
+                  src={desktopHero}
+                  alt={`${campaign.title} desktop hero`}
+                  className="absolute inset-0 h-full w-full object-contain"
+                />
+              </>
+            ) : null}
+          </div>
         </div>
 
         <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -73,16 +88,16 @@ export default async function CampaignDetailPage({ params }: PageProps) {
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-slate-400 pt-4">
               About this Campaign
             </p>
-            <p className="mb-6 text-md text-slate-600 pb-6 max-w-4xl">
+            <MarkdownText className="mb-6 text-md text-slate-600 pb-6 max-w-4xl">
               {campaign.description ||
                 "Others ask for thousands. We ask for just ₹1 a day, because real change starts with small, consistent action."}
-            </p>
+            </MarkdownText>
           </div>
 
           {impactHighlights.length > 0 ? (
             <div
               id="impact-highlights"
-              className="mb-6 bg-amber-50 rounded-xl border border-amber-100 p-4 max-w-sm"
+              className="mb-6 bg-amber-50 rounded-xl border border-amber-100 p-4 max-w-sm h-fit pb-6"
             >
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-slate-400 pt-4">
                 Impact Highlights
@@ -153,11 +168,11 @@ export default async function CampaignDetailPage({ params }: PageProps) {
         </div>
         {tiers.length > 0 ? (
           <>
-            <div>
+            <div className="mt-8 text-center">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-slate-400 pt-12">
                 Support Tiers
               </p>
-              <p className="mb-6 text-md text-slate-600 pb-6 max-w-4xl">
+              <p className="mb-6 text-md text-slate-600 pb-6 max-w-4xl mx-auto">
                 See how you can contribute to this campaign and make a
                 difference. Choose a support tier that fits your budget and
                 commitment level. Every contribution counts, and together we can
@@ -171,7 +186,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
                   return (
                     <div
                       key={tier.id}
-                className={`
+                      className={`
               relative rounded-3xl border transition-all duration-300
 
               ${
@@ -182,11 +197,11 @@ export default async function CampaignDetailPage({ params }: PageProps) {
 
               px-8
             `}
-              >
-                {/* Icon */}
+                    >
+                      {/* Icon */}
 
-                <div
-                  className={`
+                      <div
+                        className={`
                 mb-6 flex h-16 w-16 items-center justify-center rounded-full
 
                 ${
@@ -195,14 +210,14 @@ export default async function CampaignDetailPage({ params }: PageProps) {
                     : "bg-neutral-100 text-neutral-800"
                 }
               `}
-                >
-                  <Droplets size={28} />
-                </div>
+                      >
+                        <Droplets size={28} />
+                      </div>
 
-                {/* Badge */}
+                      {/* Badge */}
 
-                <span
-                  className={`
+                      <span
+                        className={`
                 inline-block rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-wide
 
                 ${
@@ -211,39 +226,41 @@ export default async function CampaignDetailPage({ params }: PageProps) {
                     : "bg-neutral-900 text-white"
                 }
               `}
-                >
-                  {tier.title}
-                </span>
+                      >
+                        {tier.title}
+                      </span>
 
-                {/* Price */}
+                      {/* Price */}
 
-                <div className="mt-6 flex items-start">
-                  <span className="mr-1 mt-2 text-xl">₹</span>
-                  <span className="text-6xl font-bold leading-none">
-                    {dailyRupees.toLocaleString()}
-                  </span>
-                  <span className="ml-1 mt-6 text-sm text-neutral-400 tracking-wide">
-                    /day
-                  </span>
-                </div>
+                      <div className="mt-6 flex items-start">
+                        <span className="mr-1 mt-2 text-xl">₹</span>
+                        <span className="text-6xl font-bold leading-none">
+                          {dailyRupees.toLocaleString()}
+                        </span>
+                        <span className="ml-1 mt-6 text-sm text-neutral-400 tracking-wide">
+                          /day
+                        </span>
+                      </div>
 
-                {/* Description */}
+                      {/* Description */}
 
-                <p
-                  className={`mt-6 text-base leading-6 ${
-                    tier.featured ? "text-neutral-300" : "text-neutral-600"
-                  }`}
-                >
-                  {tier.description}
-                </p>
+                      <MarkdownText
+                        className={`mt-6 text-base leading-6 ${
+                          tier.featured
+                            ? "text-neutral-300"
+                            : "text-neutral-600"
+                        }`}
+                      >
+                        {tier.description || ""}
+                      </MarkdownText>
 
-                {/* Features */}
+                      {/* Features */}
 
-                <ul className="mt-8 space-y-5">
-                  {(tier.features ?? []).map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <div
-                        className={`
+                      <ul className="mt-8 space-y-5">
+                        {(tier.features ?? []).map((feature) => (
+                          <li key={feature} className="flex items-start gap-3">
+                            <div
+                              className={`
                       mt-0.5 flex h-5 w-5 items-center justify-center rounded-full
 
                       ${
@@ -252,27 +269,27 @@ export default async function CampaignDetailPage({ params }: PageProps) {
                           : "bg-neutral-900 text-white"
                       }
                     `}
-                      >
-                        <Check size={12} strokeWidth={3} />
-                      </div>
+                            >
+                              <Check size={12} strokeWidth={3} />
+                            </div>
 
-                      <span
-                        className={
-                          tier.featured
-                            ? "text-neutral-100"
-                            : "text-neutral-700"
-                        }
-                      >
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                            <span
+                              className={
+                                tier.featured
+                                  ? "text-neutral-100"
+                                  : "text-neutral-700"
+                              }
+                            >
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
 
-                {/* CTA */}
+                      {/* CTA */}
 
-                <Button
-                  className={`
+                      <Button
+                        className={`
                 mt-10 w-full rounded-full py-3 font-medium transition
 
                 ${
@@ -281,10 +298,10 @@ export default async function CampaignDetailPage({ params }: PageProps) {
                     : "border border-neutral-300 hover:bg-neutral-100"
                 }
               `}
-                >
-                  Start with ₹{dailyRupees.toLocaleString()} a day
-                </Button>
-              </div>
+                      >
+                        Start with ₹{dailyRupees.toLocaleString()} a day
+                      </Button>
+                    </div>
                   );
                 })}
               </div>

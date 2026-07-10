@@ -805,6 +805,10 @@ export default function CampaignDetailsPage() {
                         }
                         className="min-h-36"
                       />
+                      <p className="text-xs text-slate-400">
+                        Supports Markdown: **bold**, *italic*, - lists, and line
+                        breaks.
+                      </p>
                     </div>
                     <div className="xl:col-span-2 space-y-2">
                       <label
