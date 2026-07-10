@@ -19,14 +19,19 @@ Deploy 1Rupee to Cloudflare Pages in 5 minutes. **No credit card needed. Uses fr
 
 ### 3️⃣ Configure Build
 
-Use these exact settings:
+Use these settings (Turborepo monorepo):
 
 ```
-Project name:     1rupee-web
-Production branch: main
-Build command:    bun install --frozen-lockfile && bun run build
-Output directory: apps/web/.next
+Project name:       1rupee-web
+Production branch:  main
+Build command:      bun install --frozen-lockfile && turbo build --filter=1rupee-web
 ```
+
+**Note:** Cloudflare Pages auto-detects Next.js output (`.next` folder). If you see an "Output directory" field, leave it empty or it will auto-fill.
+
+**Why this config:**
+- `turbo build --filter=1rupee-web` - Only builds the web app (skip API build)
+- Cloudflare auto-detects the `.next` directory for Next.js
 
 **Environment Variables:**
 ```
@@ -118,5 +123,14 @@ When you buy a domain:
 - ⏭️ Deploy API to Cloudflare Workers (for better integration)
 - ⏭️ Add custom domain
 - ⏭️ Set up monitoring
+
+## Turborepo-Specific Notes
+
+Since this is a **monorepo** (Turborepo with multiple apps):
+- The build command `turbo build --filter=1rupee-web` ensures only the web app is built
+- The API is built separately (or skipped entirely during Pages builds)
+- This prevents unnecessary API compilation during web deployments
+
+For detailed Turborepo deployment info, see [TURBOREPO_DEPLOYMENT.md](docs/TURBOREPO_DEPLOYMENT.md).
 
 See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for more details and advanced config.

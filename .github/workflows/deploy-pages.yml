@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build web app
-        run: bun run -w apps/web build
+      - name: Build web app (Turborepo)
+        run: turbo build --filter=1rupee-web
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:3001' }}
 
