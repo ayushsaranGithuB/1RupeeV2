@@ -5,6 +5,7 @@ import {
   type PublicCampaign,
 } from "@/lib/public";
 import { buttonVariants } from "@/components/ui/button";
+import { Users } from "lucide-react";
 
 type CampaignGridProps = {
   campaigns: PublicCampaign[];
@@ -83,9 +84,7 @@ export function CampaignGrid({
                 </Link>
               </h3>
               {campaign.ngo_name ? (
-                <p className="text-xs text-slate-400">
-                  by {campaign.ngo_name}
-                </p>
+                <p className="text-xs text-slate-400">by {campaign.ngo_name}</p>
               ) : null}
               {campaign.description ? (
                 <p className="mt-2 text-sm leading-relaxed text-slate-600 line-clamp-2">
@@ -122,11 +121,12 @@ export function CampaignGrid({
 
               {/* Footer */}
               <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-                <span className="text-xs text-slate-500">
-                  <span className="font-semibold text-slate-700">
+                <span className="text-xs text-emerald-700 flex items-center">
+                  <Users size={12} className="mr-0.5 inline text-emerald-700" />
+                  <span className="font-semibold mr-1">
                     {campaign.supporter_count.toLocaleString("en-IN")}
-                  </span>{" "}
-                  supporters
+                  </span>
+                  <span className="text-slate-600">supporters</span>
                 </span>
                 <Link
                   href={`/campaigns/${campaign.slug}`}
