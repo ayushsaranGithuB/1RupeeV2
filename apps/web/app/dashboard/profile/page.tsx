@@ -10,6 +10,8 @@ export default function ProfilePage() {
   const user = session?.user;
 
   const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [phone, setPhone] = useState((user as { phoneNumber?: string | null })?.phoneNumber || "");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -17,7 +19,11 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
-    const { error } = await authClient.updateUser({ name });
+    const { error } = await authClient.updateUser({
+      name,
+      email,
+      phoneNumber: phone,
+    } as any);
     setSaving(false);
     if (error) {
       setMessage({ type: "error", text: error.message || "Could not update your profile." });
@@ -72,6 +78,30 @@ export default function ProfilePage() {
             onChange={(e) => setName(e.target.value)}
             required
             className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
+          />
+        </label>
+
+        <label className="block text-sm font-medium text-slate-700">
+          Email
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
+          />
+        </label>
+
+        <label className="block text-sm font-medium text-slate-700">
+          Phone number
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            pattern="\+91\d{10}"
+            title="Enter a 10-digit number after +91"
+            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
+            placeholder="+91 98765 43210"
           />
         </label>
 

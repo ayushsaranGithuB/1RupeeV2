@@ -5,10 +5,9 @@ import { usePathname } from "next/navigation";
 export function SiteFooter() {
   const pathname = usePathname();
 
-  // Only show footer on public pages (not admin, dashboard, or auth)
+  // Only hide footer on admin and auth pages
   if (
     pathname?.startsWith("/admin") ||
-    pathname?.startsWith("/dashboard") ||
     pathname?.startsWith("/auth")
   ) {
     return null;
