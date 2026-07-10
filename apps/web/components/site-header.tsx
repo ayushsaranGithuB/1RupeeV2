@@ -28,7 +28,7 @@ export function SiteHeader() {
   if (
     pathname?.startsWith("/admin") ||
     pathname?.startsWith("/dashboard") ||
-    pathname === "/auth/verify"
+    pathname === "/verify"
   ) {
     return null;
   }
@@ -71,13 +71,13 @@ export function SiteHeader() {
           ) : (
             <>
               <Link
-                href="/auth/sign-in"
+                href="/sign-in"
                 className="text-sm font-medium text-slate-600 transition hover:text-emerald-700"
               >
                 Sign in
               </Link>
               <Link
-                href="/auth/sign-up"
+                href="/sign-up"
                 className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
               >
                 Register
@@ -137,14 +137,14 @@ export function SiteHeader() {
           ) : (
             <>
               <Link
-                href="/auth/sign-in"
+                href="/sign-in"
                 onClick={() => setOpen(false)}
                 className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
               >
                 Sign in
               </Link>
               <Link
-                href="/auth/sign-up"
+                href="/sign-up"
                 onClick={() => setOpen(false)}
                 className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-center text-sm font-semibold text-white transition hover:bg-emerald-700"
               >

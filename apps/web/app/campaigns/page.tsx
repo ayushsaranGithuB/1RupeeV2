@@ -198,7 +198,7 @@ export default async function CampaignsPage({
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/auth/sign-up"
+                href="/sign-up"
                 className={buttonVariants({
                   size: "lg",
                   className:

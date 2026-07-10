@@ -157,7 +157,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
 
         <div className="flex flex-col md:flex-row gap-3">
           <Link
-            href="/auth/sign-up"
+            href="/sign-up"
             className="rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white hover:bg-emerald-700"
           ></Link>
           <Link

@@ -44,7 +44,7 @@ export default async function Home() {
             </Link>
             <Link
               className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
-              href="/auth/sign-up"
+              href="/sign-up"
             >
               Create account
             </Link>

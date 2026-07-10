@@ -47,7 +47,7 @@ export default function TierSelectPage() {
 
   useEffect(() => {
     if (!session?.user) {
-      router.replace("/auth/sign-in");
+      router.replace("/sign-in");
       return;
     }
 

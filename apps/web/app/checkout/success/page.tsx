@@ -29,7 +29,7 @@ export default function SuccessPage() {
 
   useEffect(() => {
     if (!session?.user) {
-      router.replace("/auth/sign-in");
+      router.replace("/sign-in");
       return;
     }
 

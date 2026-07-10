@@ -80,7 +80,7 @@ export default function VerifyPage() {
           </p>
           <p className="mb-6 text-sm text-slate-600">{error}</p>
           <a
-            href="/auth/sign-in"
+            href="/sign-in"
             className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
           >
             Back to sign in

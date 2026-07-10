@@ -25,7 +25,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!isPending && !session) {
-      router.replace("/auth/sign-in");
+      router.replace("/sign-in");
     }
   }, [isPending, session, router]);
 

@@ -20,7 +20,9 @@ export default function RootLayout({
       <body>
         <ImpersonationBanner />
         <SiteHeader />
-        {children}
+        <main className="flex-1">
+          {children}
+        </main>
         <SiteFooter />
       </body>
     </html>

@@ -77,6 +77,10 @@
         border-color: hsl(var(--border));
     }
 
+    html {
+        height: 100%;
+    }
+
     body {
         background-color: hsl(var(--background));
         color: hsl(var(--foreground));
@@ -85,6 +89,8 @@
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
         min-height: 100vh;
+        display: flex;
+        flex-direction: column;
         background-image:
             radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.1), transparent 35%),
             radial-gradient(circle at 90% 20%, rgba(245, 158, 11, 0.12), transparent 32%),

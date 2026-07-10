@@ -53,7 +53,7 @@ export default function CartPage() {
 
   useEffect(() => {
     if (!session?.user) {
-      router.replace("/auth/sign-in");
+      router.replace("/sign-in");
       return;
     }
 
@@ -107,14 +107,27 @@ export default function CartPage() {
         setCampaign({ id: campaign.id, title: campaign.title } as Campaign);
         setTier(selectedTier);
 
-        // Fetch wallet balance
-        const walletRes = (await dashboardRequest("/wallets")) as any;
-        if (walletRes?.success) {
-          setWallet(walletRes.data);
+        // Fetch wallet balance (non-blocking - show error but allow proceeding)
+        try {
+          const walletData = await dashboardRequest<Wallet>("/wallets");
+          setWallet(walletData);
+        } catch (walletErr) {
+          console.error("Error fetching wallet:", walletErr);
+          // Don't fail the entire page load for wallet fetch - user can still top up
         }
       } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load data");
+        console.error("Error fetching campaign/tier:", err);
+        if (err instanceof Error) {
+          if (err.message.includes("Campaign")) {
+            setError("Campaign not found");
+          } else if (err.message.includes("Tier")) {
+            setError("Tier not found");
+          } else {
+            setError("Failed to load campaign details");
+          }
+        } else {
+          setError("Failed to load data");
+        }
       } finally {
         setLoading(false);
       }
@@ -177,7 +190,7 @@ export default function CartPage() {
     return <main className="mx-auto max-w-2xl px-6 py-10">Loading...</main>;
   }
 
-  if (error || !tier || !campaign || !wallet) {
+  if (error || !tier || !campaign) {
     return (
       <main className="mx-auto max-w-2xl px-6 py-10">
         <div className="rounded-lg bg-red-50 p-4 text-red-700">
@@ -190,7 +203,7 @@ export default function CartPage() {
     );
   }
 
-  const hasSufficientBalance = wallet.cached_balance >= totalPrice;
+  const hasSufficientBalance = wallet ? wallet.cached_balance >= totalPrice : false;
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
@@ -236,27 +249,35 @@ export default function CartPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-4">
           <h2 className="text-lg font-semibold text-slate-900">Your wallet</h2>
 
-          <div className="rounded-lg bg-blue-50 border border-blue-100 p-4">
-            <p className="text-sm text-slate-600">Current balance</p>
-            <p className="text-2xl font-bold text-slate-900">
-              {formatInrPaisa(wallet.cached_balance)}
-            </p>
-          </div>
-
-          {hasSufficientBalance ? (
-            <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4">
-              <p className="text-sm text-slate-600">Balance after pledge</p>
-              <p className="text-2xl font-bold text-emerald-900">
-                {formatInrPaisa(balanceAfter)}
-              </p>
+          {!wallet ? (
+            <div className="rounded-lg bg-yellow-50 border border-yellow-100 p-4">
+              <p className="text-sm text-yellow-700">Loading wallet balance...</p>
             </div>
           ) : (
-            <div className="rounded-lg bg-red-50 border border-red-100 p-4">
-              <p className="text-sm text-red-700">Insufficient balance</p>
-              <p className="text-lg font-semibold text-red-900 mt-1">
-                You need {formatInrPaisa(shortfall)} more
-              </p>
-            </div>
+            <>
+              <div className="rounded-lg bg-blue-50 border border-blue-100 p-4">
+                <p className="text-sm text-slate-600">Current balance</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {formatInrPaisa(wallet.cached_balance)}
+                </p>
+              </div>
+
+              {hasSufficientBalance ? (
+                <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4">
+                  <p className="text-sm text-slate-600">Balance after pledge</p>
+                  <p className="text-2xl font-bold text-emerald-900">
+                    {formatInrPaisa(balanceAfter)}
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-lg bg-red-50 border border-red-100 p-4">
+                  <p className="text-sm text-red-700">Insufficient balance</p>
+                  <p className="text-lg font-semibold text-red-900 mt-1">
+                    You need {formatInrPaisa(shortfall)} more
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
 

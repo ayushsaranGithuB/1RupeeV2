@@ -6,7 +6,7 @@ import Link from "next/link";
 import { signIn, phoneAuth } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 
-export default function SignInPage() {
+export default function AdminSignInPage() {
   const router = useRouter();
   const [showPhone, setShowPhone] = useState(false);
 
@@ -29,7 +29,7 @@ export default function SignInPage() {
     const { error } = await signIn.magicLink({
       email,
       name: email.split("@")[0],
-      callbackURL: "/dashboard",
+      callbackURL: "/admin", // Redirect to admin area
     });
     setLoading(false);
     if (error) {
@@ -65,13 +65,13 @@ export default function SignInPage() {
       setError(error.message || "Invalid or expired code.");
       return;
     }
-    router.push("/dashboard");
+    router.push("/admin");
   }
 
   return (
     <main className="mx-auto grid min-h-screen max-w-5xl items-center px-6 py-10 sm:px-10">
       <section className="mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-lg">
-        <h1 className="mb-2 text-4xl text-slate-900">Welcome back</h1>
+        <h1 className="mb-2 text-4xl text-slate-900">Admin sign in</h1>
         <p className="mb-6 text-slate-600">
           Passwordless sign-in — no password needed.
         </p>
@@ -100,7 +100,7 @@ export default function SignInPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="admin@example.com"
               />
             </label>
             <Button
@@ -196,12 +196,12 @@ export default function SignInPage() {
         )}
 
         <p className="mt-6 text-center text-sm text-slate-500">
-          New to 1Rupee?{" "}
+          Back to{" "}
           <Link
-            href="/auth/sign-up"
+            href="/sign-in"
             className="font-semibold text-emerald-700 hover:text-emerald-800"
           >
-            Create an account
+            user sign in
           </Link>
         </p>
       </section>

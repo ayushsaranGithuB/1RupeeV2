@@ -33,7 +33,7 @@ export function TierCard({
 
   function handlePledgeClick() {
     if (!session?.user) {
-      router.push("/auth/sign-in");
+      router.push("/sign-in");
       return;
     }
     router.push(`/checkout/tier-select?tier_id=${id}&campaign_id=${campaign_id}${campaign_slug ? `&campaign_slug=${campaign_slug}` : ''}`);
