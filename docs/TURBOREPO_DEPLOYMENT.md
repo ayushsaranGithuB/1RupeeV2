@@ -1,5 +1,10 @@
 # Deploying Turborepo to Cloudflare Pages
 
+> ⚠️ **Outdated.** The web app now deploys to **Cloudflare Workers** via the
+> OpenNext adapter, not Cloudflare Pages. See
+> [CLOUDFLARE_SETUP.md](../CLOUDFLARE_SETUP.md) for the current flow. Kept for
+> historical reference.
+
 This guide covers deploying a **monorepo** with multiple apps/packages to Cloudflare Pages.
 
 ## Project Structure

@@ -1,136 +1,114 @@
-# Cloudflare Pages Setup - Quick Start
+# Cloudflare Workers Setup (OpenNext)
 
-Deploy 1Rupee to Cloudflare Pages in 5 minutes. **No credit card needed. Uses free tier.**
+Deploy the 1Rupee web app to **Cloudflare Workers** using the
+[OpenNext Cloudflare adapter](https://opennext.js.org/cloudflare).
 
-## Quick Steps
+> **Why Workers, not Pages?** The web app is a full Next.js App Router SSR app
+> with dynamic `/api/*` routes (including the Better Auth proxy). Cloudflare
+> Pages' static/`next-on-pages` path is edge-runtime only and can't run this
+> app. `@opennextjs/cloudflare` bundles the Next.js Node server into a Worker
+> (`nodejs_compat`), so server components, API routes, and auth all work.
 
-### 1️⃣ Create Cloudflare Account
-- Go to https://dash.cloudflare.com
-- Sign up (free)
-- Skip domain for now
+## How it fits together
 
-### 2️⃣ Create Pages Project
-- Go to **Pages** in sidebar
-- Click **Create a project**
-- Select **Connect to Git**
-- Authorize with GitHub
-- Choose this repo
-- Click **Begin setup**
+- [`apps/web/open-next.config.ts`](apps/web/open-next.config.ts) — adapter config.
+- [`apps/web/wrangler.jsonc`](apps/web/wrangler.jsonc) — Worker config: entry
+  (`.open-next/worker.js`), `nodejs_compat`, static `ASSETS` binding, runtime vars.
+- [`apps/web/next.config.js`](apps/web/next.config.js) — calls
+  `initOpenNextCloudflareForDev()` so `next dev` sees Cloudflare bindings.
+- Build output lands in `apps/web/.open-next/` (git-ignored).
 
-### 3️⃣ Configure Build
+## Local development
 
-Use these settings (Turborepo monorepo):
+Normal dev is unchanged:
 
-```
-Project name:       1rupee-web
-Production branch:  main
-Build command:      bun install --frozen-lockfile && turbo build --filter=1rupee-web
-```
-
-**Note:** Cloudflare Pages auto-detects Next.js output (`.next` folder). If you see an "Output directory" field, leave it empty or it will auto-fill.
-
-**Why this config:**
-- `turbo build --filter=1rupee-web` - Only builds the web app (skip API build)
-- Cloudflare auto-detects the `.next` directory for Next.js
-
-**Environment Variables:**
-```
-NEXT_PUBLIC_API_URL = http://localhost:3001
-```
-
-Click **Save and Deploy**
-
-✅ **Your web app is now live at `1rupee-web.pages.dev`** 🎉
-
-### 4️⃣ Setup Auto-Deployments (Optional)
-
-To enable automatic GitHub Actions deployments:
-
-1. Get your credentials:
-   - Account ID: https://dash.cloudflare.com/profile/overview (bottom right)
-   - API Token: https://dash.cloudflare.com/profile/api-tokens (Create Token → Cloudflare Pages)
-
-2. Go to GitHub repo **Settings** → **Secrets and variables** → **Actions**
-
-3. Add these secrets:
-   ```
-   CLOUDFLARE_API_TOKEN = <your-token>
-   CLOUDFLARE_ACCOUNT_ID = <your-id>
-   ```
-
-Now every push to `main` or `develop` automatically deploys. ✨
-
-### 5️⃣ Connect Your API
-
-Your API needs to be deployed somewhere. For now:
-
-**Option A (Easiest):** Keep API running locally
-- Just use `http://localhost:3001` for testing
-
-**Option B (Better):** Deploy API to Vercel
 ```bash
-cd apps/api
-vercel deploy
-# Copy the URL
+bun dev            # next dev on :8080, with Cloudflare bindings wired in
 ```
-Then update in Cloudflare Pages:
-- Settings → Environment variables
-- Update `NEXT_PUBLIC_API_URL` to your API URL
 
-## Free Tier Features
+To run the actual Workers build locally (matches production):
 
-✅ Unlimited builds  
-✅ Unlimited bandwidth  
-✅ Unlimited preview deployments  
-✅ Free subdomain (*.pages.dev)  
-✅ HTTPS included  
-✅ Global CDN  
+```bash
+cd apps/web
+bun run preview    # builds with OpenNext + serves via workerd
+```
 
-## Your Subdomains
+For local runtime secrets during `preview`, create `apps/web/.dev.vars`
+(git-ignored):
 
-While testing (before custom domain):
-- **Production**: `1rupee-web.pages.dev`
-- **Staging**: `develop.1rupee-web.pages.dev` (if you push to `develop` branch)
-- **PRs**: `pr-<number>.1rupee-web.pages.dev`
+```
+API_URL=http://127.0.0.1:3001
+```
 
-## Adding Custom Domain Later
+## One-time Cloudflare setup
 
-When you buy a domain:
-1. In Cloudflare Pages → Custom Domain
-2. Add your domain
-3. Update nameservers (Cloudflare will show instructions)
-4. Done! No cost, HTTPS auto-enabled.
+1. Create a free Cloudflare account: https://dash.cloudflare.com
+2. Grab your credentials:
+   - **Account ID**: https://dash.cloudflare.com/profile/overview (bottom right)
+   - **API Token**: https://dash.cloudflare.com/profile/api-tokens →
+     *Create Token* → **Edit Cloudflare Workers** template.
+
+## Manual deploy
+
+```bash
+cd apps/web
+bunx wrangler login          # once
+bun run deploy               # builds + deploys the Worker
+```
+
+First deploy creates the `1rupee-web` Worker and gives you a
+`1rupee-web.<your-subdomain>.workers.dev` URL.
+
+## Runtime environment variables
+
+`NEXT_PUBLIC_*` vars are **inlined at build time**; everything else is read at
+runtime from Worker vars/secrets.
+
+| Variable              | Where it's set                          | Notes                                   |
+| --------------------- | --------------------------------------- | --------------------------------------- |
+| `API_URL`             | `wrangler.jsonc` `vars` / dashboard     | Backend base URL used by the proxy route |
+| `NEXT_PUBLIC_APP_URL` | build env (CI secret)                   | Public origin, inlined into the bundle   |
+| `NEXT_PUBLIC_API_URL` | build env (CI secret)                   | Inlined into the bundle                  |
+
+Set non-secret runtime vars in `wrangler.jsonc` under `vars`, or per-env in the
+dashboard. For secrets:
+
+```bash
+cd apps/web
+bunx wrangler secret put BETTER_AUTH_SECRET
+```
+
+## Auto-deploy from GitHub
+
+[`.github/workflows/deploy-workers.yml`](.github/workflows/deploy-workers.yml)
+deploys on every push to `main`. Add these repo secrets under
+**Settings → Secrets and variables → Actions**:
+
+```
+CLOUDFLARE_API_TOKEN    = <your-token>
+CLOUDFLARE_ACCOUNT_ID   = <your-account-id>
+NEXT_PUBLIC_API_URL     = <public API url>     # optional, build-time
+NEXT_PUBLIC_APP_URL     = <public app origin>  # optional, build-time
+```
+
+## Typed bindings (optional)
+
+Regenerate `cloudflare-env.d.ts` after changing bindings/vars:
+
+```bash
+cd apps/web
+bun run cf-typegen
+```
+
+## Custom domain
+
+In the Cloudflare dashboard → **Workers & Pages → 1rupee-web → Settings →
+Domains & Routes**, add your domain. HTTPS is automatic.
 
 ## Troubleshooting
 
-**Build fails?**
-- Check build logs in Cloudflare Pages dashboard
-- Ensure `bun` is installed locally: `bun --version`
-- Run `bun run build` locally to test
-
-**API not responding?**
-- Check `NEXT_PUBLIC_API_URL` in environment variables
-- Ensure API server is running
-- Check browser console for CORS errors
-
-**Out of sync with GitHub?**
-- Click "Retry deployment" on the latest build
-- Or push a dummy commit: `git commit --allow-empty -m "Trigger deploy"`
-
-## Next Steps
-
-- ✅ Web app deployed
-- ⏭️ Deploy API to Cloudflare Workers (for better integration)
-- ⏭️ Add custom domain
-- ⏭️ Set up monitoring
-
-## Turborepo-Specific Notes
-
-Since this is a **monorepo** (Turborepo with multiple apps):
-- The build command `turbo build --filter=1rupee-web` ensures only the web app is built
-- The API is built separately (or skipped entirely during Pages builds)
-- This prevents unnecessary API compilation during web deployments
-
-For detailed Turborepo deployment info, see [TURBOREPO_DEPLOYMENT.md](docs/TURBOREPO_DEPLOYMENT.md).
-
-See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for more details and advanced config.
+- **Build fails on a Node API** — ensure `nodejs_compat` is in
+  `compatibility_flags` and `compatibility_date` is recent (see `wrangler.jsonc`).
+- **`API_URL` undefined at runtime** — set it as a Worker var/secret, not just a
+  build-time env var.
+- **Deploy 403** — the API token needs the *Workers Scripts:Edit* permission.

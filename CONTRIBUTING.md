@@ -20,7 +20,7 @@
    - Verify TypeScript types
    - Execute unit tests
    - Build the project
-   - Deploy a preview to Vercel (on `develop` branch)
+   - Deploy a preview to Cloudflare Workers (on pull requests)
 
 4. **Merge once all checks pass** and get approval
 
@@ -52,16 +52,17 @@ The following branches have protection enabled:
 ### `develop` (Staging)
 - ✅ Requires all status checks to pass
 - ✅ Requires pull request review (1 approver)
-- ✅ Auto-deploys to Vercel preview when merged
+- ✅ Deploys a Cloudflare Workers preview on pull requests
 
 ## Secrets Required
 
-These environment variables must be set in GitHub Secrets for preview deployments:
+These must be set in GitHub Secrets for deployments:
 
 ```
-VERCEL_TOKEN      # Vercel authentication token
-VERCEL_ORG_ID     # Vercel organization ID
-VERCEL_PROJECT_ID # Vercel project ID
+CLOUDFLARE_API_TOKEN   # Token with Workers Scripts:Edit permission
+CLOUDFLARE_ACCOUNT_ID  # Cloudflare account ID
+NEXT_PUBLIC_API_URL    # (optional) build-time public API URL
+NEXT_PUBLIC_APP_URL    # (optional) build-time public app origin
 ```
 
 ## Testing
@@ -100,24 +101,23 @@ Ensures type safety across the codebase.
 
 ## Deployment
 
-The app is hosted on **Cloudflare Pages** (free tier):
+The web app runs on **Cloudflare Workers** via the OpenNext adapter:
 
-- **Production**: `1rupee-web.pages.dev` (from `main` branch)
-- **Staging**: `develop.1rupee-web.pages.dev` (from `develop` branch)
-- **Preview**: `pr-123.1rupee-web.pages.dev` (from pull requests)
+- **Production**: `1rupee-web.<subdomain>.workers.dev` (from `main` branch)
+- Auto-deployed by [`.github/workflows/deploy-workers.yml`](.github/workflows/deploy-workers.yml) on push to `main`.
 
-See [DEPLOYMENT.md](docs/DEPLOYMENT.md) for setup and configuration.
+See [CLOUDFLARE_SETUP.md](CLOUDFLARE_SETUP.md) for setup and configuration.
 
 ### Deployment Checklist
-- [ ] Environment variables configured in Cloudflare Pages
-- [ ] API URL set correctly (`NEXT_PUBLIC_API_URL`)
+- [ ] Runtime vars/secrets configured on the Worker (e.g. `API_URL`)
+- [ ] Build-time public vars set (`NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_APP_URL`)
 - [ ] GitHub secrets configured (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`)
 - [ ] CI pipeline passing
 - [ ] No sensitive data in `.env` files (only `.env.example`)
 
 ## Making a Release
 
-Releases are cut from the `main` branch and follow semantic versioning. Update version in `package.json` and create a git tag. Cloudflare Pages will automatically deploy to production.
+Releases are cut from the `main` branch and follow semantic versioning. Update version in `package.json` and create a git tag. Cloudflare Workers will automatically deploy to production.
 
 ## Need Help?
 

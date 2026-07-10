@@ -1,17 +1,16 @@
-name: Preview Deployment
+name: Deploy to Cloudflare Workers
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    branches: [main, develop]
+  push:
+    branches: [main]
+  workflow_dispatch: {}
 
 jobs:
-  preview:
-    name: Deploy Preview to Cloudflare Workers
+  deploy:
+    name: Deploy Web to Cloudflare Workers
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -24,18 +23,19 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # Builds Next.js and transforms it into a Workers bundle (.open-next/).
+      # NEXT_PUBLIC_* vars are inlined here; runtime-only vars (API_URL) are set
+      # as Worker vars/secrets and injected at request time.
       - name: Build (OpenNext for Cloudflare)
         run: bun run --filter=1rupee-web build:worker
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
-      # `versions upload` publishes a non-production preview version and prints a
-      # unique preview URL, without shifting any production traffic.
-      - name: Upload preview version to Cloudflare Workers
+      - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/web
-          command: versions upload
+          command: deploy

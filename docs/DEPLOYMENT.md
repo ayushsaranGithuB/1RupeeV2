@@ -1,6 +1,11 @@
 # Deployment Guide
 
-## Current Setup: Cloudflare Pages (Free Tier)
+> ⚠️ **Outdated.** The web app now deploys to **Cloudflare Workers** via the
+> OpenNext adapter, not Cloudflare Pages. See
+> [CLOUDFLARE_SETUP.md](../CLOUDFLARE_SETUP.md) for the current flow. The Pages
+> instructions below are kept only for historical reference.
+
+## Legacy Setup: Cloudflare Pages (Free Tier)
 
 This guide covers deploying 1Rupee to Cloudflare Pages under the free tier.
 
