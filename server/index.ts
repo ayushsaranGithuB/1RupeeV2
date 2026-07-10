@@ -10,6 +10,7 @@ import donationsRouter from './routes/donations';
 import registerRouter from './routes/register';
 import adminRouter from './routes/admin';
 import paymentsRouter from './routes/payments';
+import internalRouter from './routes/internal';
 import { AuthContext, ApiUser } from './types';
 import { successResponse, errorResponse } from './utils/response';
 import { checkDatabaseHealth } from '@db';
@@ -82,7 +83,7 @@ async function getSessionContext(c: any): Promise<SessionContext | null> {
 
 console.log('🚀 API Server Starting with detailed logging...');
 
-const app = new Hono<{ Variables: { auth?: AuthContext } }>();
+const app = new Hono<{ Variables: { auth?: AuthContext } }>().basePath('/api');
 
 // Middleware
 // CORS must be applied FIRST to handle preflight requests
@@ -160,6 +161,9 @@ app.get('/debug', (c) => {
 // Mounted at /auth/* to match auth.basePath.
 app.on(['POST', 'GET'], '/auth/*', (c) => auth.handler(c.req.raw));
 
+// Internal routes (machine-to-machine, e.g. cron)
+app.route('/internal', internalRouter);
+
 // Public routes
 app.route('/campaigns', campaignsRouter);
 app.route('/stats', statsRouter);
@@ -234,41 +238,3 @@ app.onError((err, c) => {
 });
 
 export default app;
-
-// Start server
-async function startServer() {
-    try {
-        const health = await checkDatabaseHealth();
-
-        console.log('🔎 Startup database health check:', {
-            connected: health.connected,
-            healthy: health.healthy,
-            tables: health.tables.map((table) => ({
-                name: table.name,
-                rowCount: table.rowCount,
-                hasData: table.hasData,
-            })),
-        });
-
-        if (!health.healthy) {
-            console.warn('⚠️ API started with an unhealthy database: one or more tables are empty');
-        }
-    } catch (error) {
-        console.error('❌ API server failed database health check:', error);
-        throw error;
-    }
-
-    const port = process.env.API_PORT || 3001;
-    Bun.serve({
-        port,
-        fetch: app.fetch,
-    });
-    console.log(`✅ API Server running at http://localhost:${port}`);
-}
-
-if (process.env.NODE_ENV !== 'test') {
-    startServer().catch((error) => {
-        console.error('❌ API server failed to start:', error);
-        process.exit(1);
-    });
-}

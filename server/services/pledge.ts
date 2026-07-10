@@ -51,7 +51,7 @@ export class PledgeService {
         // Daily CRON will create daily donation records as pledges are processed
         const transactionId = await walletRepository.addTransaction(
             wallet.id,
-            'PLEDGE_CHARGE',
+            'DONATION',
             -totalAmountToCharge, // Negative for deduction
             `Pledge to ${tier.title} (${data.plan_length_months} months) - deducted upfront`,
             data.reference_id

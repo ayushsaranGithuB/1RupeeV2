@@ -1,25 +1,23 @@
 # syntax=docker/dockerfile:1
-# Build context is the monorepo root (see fly.web.toml [build]).
+# Single-app deployment: Next.js with integrated Hono API
 
 FROM oven/bun:1.3.14 AS build
 WORKDIR /app
 
-# Install workspace deps first (better layer caching).
+# Install deps first (better layer caching).
 COPY package.json bun.lock bunfig.toml ./
-COPY apps/api/package.json apps/api/package.json
-COPY apps/web/package.json apps/web/package.json
 RUN bun install --frozen-lockfile
 
 COPY . .
 
 # NEXT_PUBLIC_* vars are inlined at build time. Override via fly [build.args]
-# or `--build-arg`. Server-only vars (API_URL) are set at runtime, not here.
+# or `--build-arg`. Runtime vars (API_URL, CRON_SECRET) are set on the Fly app.
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 
-RUN cd apps/web && bun run build
+RUN bun run build
 
 FROM oven/bun:1.3.14-slim AS runtime
 WORKDIR /app
@@ -28,9 +26,9 @@ ENV PORT=8080
 ENV HOSTNAME=0.0.0.0
 
 # Next.js standalone output: minimal server + traced node_modules.
-COPY --from=build /app/apps/web/.next/standalone ./
-COPY --from=build /app/apps/web/.next/static ./apps/web/.next/static
-COPY --from=build /app/apps/web/public ./apps/web/public
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
 
 EXPOSE 8080
-CMD ["bun", "apps/web/server.js"]
+CMD ["bun", "server.js"]

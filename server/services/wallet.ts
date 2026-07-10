@@ -1,5 +1,4 @@
-import { userRepository, walletRepository } from '../repositories/user';
-import { walletTransactionTypeEnum } from '@db/schema';
+import { walletRepository } from '../repositories/user';
 import { WalletTopup } from '../schemas/wallet';
 
 export class WalletService {

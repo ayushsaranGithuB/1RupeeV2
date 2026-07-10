@@ -1,9 +1,9 @@
-export type AdminApiSuccess<T> = {
+export type DashboardApiSuccess<T> = {
   success: true;
   data: T;
 };
 
-export type AdminApiFailure = {
+export type DashboardApiFailure = {
   success: false;
   error: {
     code: string;
@@ -11,9 +11,11 @@ export type AdminApiFailure = {
   };
 };
 
-export type AdminApiResponse<T> = AdminApiSuccess<T> | AdminApiFailure;
+export type DashboardApiResponse<T> =
+  | DashboardApiSuccess<T>
+  | DashboardApiFailure;
 
-export async function adminRequest<T>(
+export async function dashboardRequest<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
@@ -23,24 +25,13 @@ export async function adminRequest<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  // Auth is the Better Auth session cookie: sent automatically on this
-  // same-origin request and forwarded to the API by the /api/proxy gateway.
-  const response = await fetch(`/api/proxy${path}`, {
+  // Auth is the Better Auth session cookie: sent automatically on this same-origin request.
+  const response = await fetch(`/api${path}`, {
     ...init,
     headers,
   });
 
-  const contentType = response.headers.get("content-type") || "";
-
-  if (!contentType.includes("application/json")) {
-    const text = await response.text();
-    if (!response.ok) {
-      throw new Error(text || `Request failed with status ${response.status}`);
-    }
-    return text as T;
-  }
-
-  const payload = (await response.json()) as AdminApiResponse<T>;
+  const payload = (await response.json()) as DashboardApiResponse<T>;
 
   if (!response.ok || !payload.success) {
     const message = payload.success
@@ -50,15 +41,6 @@ export async function adminRequest<T>(
   }
 
   return payload.data;
-}
-
-// Amounts are stored in rupees; format them as INR currency
-export function formatCurrency(amountInRupees: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amountInRupees || 0);
 }
 
 export function formatDate(value?: string | Date | null) {

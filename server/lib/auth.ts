@@ -50,8 +50,8 @@ const trustedOrigins = [
 
 export const auth = betterAuth({
     secret: process.env.BETTER_AUTH_SECRET || 'dev-insecure-secret-change-me',
-    baseURL: process.env.BETTER_AUTH_URL || 'http://127.0.0.1:3001',
-    basePath: '/auth',
+    baseURL: process.env.BETTER_AUTH_URL || process.env.WEB_URL || 'http://localhost:8080',
+    basePath: '/api/auth',
     trustedOrigins,
     database: drizzleAdapter(authDb, {
         provider: 'pg',
