@@ -116,6 +116,7 @@ export function AnalyticsTab({
         recentDonations={recentDonations}
         campaignId={selectedCampaign.id}
         showLink={false}
+        supporterCount={supporters.length}
       />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
