@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1
 
 # Adjust BUN_VERSION as desired
-ARG BUN_VERSION=1.1.24
+ARG BUN_VERSION=1.3.14
 FROM oven/bun:${BUN_VERSION}-slim AS base
 
 LABEL fly_launch_runtime="Next.js"
@@ -41,8 +41,12 @@ FROM base
 # Copy built application
 COPY --from=build /app /app
 
+# Adjust entrypoint to be executable on Linux
+RUN chmod +x ./docker-entrypoint.js && \
+    sed -i "s/\r$//g" ./docker-entrypoint.js
+
 # Entrypoint sets up the container.
-ENTRYPOINT [ "bun", "/app/docker-entrypoint.js" ]
+ENTRYPOINT [ "/app/docker-entrypoint.js" ]
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 8080
