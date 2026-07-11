@@ -13,7 +13,7 @@ import {
     transparency_reports,
 } from './schema';
 import { eq } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 // The admin that can sign in (magic link) and use the admin console. Override
 // with ADMIN_EMAIL. This user is created idempotently regardless of whether the
@@ -557,7 +557,7 @@ async function seed() {
         if (existingUsers.length === 0) {
             console.log('Creating 100 users...');
             for (let i = 0; i < 100; i++) {
-                const id = uuidv4();
+                const id = randomUUID();
                 userIds.push(id);
                 await db.insert(users).values({
                     id,
@@ -580,7 +580,7 @@ async function seed() {
 
         if (existingAdmin.length === 0) {
             console.log(`Creating admin user ${ADMIN_EMAIL}...`);
-            const adminIdNew = uuidv4();
+            const adminIdNew = randomUUID();
             await db.insert(users).values({
                 id: adminIdNew,
                 email: ADMIN_EMAIL,
@@ -627,7 +627,7 @@ async function seed() {
             console.log(`Creating ${NGO_SEED.length} NGOs, ${campaignCount} campaigns, and their tiers...`);
 
             for (const ngo of NGO_SEED) {
-                const ngoId = uuidv4();
+                const ngoId = randomUUID();
                 ngoIds.push(ngoId);
                 await db.insert(ngos).values({
                     id: ngoId,
@@ -642,7 +642,7 @@ async function seed() {
                 });
 
                 for (const campaign of ngo.campaigns) {
-                    const campaignId = uuidv4();
+                    const campaignId = randomUUID();
                     campaignIds.push(campaignId);
                     await db.insert(campaigns).values({
                         id: campaignId,
