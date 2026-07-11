@@ -72,6 +72,21 @@ export function formatDate(value?: string | Date | null) {
   });
 }
 
+export function formatDateTime(value?: string | Date | null) {
+  if (!value) {
+    return "-";
+  }
+
+  return new Date(value).toLocaleString("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
 export function toQueryString(
   params: Record<string, string | number | undefined | null>,
 ) {

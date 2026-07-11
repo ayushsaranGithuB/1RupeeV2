@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { adminRequest, formatDate } from "@/lib/admin";
+import { adminRequest, formatDate, formatDateTime } from "@/lib/admin";
 import { cn } from "@/lib/utils";
 
 type HealthResponse = {
@@ -24,6 +24,17 @@ type HealthResponse = {
   };
 };
 
+type JobRunSummary = {
+  total_active_pledges?: number;
+  processed?: number;
+  successful_donations?: number;
+  skipped_already_processed?: number;
+  skipped_missing_wallet?: number;
+  skipped_insufficient_balance?: number;
+  failed?: number;
+  total_amount_donated?: number;
+};
+
 type JobRun = {
   id: string;
   job_type: string;
@@ -31,6 +42,7 @@ type JobRun = {
   started_at: string;
   finished_at: string | null;
   error_message: string | null;
+  summary: JobRunSummary | null;
 };
 
 type CheckState = {
@@ -240,18 +252,28 @@ export default function SystemStatusPage() {
                   <TableHead>Status</TableHead>
                   <TableHead>Started</TableHead>
                   <TableHead>Finished</TableHead>
+                  <TableHead>Active pledges</TableHead>
+                  <TableHead>Processed</TableHead>
+                  <TableHead>Donated</TableHead>
+                  <TableHead>Already done</TableHead>
+                  <TableHead>No wallet</TableHead>
+                  <TableHead>Low balance</TableHead>
+                  <TableHead>Failed</TableHead>
+                  <TableHead>Amount (₹)</TableHead>
                   <TableHead>Error</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {jobRuns.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-sm text-slate-500">
+                    <TableCell colSpan={13} className="text-sm text-slate-500">
                       No job runs recorded yet.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  jobRuns.map((run) => (
+                  jobRuns.map((run) => {
+                    const s = run.summary;
+                    return (
                     <TableRow key={run.id}>
                       <TableCell className="font-medium text-slate-900">
                         {run.job_type}
@@ -270,13 +292,28 @@ export default function SystemStatusPage() {
                           {run.status}
                         </span>
                       </TableCell>
-                      <TableCell>{formatDate(run.started_at)}</TableCell>
-                      <TableCell>{formatDate(run.finished_at)}</TableCell>
+                      <TableCell>{formatDateTime(run.started_at)}</TableCell>
+                      <TableCell>{formatDateTime(run.finished_at)}</TableCell>
+                      <TableCell>{s?.total_active_pledges ?? "-"}</TableCell>
+                      <TableCell>{s?.processed ?? "-"}</TableCell>
+                      <TableCell>{s?.successful_donations ?? "-"}</TableCell>
+                      <TableCell>{s?.skipped_already_processed ?? "-"}</TableCell>
+                      <TableCell>{s?.skipped_missing_wallet ?? "-"}</TableCell>
+                      <TableCell>{s?.skipped_insufficient_balance ?? "-"}</TableCell>
+                      <TableCell
+                        className={cn(
+                          s?.failed && s.failed > 0 && "font-semibold text-red-700",
+                        )}
+                      >
+                        {s?.failed ?? "-"}
+                      </TableCell>
+                      <TableCell>{s?.total_amount_donated ?? "-"}</TableCell>
                       <TableCell className="max-w-[240px] truncate text-red-700">
                         {run.error_message || "-"}
                       </TableCell>
                     </TableRow>
-                  ))
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
