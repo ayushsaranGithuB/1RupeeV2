@@ -5,12 +5,12 @@ import reactHooks from "eslint-plugin-react-hooks";
 
 export default [
   {
-    ignores: ["node_modules", ".next", "build", "dist"],
+    ignores: ["node_modules", ".next", "build", "dist", "docker-entrypoint.js"],
   },
   js.configs.recommended,
   ...ts.configs.recommended,
   {
-    files: ["app/**/*.tsx", "app/**/*.ts"],
+    files: ["**/*.ts", "**/*.tsx"],
     plugins: {
       react,
       "react-hooks": reactHooks,
