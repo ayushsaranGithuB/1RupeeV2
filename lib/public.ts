@@ -83,7 +83,21 @@ export type TransparencyReport = {
 };
 
 async function fetchApi<T>(path: string): Promise<T> {
-    const response = await fetch(`/api${path}`, {
+    // Server-side: use absolute URL (http://localhost:8080 in dev, or app domain in prod)
+    // Client-side: use relative path (no baseUrl needed)
+    let baseUrl = '';
+    if (typeof window === 'undefined') {
+        // Server-side rendering
+        if (process.env.NEXT_PUBLIC_API_URL) {
+            baseUrl = process.env.NEXT_PUBLIC_API_URL;
+        } else if (process.env.VERCEL_URL) {
+            baseUrl = `https://${process.env.VERCEL_URL}`;
+        } else {
+            baseUrl = 'http://localhost:8080';
+        }
+    }
+
+    const response = await fetch(`${baseUrl}/api${path}`, {
         next: { revalidate: 60 },
     });
 
