@@ -23,7 +23,15 @@ same container as the rest of the app.
 - `fly.toml` — app name, region, and `internal_port` (8080, matching the
   `next start -p 8080` script).
 
-## Quick deploy
+## Deploys
+
+Fly.io is connected to this GitHub repo for continuous deployment: every push
+to `main` triggers a build and rollout automatically (configured in the Fly
+dashboard, not a workflow file in this repo). No manual `fly deploy` needed
+for normal changes.
+
+To deploy manually anyway (e.g. testing a local Dockerfile change before
+pushing):
 
 ```bash
 fly deploy
