@@ -3,15 +3,9 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { adminRequest, formatDate, formatDateTime } from "@/lib/admin";
+import { Card } from "@/components/ui/card";
+import { Tooltip } from "@/components/ui/tooltip";
+import { adminRequest, formatDate, formatDateTime, formatDuration } from "@/lib/admin";
 import { cn } from "@/lib/utils";
 
 type HealthResponse = {
@@ -25,6 +19,7 @@ type HealthResponse = {
 };
 
 type JobRunSummary = {
+  run_date?: string;
   total_active_pledges?: number;
   processed?: number;
   successful_donations?: number;
@@ -168,7 +163,7 @@ export default function SystemStatusPage() {
   }, []);
 
   const latestCronRun = jobRuns.find(
-    (run) => run.job_type === "daily-donation-processing",
+    (run) => run.job_type === WALLET_JOB_TYPE,
   );
   const cronHoursSinceLastRun = latestCronRun
     ? (Date.now() - new Date(latestCronRun.started_at).getTime()) / 3_600_000
@@ -237,89 +232,161 @@ export default function SystemStatusPage() {
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-slate-200 bg-white">
-        <div className="border-b border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
-          Recent job runs (CRON / payouts)
+      {jobRunsError ? (
+        <div className="rounded-xl border border-slate-200 bg-white">
+          <div className="border-b border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+            Recent job runs
+          </div>
+          <p className="px-4 py-3 text-sm text-red-700">{jobRunsError}</p>
         </div>
-        <div className="p-2">
-          {jobRunsError ? (
-            <p className="px-2 py-3 text-sm text-red-700">{jobRunsError}</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Job</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Started</TableHead>
-                  <TableHead>Finished</TableHead>
-                  <TableHead>Active pledges</TableHead>
-                  <TableHead>Processed</TableHead>
-                  <TableHead>Donated</TableHead>
-                  <TableHead>Already done</TableHead>
-                  <TableHead>No wallet</TableHead>
-                  <TableHead>Low balance</TableHead>
-                  <TableHead>Failed</TableHead>
-                  <TableHead>Amount (₹)</TableHead>
-                  <TableHead>Error</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {jobRuns.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={13} className="text-sm text-slate-500">
-                      No job runs recorded yet.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  jobRuns.map((run) => {
-                    const s = run.summary;
-                    return (
-                    <TableRow key={run.id}>
-                      <TableCell className="font-medium text-slate-900">
-                        {run.job_type}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={cn(
-                            "rounded-full px-2 py-0.5 text-xs font-semibold",
-                            run.status === "COMPLETED" &&
-                              "bg-emerald-50 text-emerald-700",
-                            run.status === "FAILED" && "bg-red-50 text-red-700",
-                            run.status === "RUNNING" &&
-                              "bg-amber-50 text-amber-700",
-                          )}
-                        >
-                          {run.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>{formatDateTime(run.started_at)}</TableCell>
-                      <TableCell>{formatDateTime(run.finished_at)}</TableCell>
-                      <TableCell>{s?.total_active_pledges ?? "-"}</TableCell>
-                      <TableCell>{s?.processed ?? "-"}</TableCell>
-                      <TableCell>{s?.successful_donations ?? "-"}</TableCell>
-                      <TableCell>{s?.skipped_already_processed ?? "-"}</TableCell>
-                      <TableCell>{s?.skipped_missing_wallet ?? "-"}</TableCell>
-                      <TableCell>{s?.skipped_insufficient_balance ?? "-"}</TableCell>
-                      <TableCell
-                        className={cn(
-                          s?.failed && s.failed > 0 && "font-semibold text-red-700",
-                        )}
-                      >
-                        {s?.failed ?? "-"}
-                      </TableCell>
-                      <TableCell>{s?.total_amount_donated ?? "-"}</TableCell>
-                      <TableCell className="max-w-[240px] truncate text-red-700">
-                        {run.error_message || "-"}
-                      </TableCell>
-                    </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </div>
+      ) : (
+        <>
+          <JobRunSection
+            title="Wallet jobs (CRON)"
+            runs={jobRuns.filter(
+              (run) => run.job_type === WALLET_JOB_TYPE,
+            )}
+            dateAsTitle
+          />
+          <JobRunSection
+            title="Payout jobs"
+            runs={jobRuns.filter(
+              (run) => run.job_type !== WALLET_JOB_TYPE,
+            )}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+const WALLET_JOB_TYPE = "daily-donation-processing";
+
+function JobRunSection({
+  title,
+  runs,
+  dateAsTitle,
+}: {
+  title: string;
+  runs: JobRun[];
+  dateAsTitle?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white">
+      <div className="border-b border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+        {title}
+      </div>
+      <div className="p-4">
+        {runs.length === 0 ? (
+          <p className="px-2 py-3 text-sm text-slate-500">
+            No job runs recorded yet.
+          </p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {runs.map((run) => (
+              <JobRunCard key={run.id} run={run} dateAsTitle={dateAsTitle} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
+  );
+}
+
+function JobRunCard({
+  run,
+  dateAsTitle,
+}: {
+  run: JobRun;
+  dateAsTitle?: boolean;
+}) {
+  const s = run.summary;
+  const title = dateAsTitle
+    ? formatDate(s?.run_date || run.started_at)
+    : run.job_type;
+
+  const bigStats = [
+    { label: "Active pledges", value: s?.total_active_pledges },
+    { label: "Processed", value: s?.processed },
+    { label: "Donated", value: s?.successful_donations },
+    { label: "Amount (₹)", value: s?.total_amount_donated },
+  ];
+
+  const smallStats = [
+    { label: "Already done", value: s?.skipped_already_processed },
+    { label: "No wallet", value: s?.skipped_missing_wallet },
+    { label: "Low balance", value: s?.skipped_insufficient_balance },
+    {
+      label: "Failed",
+      value: s?.failed,
+      highlight: !!s?.failed && s.failed > 0,
+    },
+  ];
+
+  return (
+    <Card className="p-4">
+      <div className="flex items-center justify-between">
+        <p className="font-medium text-slate-900">{title}</p>
+        <span
+          className={cn(
+            "rounded-full px-2 py-0.5 text-xs font-semibold",
+            run.status === "COMPLETED" && "bg-emerald-50 text-emerald-700",
+            run.status === "FAILED" && "bg-red-50 text-red-700",
+            run.status === "RUNNING" && "bg-amber-50 text-amber-700",
+          )}
+        >
+          {run.status}
+        </span>
+      </div>
+
+      {s ? (
+        <div className="mt-4 grid grid-cols-4 gap-2">
+          {bigStats.map((stat) => (
+            <div key={stat.label}>
+              <p className="text-xs text-slate-500">{stat.label}</p>
+              <p className="text-xl font-semibold text-slate-900">
+                {stat.value ?? "-"}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
+        {s ? (
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {smallStats.map((stat) => (
+              <span
+                key={stat.label}
+                className={cn(stat.highlight && "font-semibold text-red-700")}
+              >
+                {stat.label}: {stat.value ?? "-"}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <span />
+        )}
+
+        <Tooltip
+          content={
+            <div className="flex flex-col gap-0.5">
+              <span>Started: {formatDateTime(run.started_at)}</span>
+              <span>Finished: {formatDateTime(run.finished_at)}</span>
+            </div>
+          }
+        >
+          <span className="cursor-default underline decoration-dotted">
+            {formatDuration(run.started_at, run.finished_at)}
+          </span>
+        </Tooltip>
+      </div>
+
+      {run.error_message ? (
+        <p className="mt-2 truncate text-xs text-red-700">
+          Error: {run.error_message}
+        </p>
+      ) : null}
+    </Card>
   );
 }
