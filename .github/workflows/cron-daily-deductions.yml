@@ -1,0 +1,29 @@
+name: Daily Wallet Deductions
+
+on:
+  schedule:
+    # 00:00 IST = 18:30 UTC (previous day)
+    - cron: '30 18 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  daily-deductions:
+    name: Process Daily Donations
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Trigger daily donation processing
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            -d '{}' \
+            "${{ secrets.CRON_ENDPOINT }}/api/internal/cron/daily-run"
+        env:
+          CRON_ENDPOINT: ${{ secrets.APP_URL || 'https://1rupee-web.fly.dev' }}
+
+      - name: Log result
+        if: always()
+        run: echo "Daily deduction cron completed"
