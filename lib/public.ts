@@ -82,10 +82,8 @@ export type TransparencyReport = {
     created_at: string;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
-
 async function fetchApi<T>(path: string): Promise<T> {
-    const response = await fetch(`${API_BASE}${path}`, {
+    const response = await fetch(`/api${path}`, {
         next: { revalidate: 60 },
     });
 
