@@ -33,7 +33,6 @@
     "remark-breaks": "4.0.0",
     "tailwind-merge": "3.6.0",
     "tailwindcss-animate": "1.0.7",
-    "typescript": "5.9.3",
     "zod": "^3.22.0"
   },
   "devDependencies": {
@@ -49,12 +48,14 @@
     "@vitejs/plugin-react": "^4.2.0",
     "@vitest/ui": "^1.0.0",
     "autoprefixer": "10.5.2",
+    "dotenv": "^16.0.0",
     "drizzle-kit": "^0.20.0",
     "eslint-plugin-react": "latest",
     "eslint-plugin-react-hooks": "latest",
     "jsdom": "^24.0.0",
     "postcss": "8.5.16",
     "tailwindcss": "4.3.2",
+    "typescript": "5.9.3",
     "typescript-eslint": "latest",
     "vite": "^5.0.0",
     "vitest": "^1.0.0"
