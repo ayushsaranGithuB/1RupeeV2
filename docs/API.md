@@ -6,7 +6,7 @@ Related docs:
 
 ## Tech Stack
 
-- Next.js Route Handlers running on Cloudflare Workers
+- Next.js Route Handlers running on Fly.io (Docker/Bun)
 - Neon PostgreSQL
 - Drizzle ORM
 - Better Auth

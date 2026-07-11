@@ -28,12 +28,11 @@ The MVP is a 3-month pilot with approximately 8–10 manually onboarded NGOs.
 - TypeScript
 - Tailwind CSS
 - shadcn/ui
-- Bun (development)
-- Cloudflare Workers (deployment)
+- Bun (development and deployment runtime)
+- Fly.io (deployment)
 - Neon PostgreSQL
 - Drizzle ORM
 - Better Auth
-- Cloudflare R2
 - Razorpay
 - TanStack Query
 - Zod

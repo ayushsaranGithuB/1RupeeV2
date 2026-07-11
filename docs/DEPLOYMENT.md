@@ -1,10 +1,11 @@
 # Deployment Guide
 
-1Rupee is a single Next.js app (UI + API routes) deployed to **Cloudflare Workers** via [OpenNext](https://opennext.js.org/cloudflare).
+1Rupee is a single Next.js app (UI + API routes) deployed to **Fly.io** as a
+Docker container.
 
 ```
 ┌─────────────────────────────────────────┐
-│  Cloudflare Worker                       │
+│  Fly.io machine (Docker/Bun)             │
 │  - Next.js SSR + API routes (app/api/*) │
 ├─────────────────────────────────────────┤
 │  Neon PostgreSQL                        │
@@ -12,25 +13,27 @@
 ```
 
 There is no separate API service — `app/api/**/route.ts` handlers run in the
-same Worker as the rest of the app.
+same container as the rest of the app.
 
 ## Configuration
 
-- `open-next.config.ts` — OpenNext build config.
-- `wrangler.jsonc` — Worker name, entry point (`.open-next/worker.js`), and
-  static asset directory (`.open-next/assets`).
+- `Dockerfile` — builds and runs the app on the `oven/bun` image.
+- `docker-entrypoint.js` — prerenders pages on `bun run start`, then launches
+  the given command (run via `bun`, since the base image has no Node binary).
+- `fly.toml` — app name, region, and `internal_port` (8080, matching the
+  `next start -p 8080` script).
 
 ## Quick deploy
 
 ```bash
-bun run cf:build     # builds Next.js, then adapts it for Workers via OpenNext
-bun run cf:deploy     # deploys the built Worker to Cloudflare
+fly deploy
 ```
 
-Use `bun run cf:preview` to run the Workers build locally before deploying.
+Run `fly logs` to tail the running app, and `fly status` to check machine
+health.
 
 ## Secrets
 
 Set required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`,
 `CRON_SECRET`, `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET`, `RESEND_API_KEY`) via
-the Cloudflare dashboard or `wrangler secret put <NAME>`.
+`fly secrets set NAME=value`.

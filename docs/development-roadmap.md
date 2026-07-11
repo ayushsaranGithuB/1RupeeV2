@@ -4,7 +4,7 @@
 
 - [x] Single Next.js app (Bun), no Turborepo/workspaces
 - [x] Configure TypeScript
-- [x] Setup Cloudflare + Neon
+- [x] Setup Fly.io + Neon
 - [x] Configure Better Auth
 
 Deliverable: Repository builds successfully. ✅

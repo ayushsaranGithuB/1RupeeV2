@@ -199,17 +199,15 @@ Runs once every 24 hours.
 
 ## Deployment
 
-**App:** Single Next.js app (UI + API routes) on Cloudflare Workers via OpenNext
+**App:** Single Next.js app (UI + API routes), deployed to Fly.io as a Docker container
 
 **Database:** Neon PostgreSQL
-
-**Storage:** Cloudflare R2
 
 **Email:** Resend
 
 **Payments:** Razorpay
 
-Secrets managed through Cloudflare. Separate development and production environments.
+Secrets managed through `fly secrets set`. Separate development and production environments.
 
 ---
 

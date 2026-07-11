@@ -42,7 +42,3 @@ yarn-error.log*
 
 # OS
 Thumbs.db
-
-# Cloudflare / OpenNext build output
-.open-next/
-.wrangler/

@@ -42,8 +42,8 @@ FROM base
 COPY --from=build /app /app
 
 # Entrypoint sets up the container.
-ENTRYPOINT [ "/app/docker-entrypoint.js" ]
+ENTRYPOINT [ "bun", "/app/docker-entrypoint.js" ]
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
+EXPOSE 8080
 CMD [ "bun", "run", "start" ]

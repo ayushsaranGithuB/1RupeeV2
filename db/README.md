@@ -163,10 +163,5 @@ Connection pooling is configured in `db/index.ts`:
 - Dev: max 5 connections
 - Prod: max 10 connections
 
-### Cloudflare Workers Compatibility
-
-For Cloudflare Workers deployment, consider using:
-- Neon Postgres with HTTP API adapter
-- Or Turso (SQLite) for edge deployment
-
-Current setup uses `postgres` driver for local/server development.
+Current setup uses the `postgres` driver, running on Fly.io (Bun/Docker), so no
+edge-runtime adapter is needed.
