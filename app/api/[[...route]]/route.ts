@@ -1,7 +1,10 @@
 import { NextRequest } from 'next/server';
 import app from '@/server';
 
-export const runtime = 'nodejs';
+// For Cloudflare Workers with OpenNext: unspecified runtime allows the adapter
+// to optimize based on environment. Node.js APIs (crypto, drizzle-orm) are
+// available in Cloudflare Workers with proper configuration.
+export const maxDuration = 30;
 
 export async function GET(request: NextRequest, context: any) {
   return app.fetch(request);

@@ -1,8 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { sql } from 'drizzle-orm';
 import postgres from 'postgres';
-import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import {
     audit_logs,
     campaigns,
@@ -45,29 +43,11 @@ export type DatabaseHealthCheck = {
 };
 
 export function getDatabaseUrl() {
-    if (process.env.DATABASE_URL) {
-        return process.env.DATABASE_URL;
+    const url = process.env.DATABASE_URL;
+    if (!url) {
+        throw new Error('DATABASE_URL environment variable is not set');
     }
-
-    const candidateFiles = [
-        resolve(process.cwd(), '.env.local'),
-        resolve(process.cwd(), 'apps/api/.env.local'),
-    ];
-
-    for (const filePath of candidateFiles) {
-        if (!existsSync(filePath)) {
-            continue;
-        }
-
-        const fileContents = readFileSync(filePath, 'utf8');
-        const match = fileContents.match(/^DATABASE_URL=(.+)$/m);
-
-        if (match?.[1]) {
-            return match[1].trim().replace(/^"|"$/g, '');
-        }
-    }
-
-    throw new Error('DATABASE_URL environment variable is not set');
+    return url;
 }
 
 export function getDb() {

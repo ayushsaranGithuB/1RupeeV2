@@ -1,4 +1,3 @@
-import { createHmac, timingSafeEqual } from 'crypto';
 import { z } from 'zod';
 
 type PaymentProviderName = 'mock' | 'razorpay';
@@ -12,7 +11,7 @@ export type PaymentWebhookEvent = {
 
 export interface PaymentProvider {
     name: PaymentProviderName;
-    verifyWebhook(headers: Record<string, string | undefined>, rawBody: string): boolean;
+    verifyWebhook(headers: Record<string, string | undefined>, rawBody: string): Promise<boolean>;
     parseCapturedPayment(rawBody: string): PaymentWebhookEvent | null;
 }
 
@@ -42,15 +41,12 @@ const RazorpayWebhookSchema = z.object({
     }),
 });
 
-function safeEqualHex(left: string, right: string): boolean {
-    const leftBuffer = Buffer.from(left, 'hex');
-    const rightBuffer = Buffer.from(right, 'hex');
-
-    if (leftBuffer.length !== rightBuffer.length) {
-        return false;
+function hexToBytes(hex: string): Uint8Array {
+    const bytes = new Uint8Array(Math.ceil(hex.length / 2));
+    for (let i = 0; i < hex.length; i += 2) {
+        bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
     }
-
-    return timingSafeEqual(leftBuffer, rightBuffer);
+    return bytes;
 }
 
 function normalizeProvider(value?: string): PaymentProviderName {
@@ -64,7 +60,7 @@ function normalizeProvider(value?: string): PaymentProviderName {
 class MockPaymentProvider implements PaymentProvider {
     name: PaymentProviderName = 'mock';
 
-    verifyWebhook(headers: Record<string, string | undefined>, rawBody: string): boolean {
+    async verifyWebhook(headers: Record<string, string | undefined>, rawBody: string): Promise<boolean> {
         const signature = headers['x-mock-signature'];
         const secret = process.env.MOCK_WEBHOOK_SECRET || 'mock-webhook-secret';
 
@@ -72,8 +68,27 @@ class MockPaymentProvider implements PaymentProvider {
             return false;
         }
 
-        const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
-        return safeEqualHex(signature, expected);
+        try {
+            const key = await crypto.subtle.importKey(
+                'raw',
+                new TextEncoder().encode(secret),
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['verify']
+            );
+
+            const signatureBytes = hexToBytes(signature) as BufferSource;
+            const bodyBytes = new TextEncoder().encode(rawBody);
+
+            return await crypto.subtle.verify(
+                'HMAC',
+                key,
+                signatureBytes,
+                bodyBytes
+            );
+        } catch {
+            return false;
+        }
     }
 
     parseCapturedPayment(rawBody: string): PaymentWebhookEvent | null {
@@ -102,7 +117,7 @@ class MockPaymentProvider implements PaymentProvider {
 class RazorpayPaymentProvider implements PaymentProvider {
     name: PaymentProviderName = 'razorpay';
 
-    verifyWebhook(headers: Record<string, string | undefined>, rawBody: string): boolean {
+    async verifyWebhook(headers: Record<string, string | undefined>, rawBody: string): Promise<boolean> {
         const signature = headers['x-razorpay-signature'];
         const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
@@ -110,8 +125,27 @@ class RazorpayPaymentProvider implements PaymentProvider {
             return false;
         }
 
-        const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
-        return safeEqualHex(signature, expected);
+        try {
+            const key = await crypto.subtle.importKey(
+                'raw',
+                new TextEncoder().encode(secret),
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['verify']
+            );
+
+            const signatureBytes = hexToBytes(signature) as BufferSource;
+            const bodyBytes = new TextEncoder().encode(rawBody);
+
+            return await crypto.subtle.verify(
+                'HMAC',
+                key,
+                signatureBytes,
+                bodyBytes
+            );
+        } catch {
+            return false;
+        }
     }
 
     parseCapturedPayment(rawBody: string): PaymentWebhookEvent | null {

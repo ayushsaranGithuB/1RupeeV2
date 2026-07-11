@@ -2,6 +2,7 @@ import { getDb } from '@db';
 import { users, wallets, wallet_transactions, pledges, campaign_tiers, campaigns, donations } from '@db/schema';
 import { eq, and, desc, ilike } from 'drizzle-orm';
 import { ApiUser, ApiWallet } from '../types';
+import { generateUUID } from '../utils/id';
 
 export class UserRepository {
     async findById(id: string): Promise<ApiUser | null> {
@@ -182,7 +183,7 @@ export class WalletRepository {
         const db = getDb();
 
         const inserted = await db.insert(wallet_transactions).values({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             wallet_id: walletId,
             type: type as any,
             amount,

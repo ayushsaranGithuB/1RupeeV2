@@ -15,7 +15,7 @@ payments.post('/webhook', async (c) => {
             'x-razorpay-signature': c.req.header('x-razorpay-signature'),
         };
 
-        if (!provider.verifyWebhook(headers, rawBody)) {
+        if (!(await provider.verifyWebhook(headers, rawBody))) {
             return c.json(
                 errorResponse(ErrorCodes.UNAUTHORIZED, 'Invalid webhook signature'),
                 401

@@ -2,6 +2,7 @@ import { getDb } from '@db';
 import { pledges, campaign_tiers, campaigns, donations } from '@db/schema';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import { ApiPledge } from '../types';
+import { generateUUID } from '../utils/id';
 
 export class PledgeRepository {
     async findById(id: string): Promise<ApiPledge | null> {
@@ -53,7 +54,7 @@ export class PledgeRepository {
         const db = getDb();
 
         const pledge = await db.insert(pledges).values({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             user_id: userId,
             campaign_tier_id: tierId,
             status: 'ACTIVE',
@@ -120,7 +121,7 @@ export class PledgeRepository {
         const inserted = await db
             .insert(donations)
             .values({
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 pledge_id: data.pledge_id,
                 campaign_id: data.campaign_id,
                 wallet_transaction_id: data.wallet_transaction_id,

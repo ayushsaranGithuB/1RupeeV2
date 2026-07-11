@@ -2,6 +2,7 @@ import { getDb } from '@db';
 import { campaigns, campaign_tiers, ngos } from '@db/schema';
 import { eq, and, isNull, asc, sql } from 'drizzle-orm';
 import { ApiCampaign, ApiCampaignTier } from '../types';
+import { generateUUID } from '../utils/id';
 
 export class CampaignRepository {
     async findById(id: string): Promise<ApiCampaign | null> {
@@ -76,7 +77,7 @@ export class CampaignRepository {
         const db = getDb();
 
         const campaign = await db.insert(campaigns).values({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             ngo_id: data.ngo_id,
             title: data.title,
             slug: data.slug,

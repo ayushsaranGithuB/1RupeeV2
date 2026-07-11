@@ -16,6 +16,7 @@ import { ngoRepository, payoutRepository, tierRepository } from '../repositories
 import { campaignRepository } from '../repositories/campaign';
 import { userRepository, walletRepository } from '../repositories/user';
 import { pledgeRepository } from '../repositories/pledge';
+import { generateUUID } from '../utils/id';
 
 class JobRunRepository {
     async start(jobType: string, requestedBy: string, input: Record<string, unknown>) {
@@ -25,7 +26,7 @@ class JobRunRepository {
             const inserted = await db
                 .insert(job_runs)
                 .values({
-                    id: crypto.randomUUID(),
+                    id: generateUUID(),
                     job_type: jobType,
                     status: 'RUNNING',
                     requested_by: requestedBy,
@@ -202,7 +203,7 @@ export class UserSearchService {
 
         const db = getDb();
         await db.insert(audit_logs).values({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             admin_id: adminId,
             user_id: userId,
             action: type === 'debit' ? 'WALLET_DEBIT' : 'WALLET_CREDIT',
@@ -221,7 +222,7 @@ export class UserSearchService {
 
         const db = getDb();
         await db.insert(audit_logs).values({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             admin_id: adminId,
             user_id: userId,
             action: suspended ? 'USER_SUSPENDED' : 'USER_REACTIVATED',
@@ -586,7 +587,7 @@ export class AdminReportingService {
         const result = await db
             .insert(transparency_reports)
             .values({
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 title: data.title,
                 file_url: data.file_url,
                 report_type: data.report_type,

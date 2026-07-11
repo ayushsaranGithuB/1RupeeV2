@@ -1,7 +1,7 @@
 import { getDb } from '@db';
 import { ngos, campaign_tiers, payouts } from '@db/schema';
 import { eq, ilike, and, isNull } from 'drizzle-orm';
-import { randomUUID } from 'crypto';
+import { generateUUID } from '../utils/id';
 
 export class NgoRepository {
     async findById(id: string) {
@@ -40,7 +40,7 @@ export class NgoRepository {
 
     async create(data: any) {
         const db = getDb();
-        const id = randomUUID();
+        const id = generateUUID();
         const result = await db
             .insert(ngos)
             .values({
@@ -121,7 +121,7 @@ export class TierRepository {
 
     async create(data: any) {
         const db = getDb();
-        const id = randomUUID();
+        const id = generateUUID();
         const result = await db
             .insert(campaign_tiers)
             .values({
@@ -211,7 +211,7 @@ export class PayoutRepository {
 
     async create(data: any) {
         const db = getDb();
-        const id = randomUUID();
+        const id = generateUUID();
         const result = await db
             .insert(payouts)
             .values({
