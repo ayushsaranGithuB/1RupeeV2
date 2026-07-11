@@ -5,17 +5,17 @@ const faqSections = [
       {
         question: "What is 1Rupee?",
         answer:
-          "1Rupee is a recurring giving platform. Instead of one large donation, you commit a small daily amount to a cause you care about, and it adds up to real, sustained support over time.",
+          "1Rupee is a recurring giving platform built around a simple idea: small, steady amounts add up to more impact than the occasional big gift — and they're a lot easier on your budget too. Instead of a one-time donation, you pick a cause and commit a small amount to it every day. You can watch your chosen campaigns' progress build up in your dashboard, day by day, as your contributions add up alongside everyone else supporting the same cause.",
       },
       {
         question: "Who can use 1Rupee?",
         answer:
-          "Anyone 18 or older in India with a way to pay online — UPI, debit/credit card, or net banking — can sign up and start supporting campaigns.",
+          "Anyone 18 or older in India can sign up, as long as you have a way to pay online — UPI, a debit or credit card, or net banking all work. Signing up takes a couple of minutes: verify your phone or email, and you're ready to browse campaigns and set up your first pledge.",
       },
       {
         question: "How do I get started?",
         answer:
-          "Create an account, browse active campaigns, pick a tier on the campaign you want to support, and top up your wallet to activate your pledge.",
+          "It's four quick steps: create your account, browse active campaigns and pick one that speaks to you, choose a tier and a plan length on that campaign, then top up your wallet to activate your pledge. From there, everything runs on its own — you can check in on your dashboard whenever you like to see the impact adding up.",
       },
     ],
   },
@@ -25,17 +25,17 @@ const faqSections = [
       {
         question: "What is the wallet?",
         answer:
-          "Your wallet holds a prepaid balance in rupees that funds your pledges. You top it up whenever you like, and every top-up and donation is recorded in your transaction history.",
+          "Think of your wallet as a prepaid balance that powers all your pledges. You top it up in whatever amount suits you, and from there your daily contributions are drawn from it automatically. Every rupee is tracked — top-ups, donations, all of it show up in your transaction history, so you always know exactly where your balance stands and where it went.",
       },
       {
         question: "What payment methods are supported?",
         answer:
-          "You can top up your wallet via UPI, debit/credit card, or net banking.",
+          "You can top up your wallet using UPI, a debit or credit card, or net banking — whatever's easiest for you. Just choose an amount, complete the payment, and your wallet balance updates right away so you're ready to pledge.",
       },
       {
         question: "What happens if my wallet balance runs low?",
         answer:
-          "If there isn't enough balance to cover a scheduled donation, that donation is skipped rather than putting your account in debt. Top up anytime to keep your pledges active.",
+          "Nothing to worry about — if your balance can't cover a day's contribution, that day is simply skipped rather than leaving you in debt or charging you extra. Your pledges stay set up and waiting, so a quick top-up whenever you get the chance is all it takes to pick right back up.",
       },
     ],
   },
@@ -45,22 +45,22 @@ const faqSections = [
       {
         question: "What is a tier?",
         answer:
-          "Each campaign offers one or more tiers — a fixed daily amount you can commit, along with what that support unlocks for the cause. You choose a tier and a plan length (for example 3, 6, or 12 months) when you pledge.",
+          "Every campaign offers one or more tiers to choose from — say, ₹5 a day or ₹20 a day — each with its own description of what that level of support helps make possible. When you pick a tier, you also choose how long you want to commit: a preset 3, 6, or 12 months, or a custom length anywhere from 1 to 12 months. Before you confirm, you'll see the full total for your chosen plan so there are no surprises.",
       },
       {
         question: "What is a pledge, and is it recurring?",
         answer:
-          "A pledge is your ongoing commitment to a tier for your chosen plan length. From your wallet balance, your daily amount is applied toward that campaign for as long as the pledge is active.",
+          "A pledge is what you get when you commit to a tier — it's your ongoing promise to support that campaign for the plan length you picked. Once it's active, your daily amount is drawn from your wallet balance and added to that campaign's total, day after day, alongside everyone else's contributions, for as long as your pledge runs.",
       },
       {
         question: "Can I support multiple campaigns at once?",
         answer:
-          "Yes. You can hold active pledges across as many different campaigns or tiers as you like — you just can't have two active pledges on the exact same tier at the same time.",
+          "Definitely — there's no limit on how many different campaigns or tiers you can back at the same time. Mix and match causes however you like; the only rule is that you can't hold two active pledges on the exact same tier simultaneously (you'd just be topping up the same commitment twice).",
       },
       {
         question: "Can I pause or cancel a pledge?",
         answer:
-          "Yes, you can manage your active pledges from your dashboard at any time.",
+          "Yes, your pledges are always yours to manage. Head to your dashboard to pause a pledge if you want to take a break without losing your history, or cancel it outright if your priorities change. Either way, any remaining wallet balance stays right where it is, ready for you to put toward another cause.",
       },
     ],
   },
@@ -70,17 +70,17 @@ const faqSections = [
       {
         question: "How are campaigns vetted?",
         answer:
-          "Every campaign is reviewed before it goes live, and we track how much each one has raised so contributors can see progress toward its goal.",
+          "Our team reviews every campaign before it's allowed to go live on the platform. Once it's up, you'll see its progress toward its goal in real time, and our team keeps an eye on each campaign's status throughout its life — pausing, wrapping up, or archiving it as needed.",
       },
       {
         question: "How can I see where my money went?",
         answer:
-          "Your dashboard shows every donation and top-up in your wallet history, tied to the specific campaigns you've supported.",
+          "Your dashboard is your full paper trail — every top-up and every donation is logged there, date-stamped and tied to the specific campaign it supported. Nothing about your giving history is hidden from you; it's all just a click away.",
       },
       {
         question: "Do I get a tax receipt for my donations?",
         answer:
-          "Not yet — tax-deductible receipts aren't available on the platform today, but it's something we're looking into.",
+          "Not yet — tax-deductible receipts aren't something we offer on the platform today. It's on our radar, and we're looking into partnerships that would make that possible down the line. In the meantime, your dashboard's transaction history is a complete, dated record of everything you've given, which is handy to have either way.",
       },
     ],
   },
