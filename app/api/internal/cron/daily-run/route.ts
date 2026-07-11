@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dailyDonationProcessorService } from '@/server/services/admin';
 import { successResponse, errorResponse } from '@/server/utils/response';
+import { sendEmail } from '@/server/lib/senders';
+
+const ADMIN_ALERT_EMAIL = process.env.ADMIN_EMAIL || 'ayushsaran@gmail.com';
+
+async function alertAdmin(subject: string, text: string) {
+    try {
+        await sendEmail({ to: ADMIN_ALERT_EMAIL, subject, text });
+    } catch (error) {
+        console.error('[CRON] Failed to send alert email:', error);
+    }
+}
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -47,9 +58,21 @@ export async function POST(request: NextRequest) {
         );
 
         console.log('[CRON] Daily processing complete', summary);
+
+        if (summary.failed > 0) {
+            await alertAdmin(
+                `[1Rupee] Daily cron: ${summary.failed} pledge(s) failed`,
+                `Daily donation processing finished but ${summary.failed} of ${summary.processed} pledges failed.\n\n${JSON.stringify(summary, null, 2)}`
+            );
+        }
+
         return NextResponse.json(successResponse(summary));
     } catch (error: any) {
         console.error('[CRON] Error running daily processing:', error.message);
+        await alertAdmin(
+            '[1Rupee] Daily cron FAILED',
+            `The daily donation processing cron threw an error and did not complete:\n\n${error.message}`
+        );
         return NextResponse.json(
             errorResponse('INTERNAL_ERROR', 'Failed to run daily processing'),
             { status: 500 }

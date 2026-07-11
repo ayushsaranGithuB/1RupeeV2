@@ -15,15 +15,23 @@ jobs:
 
     steps:
       - name: Trigger daily donation processing
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
-            -d '{}' \
-            "${{ secrets.CRON_ENDPOINT }}/api/internal/cron/daily-run"
         env:
           CRON_ENDPOINT: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          http_status=$(curl -sS -o response.json -w '%{http_code}' -X POST \
+            -H "Content-Type: application/json" \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            -d '{}' \
+            "$CRON_ENDPOINT/api/internal/cron/daily-run")
 
-      - name: Log result
-        if: always()
-        run: echo "Daily deduction cron completed"
+          echo "HTTP status: $http_status"
+          cat response.json
+
+          # Fail the step (and the run) on any non-2xx response, so GitHub
+          # Actions' own failure notifications fire instead of the cron
+          # failing silently behind a "green" curl exit code.
+          if [ "$http_status" -lt 200 ] || [ "$http_status" -ge 300 ]; then
+            echo "::error::Daily cron endpoint returned HTTP $http_status"
+            exit 1
+          fi

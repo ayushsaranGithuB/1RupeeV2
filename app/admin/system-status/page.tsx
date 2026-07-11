@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, RefreshCw } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -155,6 +155,17 @@ export default function SystemStatusPage() {
     runChecks();
   }, []);
 
+  const latestCronRun = jobRuns.find(
+    (run) => run.job_type === "daily-donation-processing",
+  );
+  const cronHoursSinceLastRun = latestCronRun
+    ? (Date.now() - new Date(latestCronRun.started_at).getTime()) / 3_600_000
+    : null;
+  // Daily cron runs once every 24h at 00:00 IST; 26h gives a small buffer
+  // before flagging a missed run.
+  const cronStale = cronHoursSinceLastRun === null || cronHoursSinceLastRun > 26;
+  const cronFailed = latestCronRun?.status === "FAILED";
+
   return (
     <div className="mx-auto max-w-[1400px] space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -169,6 +180,25 @@ export default function SystemStatusPage() {
           Refresh
         </Button>
       </div>
+
+      {!jobRunsError && (cronStale || cronFailed) ? (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-600" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">
+              {cronFailed
+                ? "Daily wallet cron last run failed"
+                : "Daily wallet cron hasn't run recently"}
+            </p>
+            <p className="mt-1 text-xs text-amber-700">
+              {latestCronRun
+                ? `Last run started ${formatDate(latestCronRun.started_at)} (status: ${latestCronRun.status}).`
+                : "No daily-donation-processing job run found."}{" "}
+              Check the GitHub Actions "Daily Wallet Deductions" workflow.
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatusCard title="API Health" check={apiHealth} />

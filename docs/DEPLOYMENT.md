@@ -45,3 +45,25 @@ health.
 Set required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`,
 `CRON_SECRET`, `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET`, `RESEND_API_KEY`) via
 `fly secrets set NAME=value`.
+
+`ADMIN_EMAIL` (defaults to `ayushsaran@gmail.com` if unset) is where cron
+failure alerts are sent — see below. `RESEND_API_KEY` must also be set for
+those alert emails to actually deliver; without it they're only logged via
+`fly logs` (see [server/lib/senders.ts](../server/lib/senders.ts)).
+
+## Daily wallet cron
+
+[.github/workflows/cron-daily-deductions.yml](../.github/workflows/cron-daily-deductions.yml)
+calls `POST /api/internal/cron/daily-run` on the deployed app every day at
+18:30 UTC (00:00 IST), guarded by the `X-Cron-Secret` header. This requires
+two **GitHub Actions repo secrets** (Settings → Secrets and variables →
+Actions on GitHub, separate from Fly secrets):
+
+- `CRON_SECRET` — must match the value set on Fly via `fly secrets set CRON_SECRET=...`
+- `APP_URL` — the deployed app's base URL, e.g. `https://1rupee-v2.fly.dev`
+
+The workflow fails the run (and should trigger GitHub's own failure
+notification) on any non-2xx response, and the endpoint itself emails
+`ADMIN_EMAIL` on failures or partial failures. Recent runs — automated or
+admin-triggered via `/api/admin/cron/daily-run` — are visible on
+`/admin/system-status`, which also flags a stale (>26h) or failed last run.

@@ -130,9 +130,16 @@ Status: Component tests framework set up (Vitest + React Testing Library). Tests
 - [ ] Responsive QA
 - [ ] Accessibility
 - [ ] Analytics
-- [ ] Monitoring
-- [ ] Deployment
+- [x] Monitoring — cron reliability (see below)
+- [x] Deployment — live on Fly.io (`1rupee-v2`), auto-deploys on push to `main`
 - [ ] Pilot launch
+
+Status: Daily wallet cron now alerts on failure — the GitHub Actions workflow
+fails loudly on a non-2xx response (previously always "succeeded" regardless
+of HTTP status), the cron endpoint emails `ADMIN_EMAIL` on failure/partial
+failure, and `/admin/system-status` flags a stale (>26h) or failed last run.
+No alerting yet for other failure modes (payment webhook errors, general app
+errors, uptime).
 
 Success Criteria
 
