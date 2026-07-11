@@ -6,6 +6,8 @@ import {
 } from "../lib/public";
 import { CampaignGrid } from "@/components/campaign-grid";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const [stats, campaigns] = await Promise.all([
     getPublicStats(),

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getPublicStats, getTransparencyReports } from "../../lib/public";
 
+export const dynamic = "force-dynamic";
+
 export default async function TransparencyPage() {
   const [reports, stats] = await Promise.all([
     getTransparencyReports(),
