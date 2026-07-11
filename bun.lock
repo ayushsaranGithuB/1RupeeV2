@@ -19,7 +19,6 @@
         "remark-breaks": "4.0.0",
         "tailwind-merge": "3.6.0",
         "tailwindcss-animate": "1.0.7",
-        "typescript": "5.9.3",
         "zod": "^3.22.0",
       },
       "devDependencies": {
@@ -35,12 +34,14 @@
         "@vitejs/plugin-react": "^4.2.0",
         "@vitest/ui": "^1.0.0",
         "autoprefixer": "10.5.2",
+        "dotenv": "^16.0.0",
         "drizzle-kit": "^0.20.0",
         "eslint-plugin-react": "latest",
         "eslint-plugin-react-hooks": "latest",
         "jsdom": "^24.0.0",
         "postcss": "8.5.16",
         "tailwindcss": "4.3.2",
+        "typescript": "5.9.3",
         "typescript-eslint": "latest",
         "vite": "^5.0.0",
         "vitest": "^1.0.0",
@@ -629,6 +630,8 @@
     "doctrine": ["doctrine@2.1.0", "", { "dependencies": { "esutils": "^2.0.2" } }, "sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw=="],
 
     "dom-accessibility-api": ["dom-accessibility-api@0.6.3", "", {}, "sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w=="],
+
+    "dotenv": ["dotenv@16.6.1", "", {}, "sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow=="],
 
     "dreamopt": ["dreamopt@0.8.0", "", { "dependencies": { "wordwrap": ">=0.0.2" } }, "sha512-vyJTp8+mC+G+5dfgsY+r3ckxlz+QMX40VjPQsZc5gxVAxLmi64TBoVkP54A/pRAXMXsbu2GMMBrZPxNv23waMg=="],
 
