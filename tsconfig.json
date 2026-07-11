@@ -14,7 +14,7 @@
     "jsx": "react-jsx",
     "noEmit": true,
     "declaration": false,
-    "baseUrl": ".",
+    // "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
       "@db": ["./db"],

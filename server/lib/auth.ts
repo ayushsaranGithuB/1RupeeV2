@@ -49,7 +49,7 @@ const trustedOrigins = [
 ];
 
 export const auth = betterAuth({
-    secret: process.env.BETTER_AUTH_SECRET || 'dev-insecure-secret-change-me',
+    secret: process.env.BETTER_AUTH_SECRET ,
     baseURL: process.env.BETTER_AUTH_URL || process.env.WEB_URL || 'http://localhost:8080',
     basePath: '/api/auth',
     trustedOrigins,
