@@ -26,6 +26,7 @@ campaigns.get('/', async (c) => {
             parsed.data.category
         );
 
+        c.header('Cache-Control', 'public, max-age=60, s-maxage=300');
         return c.json(successResponse(result));
     } catch (error) {
         console.error('Error listing campaigns:', error);
@@ -49,6 +50,7 @@ campaigns.get('/:slug', async (c) => {
             );
         }
 
+        c.header('Cache-Control', 'public, max-age=60, s-maxage=300');
         return c.json(successResponse(campaign));
     } catch (error) {
         console.error('Error fetching campaign:', error);

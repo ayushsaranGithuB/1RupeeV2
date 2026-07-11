@@ -22,6 +22,7 @@ stats.get('/', async (c) => {
             verified_ngos: 0,
         };
 
+        c.header('Cache-Control', 'public, max-age=60, s-maxage=300');
         return c.json(successResponse(stats));
     } catch (error) {
         console.error('Error fetching stats:', error);
@@ -42,6 +43,7 @@ stats.get('/reports', async (c) => {
             .orderBy(desc(transparency_reports.created_at))
             .limit(10);
 
+        c.header('Cache-Control', 'public, max-age=300, s-maxage=3600');
         return c.json(successResponse(reports));
     } catch (error) {
         console.error('Error fetching transparency reports:', error);
