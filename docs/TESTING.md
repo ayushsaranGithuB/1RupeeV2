@@ -2,10 +2,10 @@
 
 ## Overview
 
-1Rupee has comprehensive test coverage across API and web components:
+1Rupee has one unified test suite, run with **Vitest**:
 
-- **API**: Unit tests with Bun's native test runner
-- **Web**: Component tests with Vitest + React Testing Library
+- **API route tests**: `server/__tests__/`
+- **UI component tests**: `components/**/__tests__/`
 
 ## Running Tests
 
@@ -14,59 +14,50 @@
 bun run test
 ```
 
-### API tests only
-```bash
-bun run -w apps/api test
-```
-
-### Web component tests
-```bash
-bun run -w apps/web test
-```
-
 ### Watch mode (auto-rerun on changes)
 ```bash
-bun run -w apps/web test -- --watch
+bun run test -- --watch
 ```
 
 ### Coverage reports
 ```bash
-bun run -w apps/web test:coverage
+bun run test:coverage
 ```
 
 ### UI test explorer
 ```bash
-bun run -w apps/web test:ui
+bun run test:ui
 ```
 
-## API Tests (Bun)
+## API Route Tests
 
-Located in `apps/api/src/__tests__/`
-
-### Running
-```bash
-bun test
-```
+Located in `server/__tests__/`.
 
 ### Test files
 - `admin.test.ts` - Admin endpoints (NGO, campaign, user, payout management)
 - `api.test.ts` - Public API endpoints (campaigns, donations, etc.)
 - `campaign-service.test.ts` - Campaign business logic
 
+Most route tests go through `server/__tests__/test-helpers.ts`'s `callApi(request)`,
+a small dispatcher that mirrors Next.js's own `app/api/**/route.ts` file-based
+routing and invokes the real handler (including its auth guard). This lets a
+test exercise a full request/response cycle without spinning up a dev server.
+
 ### Structure
 ```typescript
+import { callApi } from './test-helpers';
+
 describe('Endpoint', () => {
   it('should do something', async () => {
-    const res = await makeRequest('GET', '/path');
+    const res = await callApi(new Request('http://localhost:3000/api/path'));
     expect(res.status).toBe(200);
-    expect(res.data).toMatchObject({ /* ... */ });
   });
 });
 ```
 
 ## Web Component Tests (Vitest)
 
-Located in `apps/web/components/ui/__tests__/`
+Located in `components/ui/__tests__/`.
 
 ### Test files
 - `button.test.tsx` - Button component
@@ -111,18 +102,17 @@ See `.github/workflows/ci.yml` for full pipeline.
 ### Required checks
 - Lint (ESLint)
 - Type Check (TypeScript)
-- Unit Tests (API)
-- Component Tests (Web)
-- Build (Turbo)
+- Unit Tests
+- Build
 
 All must pass before merging to `main`.
 
 ## Coverage Goals
 
-| Package | Target | Current |
-|---------|--------|---------|
-| API     | 80%    | 65%     |
-| Web     | 60%    | 15%     |
+| Area | Target | Current |
+|------|--------|---------|
+| API routes | 80%   | 65%     |
+| Web        | 60%   | 15%     |
 
 See TODO in [development-roadmap.md](development-roadmap.md) for progress.
 

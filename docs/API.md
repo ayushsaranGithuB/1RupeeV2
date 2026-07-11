@@ -6,7 +6,7 @@ Related docs:
 
 ## Tech Stack
 
-- Hono running on Cloudflare Workers
+- Next.js Route Handlers running on Cloudflare Workers
 - Neon PostgreSQL
 - Drizzle ORM
 - Better Auth

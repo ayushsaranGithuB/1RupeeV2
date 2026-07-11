@@ -1,6 +1,6 @@
 # Consolidation Plan: Hono API → Next.js, drop Turborepo
 
-Status: **DRAFT — awaiting approval. No code changes made yet.**
+Status: **DONE (historical).** This consolidation was completed; the Hono app it describes mounting into Next was later removed entirely in favor of native Next.js Route Handlers (see `docs/architecture.md` / `docs/API.md` for the current API layer). Kept for historical context only — do not use as a description of the current codebase.
 
 ## Goal
 

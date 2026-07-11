@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import app from '../index';
+import { callApi } from './test-helpers';
 
 describe('GET /donations', () => {
     it('should reject requests without auth header', async () => {
         const req = new Request('http://localhost:3000/api/donations');
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(401);
         const body = await res.json() as any;
@@ -16,7 +16,7 @@ describe('GET /donations', () => {
         const req = new Request('http://localhost:3000/api/donations', {
             headers: { Authorization: 'Bearer test-token' },
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(401);
     });
@@ -25,7 +25,7 @@ describe('GET /donations', () => {
         const req = new Request('http://localhost:3000/api/donations', {
             headers: { 'x-test-auth': 'user' },
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         // Auth passes; the query may succeed with an empty list or fail
         // without a live DB, but it must never be unauthorized.

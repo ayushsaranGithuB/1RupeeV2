@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import app from '../index';
+import { callApi } from './test-helpers';
 
 describe('Admin API Endpoints', () => {
     // Real auth is now Better Auth sessions; use the test-only auth seam
@@ -11,7 +11,7 @@ describe('Admin API Endpoints', () => {
 
     // Helper function to make requests
     async function makeRequest(method: string, path: string, body?: any) {
-        const response = await app.request(
+        const response = await callApi(
             new Request(`http://localhost:3000/api${path}`, {
                 method,
                 headers: adminHeaders,
@@ -252,7 +252,7 @@ describe('Admin API Endpoints', () => {
 
     describe('Auth & Error Handling', () => {
         it('should reject requests without auth header', async () => {
-            const response = await app.request(
+            const response = await callApi(
                 new Request('http://localhost:3000/api/admin/ngos', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
@@ -264,7 +264,7 @@ describe('Admin API Endpoints', () => {
         });
 
         it('should reject invalid auth header format', async () => {
-            const response = await app.request(
+            const response = await callApi(
                 new Request('http://localhost:3000/api/admin/ngos', {
                     method: 'GET',
                     headers: {
@@ -277,7 +277,7 @@ describe('Admin API Endpoints', () => {
         });
 
         it('should return proper error for non-existent admin endpoint', async () => {
-            const response = await app.request(
+            const response = await callApi(
                 new Request('http://localhost:3000/api/admin/nonexistent', {
                     method: 'GET',
                     headers: adminHeaders,

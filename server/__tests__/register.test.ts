@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import app from '../index';
+import { callApi } from './test-helpers';
 
 describe('POST /register', () => {
     it('should reject a missing phone number', async () => {
@@ -8,7 +8,7 @@ describe('POST /register', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: 'Test', email: 'new-user@example.com' }),
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(400);
         const body = await res.json() as any;
@@ -21,7 +21,7 @@ describe('POST /register', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: 'Test', email: 'new-user@example.com', phone: '9876543210' }),
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(400);
     });
@@ -37,7 +37,7 @@ describe('POST /register', () => {
                 phone: '+919876500001',
             }),
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         // Without a live DB this would 500 instead; either way it must not
         // silently succeed with a 201.

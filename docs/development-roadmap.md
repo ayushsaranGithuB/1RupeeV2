@@ -2,8 +2,7 @@
 
 ## Phase 1 — Foundation
 
-- [x] Setup Turborepo
-- [x] Configure Bun workspaces
+- [x] Single Next.js app (Bun), no Turborepo/workspaces
 - [x] Configure TypeScript
 - [x] Setup Cloudflare + Neon
 - [x] Configure Better Auth
@@ -25,7 +24,7 @@ Deliverable: Database ready. ✅
 
 ## Phase 3 — API
 
-- [x] Hono application
+- [x] API routes (native Next.js Route Handlers)
 - [x] Auth middleware
 - [x] Campaign endpoints
 - [x] Wallet endpoints
@@ -116,7 +115,7 @@ See [PHASE8-PLEDGE-CHECKOUT.md](PHASE8-PLEDGE-CHECKOUT.md) for implementation de
 - [x] CI pipeline for lint, typecheck, unit tests, and build
 - [x] Branch protections and required status checks (documented in CONTRIBUTING.md)
 - [x] Preview deployments for pull requests
-- [x] Component test suite for all shared UI components (`apps/web/components/ui/*`)
+- [x] Component test suite for all shared UI components (`components/ui/*`)
 - [ ] Admin page interaction tests for drawer workflows and table filters
 - [ ] Visual regression snapshots for critical admin flows
 

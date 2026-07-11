@@ -1,29 +1,36 @@
 # Deployment Guide
 
-1Rupee deploys to **Fly.io** as two containerized apps:
+1Rupee is a single Next.js app (UI + API routes) deployed to **Cloudflare Workers** via [OpenNext](https://opennext.js.org/cloudflare).
 
 ```
 ┌─────────────────────────────────────────┐
-│  1rupee-web  (Fly app, public)          │
-│  - Next.js SSR: UI, auth pages, proxy   │
-│  - https://1rupee-web.fly.dev           │
-├─────────────────────────────────────────┤
-│  1rupee-api  (Fly app, private)         │
-│  - Bun/Hono API                         │
-│  - reached at 1rupee-api.internal:3001  │
+│  Cloudflare Worker                       │
+│  - Next.js SSR + API routes (app/api/*) │
 ├─────────────────────────────────────────┤
 │  Neon PostgreSQL                        │
 └─────────────────────────────────────────┘
 ```
 
-The web app talks to the API over **Fly private networking**, so the API is
-never exposed to the public internet.
+There is no separate API service — `app/api/**/route.ts` handlers run in the
+same Worker as the rest of the app.
 
-👉 **Full setup and commands: [FLY_DEPLOY.md](../FLY_DEPLOY.md)**
+## Configuration
 
-Quick deploy (from the repo root, after `fly auth login`):
+- `open-next.config.ts` — OpenNext build config.
+- `wrangler.jsonc` — Worker name, entry point (`.open-next/worker.js`), and
+  static asset directory (`.open-next/assets`).
+
+## Quick deploy
 
 ```bash
-fly deploy -c fly.api.toml   # API first
-fly deploy -c fly.web.toml   # then web
+bun run cf:build     # builds Next.js, then adapts it for Workers via OpenNext
+bun run cf:deploy     # deploys the built Worker to Cloudflare
 ```
+
+Use `bun run cf:preview` to run the Workers build locally before deploying.
+
+## Secrets
+
+Set required env vars (`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`,
+`CRON_SECRET`, `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET`, `RESEND_API_KEY`) via
+the Cloudflare dashboard or `wrangler secret put <NAME>`.

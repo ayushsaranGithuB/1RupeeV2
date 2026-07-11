@@ -43,5 +43,6 @@ yarn-error.log*
 # OS
 Thumbs.db
 
-# Turbo cache
-.turbo/
+# Cloudflare / OpenNext build output
+.open-next/
+.wrangler/

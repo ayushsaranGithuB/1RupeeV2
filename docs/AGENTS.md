@@ -28,7 +28,6 @@ The MVP is a 3-month pilot with approximately 8–10 manually onboarded NGOs.
 - TypeScript
 - Tailwind CSS
 - shadcn/ui
-- Hono
 - Bun (development)
 - Cloudflare Workers (deployment)
 - Neon PostgreSQL
@@ -76,7 +75,7 @@ The MVP is a 3-month pilot with approximately 8–10 manually onboarded NGOs.
 - Database access belongs in `repositories/`
 - Routes/controllers should orchestrate only
 - Validate every request with Zod
-- Reuse shared types and schemas from `packages/`
+- Reuse shared types and schemas from `server/types` and `server/schemas`
 
 ### File & Naming Conventions
 

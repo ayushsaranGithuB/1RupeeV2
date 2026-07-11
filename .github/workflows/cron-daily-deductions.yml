@@ -22,7 +22,7 @@ jobs:
             -d '{}' \
             "${{ secrets.CRON_ENDPOINT }}/api/internal/cron/daily-run"
         env:
-          CRON_ENDPOINT: ${{ secrets.APP_URL || 'https://1rupee-web.fly.dev' }}
+          CRON_ENDPOINT: ${{ secrets.APP_URL }}
 
       - name: Log result
         if: always()

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import app from '../index';
+import { callApi } from './test-helpers';
 
 // These tests cover the auth/authorization wiring added with Better Auth:
 // the session middleware on protected routes and the admin/impersonation gate.
 // They use the test-only `x-test-auth` seam (active only under NODE_ENV=test).
 function req(path: string, headers?: Record<string, string>) {
-    return app.fetch(new Request(`http://localhost:3000/api${path}`, { headers }));
+    return callApi(new Request(`http://localhost:3000/api${path}`, { headers }));
 }
 
 describe('Auth middleware', () => {
@@ -63,7 +63,7 @@ describe('Auth middleware', () => {
 
     describe('Better Auth handler is mounted', () => {
         it('serves /api/auth/get-session (returns 200, not the app 404)', async () => {
-            const res = await app.fetch(
+            const res = await callApi(
                 new Request('http://localhost:3000/api/auth/get-session', {
                     method: 'GET',
                 })

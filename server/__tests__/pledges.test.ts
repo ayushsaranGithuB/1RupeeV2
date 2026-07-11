@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import app from '../index';
+import { callApi } from './test-helpers';
 
 describe('GET /pledges', () => {
     it('should reject requests without auth header', async () => {
         const req = new Request('http://localhost:3000/api/pledges');
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(401);
     });
@@ -13,7 +13,7 @@ describe('GET /pledges', () => {
         const req = new Request('http://localhost:3000/api/pledges', {
             headers: { 'x-test-auth': 'user' },
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).not.toBe(401);
 

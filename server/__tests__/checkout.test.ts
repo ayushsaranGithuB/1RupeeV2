@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import app from '../index';
+import { callApi } from './test-helpers';
 
 describe('POST /pledges - Checkout flow', () => {
     it('should create a pledge and deduct from wallet', async () => {
@@ -15,7 +15,7 @@ describe('POST /pledges - Checkout flow', () => {
                 reference_id: '223e4567-e89b-12d3-a456-426614174000',
             }),
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         // Should return 404 because tier doesn't exist, but validates schema
         expect(res.status).toBe(404);
@@ -37,7 +37,7 @@ describe('POST /pledges - Checkout flow', () => {
                 reference_id: '223e4567-e89b-12d3-a456-426614174000',
             }),
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(400);
         const body = await res.json() as any;
@@ -58,7 +58,7 @@ describe('POST /pledges - Checkout flow', () => {
                 reference_id: '223e4567-e89b-12d3-a456-426614174000',
             }),
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(400);
     });
@@ -76,7 +76,7 @@ describe('POST /pledges - Checkout flow', () => {
                 reference_id: '223e4567-e89b-12d3-a456-426614174000',
             }),
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(401);
         const body = await res.json() as any;
@@ -95,7 +95,7 @@ describe('POST /pledges - Checkout flow', () => {
                 reference_id: '223e4567-e89b-12d3-a456-426614174000',
             }),
         });
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         expect(res.status).toBe(400);
         const body = await res.json() as any;

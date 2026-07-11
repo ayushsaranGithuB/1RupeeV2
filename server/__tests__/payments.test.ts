@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, describe, expect, it } from 'vitest';
 import { createHmac } from 'crypto';
-import app from '../index';
+import { callApi } from './test-helpers';
 
 describe('Payments webhook', () => {
     const previousProvider = process.env.PAYMENT_PROVIDER;
@@ -46,7 +46,7 @@ describe('Payments webhook', () => {
             body: payload,
         });
 
-        const res = await app.fetch(req);
+        const res = await callApi(req);
         expect(res.status).toBe(401);
     });
 
@@ -65,7 +65,7 @@ describe('Payments webhook', () => {
             body: payload,
         });
 
-        const res = await app.fetch(req);
+        const res = await callApi(req);
         expect(res.status).toBe(400);
     });
 
@@ -90,7 +90,7 @@ describe('Payments webhook', () => {
             body: payload,
         });
 
-        const res = await app.fetch(req);
+        const res = await callApi(req);
 
         // In local tests, DB may be unavailable or wallet may not exist for the test user.
         expect([200, 404, 500]).toContain(res.status);

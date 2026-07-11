@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { ApiResponse } from '../types';
 
 export function successResponse<T>(data: T): ApiResponse<T> {
@@ -15,6 +16,14 @@ export function errorResponse(code: string, message: string): ApiResponse {
             message,
         },
     };
+}
+
+export function validationError(error: unknown): ApiResponse | null {
+    if (error instanceof z.ZodError) {
+        return errorResponse('VALIDATION_ERROR', error.errors[0].message);
+    }
+
+    return null;
 }
 
 export const ErrorCodes = {

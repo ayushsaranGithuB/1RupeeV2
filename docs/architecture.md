@@ -13,10 +13,10 @@
 
 **Where it lives:**
 
-- The Better Auth instance is defined in `apps/api/src/lib/auth.ts` and mounted on the Hono API at `/auth/*` (`app.on(['POST','GET'], '/auth/*', ...)`). It owns `sessions`, `accounts`, `verifications` tables and auth columns on `users` (migration `0006_auth_tables`), reusing the existing `users` table via field mapping.
-- The web app (`apps/web`, port **8080**) talks to auth through the same-origin `/api/proxy` gateway, which forwards `Cookie`/`Origin` and relays `Set-Cookie`, keeping the session cookie first-party. Client: `apps/web/lib/auth-client.ts`.
+- The Better Auth instance is defined in `server/lib/auth.ts` and mounted at `app/api/auth/[...all]/route.ts` (`auth.handler(request)`), same-origin with the rest of the app. It owns `sessions`, `accounts`, `verifications` tables and auth columns on `users` (migration `0006_auth_tables`), reusing the existing `users` table via field mapping.
+- The web app and API are a single Next.js app (port **8080**), so the session cookie is first-party by default — no proxy gateway. Client: `lib/auth-client.ts`.
 
-**Authorization:** All protected API routes require a valid session (`apps/api/src/index.ts` middleware); `/wallets/*` and `/pledges/*` need any user, `/admin/*` needs `role === 'ADMIN'`. Admin APIs are also blocked for impersonating sessions. A test-only seam (`x-test-auth`, active only when `NODE_ENV==='test'`) exists for route tests.
+**Authorization:** Every protected route handler calls a shared guard from `server/lib/session.ts` (`requireUser` or `requireAdmin`) at the top of the function; `/api/wallets/*`, `/api/pledges/*`, `/api/donations/*` need any user, `/api/admin/*` needs `role === 'ADMIN'`. Admin APIs are also blocked for impersonating sessions. A test-only seam (`x-test-auth`, active only when `NODE_ENV==='test'`) exists for route tests.
 
 ### Admin impersonation ("log in as user")
 
@@ -199,9 +199,7 @@ Runs once every 24 hours.
 
 ## Deployment
 
-**Frontend:** Next.js on Cloudflare Workers
-
-**API:** Hono on Cloudflare Workers
+**App:** Single Next.js app (UI + API routes) on Cloudflare Workers via OpenNext
 
 **Database:** Neon PostgreSQL
 

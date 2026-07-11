@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import app from '../index';
+import { callApi } from './test-helpers';
 
 describe('API Endpoints', () => {
     describe('GET /api/health', () => {
         it('should return health status', async () => {
             const req = new Request('http://localhost:3000/api/health');
-            const res = await app.fetch(req);
+            const res = await callApi(req);
 
             expect([200, 503]).toContain(res.status);
             const body = await res.json() as any;
@@ -19,7 +19,7 @@ describe('API Endpoints', () => {
     describe('GET /api/campaigns', () => {
         it('should handle campaigns endpoint', async () => {
             const req = new Request('http://localhost:3000/api/campaigns');
-            const res = await app.fetch(req);
+            const res = await callApi(req);
 
             // Accept both 200 (with DB) or 500 (without DB) in test environment
             expect(res.status === 200 || res.status === 500).toBe(true);
@@ -31,7 +31,7 @@ describe('API Endpoints', () => {
     describe('GET /api/stats', () => {
         it('should handle stats endpoint', async () => {
             const req = new Request('http://localhost:3000/api/stats');
-            const res = await app.fetch(req);
+            const res = await callApi(req);
 
             // Accept both 200 (with DB) or 500 (without DB) in test environment
             expect(res.status === 200 || res.status === 500).toBe(true);
@@ -43,7 +43,7 @@ describe('API Endpoints', () => {
     describe('Protected routes', () => {
         it('should reject requests without auth header', async () => {
             const req = new Request('http://localhost:3000/api/wallets');
-            const res = await app.fetch(req);
+            const res = await callApi(req);
 
             expect(res.status).toBe(401);
             const body = await res.json() as any;
@@ -57,7 +57,7 @@ describe('API Endpoints', () => {
             const req = new Request('http://localhost:3000/api/wallets', {
                 headers: { Authorization: 'Bearer test-token' },
             });
-            const res = await app.fetch(req);
+            const res = await callApi(req);
 
             expect(res.status).toBe(401);
         });
@@ -66,7 +66,7 @@ describe('API Endpoints', () => {
             const req = new Request('http://localhost:3000/api/wallets', {
                 headers: { 'x-test-auth': 'user' },
             });
-            const res = await app.fetch(req);
+            const res = await callApi(req);
 
             // Auth passes; wallet may or may not exist (200/404/500) but not 401.
             expect(res.status).not.toBe(401);
@@ -76,7 +76,7 @@ describe('API Endpoints', () => {
     describe('404 handling', () => {
         it('should return 404 for non-existent routes', async () => {
             const req = new Request('http://localhost:3000/api/non-existent');
-            const res = await app.fetch(req);
+            const res = await callApi(req);
 
             expect(res.status).toBe(404);
             const body = await res.json() as any;
