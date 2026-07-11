@@ -4,14 +4,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Kalam } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Avatar } from "@/components/avatar";
 import Image from "next/image";
-
-const kalam = Kalam({ subsets: ["latin"], weight: ["400", "700"] });
 
 const navLinks = [
   { label: "How it Works", href: "/#how-it-works" },
@@ -52,7 +49,7 @@ export function SiteHeader() {
               key={link.href}
               href={link.href}
               className={cn(
-                kalam.className,
+                "font-kalam",
                 "text-lg font-medium text-[#4A88B8] transition hover:text-emerald-700",
               )}
             >
@@ -119,7 +116,7 @@ export function SiteHeader() {
               href={link.href}
               onClick={() => setOpen(false)}
               className={cn(
-                kalam.className,
+                "font-kalam",
                 "rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700",
               )}
             >
