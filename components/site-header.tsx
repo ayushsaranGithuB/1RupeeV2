@@ -4,16 +4,18 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Kalam } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Avatar } from "@/components/avatar";
+import Image from "next/image";
+
+const kalam = Kalam({ subsets: ["latin"], weight: ["400", "700"] });
 
 const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
   { label: "How it Works", href: "/#how-it-works" },
-  { label: "Impact Partners", href: "/partner-with-us" },
+  { label: "Campaigns", href: "/partner-with-us" },
   { label: "FAQ", href: "/faq" },
 ];
 
@@ -35,14 +37,13 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-emerald-100 bg-white/80 backdrop-blur">
+    <header className="sticky top-0 z-50  bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-8xl items-center justify-between gap-4 px-6 py-3 sm:px-10">
         <Link
           href="/"
           className="flex items-center gap-1 text-xl font-bold text-slate-900"
         >
-          <span className="text-emerald-600">1</span>
-          <span>Rupee</span>
+          <Image src="/logo.png" alt="1Rupee Logo" width={128} height={57} />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -50,14 +51,20 @@ export function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-slate-600 transition hover:text-emerald-700"
+              className={cn(
+                kalam.className,
+                "text-lg font-medium text-[#4A88B8] transition hover:text-emerald-700",
+              )}
             >
               {link.label}
             </Link>
           ))}
           {session?.user ? (
             <div className="flex items-center  rounded-xl border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-900">
-              <Avatar name={session.user.name || session.user.email} size="sm" />
+              <Avatar
+                name={session.user.name || session.user.email}
+                size="sm"
+              />
               <Button
                 variant="ghost"
                 size="sm"
@@ -111,7 +118,10 @@ export function SiteHeader() {
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
+              className={cn(
+                kalam.className,
+                "rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700",
+              )}
             >
               {link.label}
             </Link>
@@ -121,7 +131,9 @@ export function SiteHeader() {
               <div className="flex items-center gap-3 rounded-md px-2 py-2">
                 <Avatar name={session.user.name || session.user.email} />
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{session.user.name || session.user.email}</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {session.user.name || session.user.email}
+                  </p>
                 </div>
               </div>
               <Button

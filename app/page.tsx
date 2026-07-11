@@ -53,26 +53,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
-      <aside className="grid gap-3 p-8 md:grid-cols-3 md:p-12">
-        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-          <p className="text-sm text-emerald-800">Total Raised</p>
-          <p className="text-2xl font-bold text-emerald-900">
-            {stats ? formatInrPaisa(stats.total_raised) : "Loading"}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
-          <p className="text-sm text-amber-800">Active Campaigns</p>
-          <p className="text-2xl font-bold text-amber-900">
-            {stats?.active_campaigns ?? "-"}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-sky-100 bg-sky-50 p-4">
-          <p className="text-sm text-sky-800">Active Supporters</p>
-          <p className="text-2xl font-bold text-sky-900">
-            {stats?.total_supporters ?? "-"}
-          </p>
-        </div>
-      </aside>
+
       <section className="px-8 py-12 md:px-12">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
