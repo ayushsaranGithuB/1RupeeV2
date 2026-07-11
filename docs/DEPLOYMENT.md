@@ -56,11 +56,19 @@ those alert emails to actually deliver; without it they're only logged via
 [.github/workflows/cron-daily-deductions.yml](../.github/workflows/cron-daily-deductions.yml)
 calls `POST /api/internal/cron/daily-run` on the deployed app every day at
 18:30 UTC (00:00 IST), guarded by the `X-Cron-Secret` header. This requires
-two **GitHub Actions repo secrets** (Settings → Secrets and variables →
-Actions on GitHub, separate from Fly secrets):
+two secrets, set under the **`production` GitHub Actions environment**
+(Settings → Environments → production, on GitHub — separate from Fly
+secrets). The job declares `environment: production` specifically so it can
+read them; plain repo-level secrets work too, but environment secrets require
+that declaration or they resolve to empty strings with no error.
 
 - `CRON_SECRET` — must match the value set on Fly via `fly secrets set CRON_SECRET=...`
 - `APP_URL` — the deployed app's base URL, e.g. `https://1rupee-v2.fly.dev`
+
+If the `production` environment has deployment protection rules (required
+reviewers, wait timer), the scheduled run will stall waiting for manual
+approval every night instead of running — check Settings → Environments →
+production → Deployment protection rules if the schedule stops firing.
 
 The workflow fails the run (and should trigger GitHub's own failure
 notification) on any non-2xx response, and the endpoint itself emails
