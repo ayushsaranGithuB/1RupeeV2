@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { formatInrPaisa } from "@/lib/public";
 import { dashboardRequest, formatDate } from "@/lib/dashboard";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -92,31 +93,31 @@ export default function DonationsPage() {
     <div className="space-y-6">
       <div>
         <p className="text-xs font-medium text-slate-500">Donations</p>
-        <h1 className="text-3xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">
           Donation history
         </h1>
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
+        <Card className="border-red-200 bg-red-50 p-4">
+          <p className="text-sm text-red-700">{error}</p>
+        </Card>
       ) : null}
 
       {loading ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <Card className="p-6">
           <p className="text-sm text-slate-500">Loading…</p>
-        </div>
+        </Card>
       ) : donations.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <Card className="p-6">
           <p className="text-sm text-slate-500">No donations yet.</p>
-        </div>
+        </Card>
       ) : (
         <div className="space-y-2">
           {monthlyGroups.map((month) => (
-            <div
+            <Card
               key={month.yearMonth}
-              className="rounded-2xl border border-slate-200 bg-white overflow-hidden"
+              className="overflow-hidden p-0"
             >
               {/* Month header - always visible, clickable to expand */}
               <Button
@@ -145,9 +146,9 @@ export default function DonationsPage() {
                     {month.donations.map((donation) => (
                       <div
                         key={donation.id}
-                        className="px-6 py-3 flex justify-between items-center hover:bg-slate-50"
+                        className="flex flex-col gap-2 px-6 py-3 hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between"
                       >
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-900">
                             {new Date(donation.donated_at).toLocaleDateString("en-IN", {
                               weekday: "short",
@@ -155,11 +156,11 @@ export default function DonationsPage() {
                               day: "numeric",
                             })}
                           </p>
-                          <p className="text-sm text-slate-600 mt-0.5">
+                          <p className="truncate text-sm text-slate-600 mt-0.5">
                             {donation.campaign_title} → {donation.ngo_name}
                           </p>
                         </div>
-                        <p className="font-semibold text-slate-900 ml-4">
+                        <p className="font-semibold text-slate-900 shrink-0">
                           {formatInrPaisa(donation.amount)}
                         </p>
                       </div>
@@ -167,20 +168,20 @@ export default function DonationsPage() {
                   </div>
                 </div>
               )}
-            </div>
+            </Card>
           ))}
         </div>
       )}
 
       {!loading && donations.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <Card className="p-6">
           <div className="text-center">
             <p className="text-sm text-slate-600 mb-1">Total donated</p>
-            <p className="text-3xl font-bold text-emerald-600">
+            <p className="text-2xl font-bold text-emerald-600 sm:text-3xl">
               {formatInrPaisa(totalDonated)}
             </p>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

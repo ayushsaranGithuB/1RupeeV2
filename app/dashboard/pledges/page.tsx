@@ -5,6 +5,7 @@ import { formatInrPaisa } from "@/lib/public";
 import { dashboardRequest } from "@/lib/dashboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 type Pledge = {
   id: string;
@@ -65,16 +66,16 @@ export default function PledgesPage() {
     <div className="space-y-6">
       <div>
         <p className="text-xs font-medium text-slate-500">Pledges</p>
-        <h1 className="text-3xl font-semibold text-slate-900">Your pledges</h1>
+        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Your pledges</h1>
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-slate-200 bg-white">
+      <Card className="p-0">
         {loading ? (
           <p className="p-6 text-sm text-slate-500">Loading…</p>
         ) : pledges.length === 0 ? (
@@ -84,9 +85,9 @@ export default function PledgesPage() {
         ) : (
           <ul className="divide-y divide-slate-100">
             {pledges.map((pledge) => (
-              <li key={pledge.id} className="flex items-center justify-between gap-4 p-5">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+              <li key={pledge.id} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                     <p className="truncate font-medium text-slate-900">
                       {pledge.campaign_title || "Campaign"}
                     </p>
@@ -94,13 +95,13 @@ export default function PledgesPage() {
                       {pledge.status}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-500">
                     {pledge.tier_title || "Support tier"}
                     {typeof pledge.daily_amount === "number" &&
                       ` · ${formatInrPaisa(pledge.daily_amount)}/day`}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
                   {pledge.status === "ACTIVE" && (
                     <>
                       <Button
@@ -108,6 +109,7 @@ export default function PledgesPage() {
                         size="sm"
                         disabled={updatingId === pledge.id}
                         onClick={() => updateStatus(pledge.id, "PAUSED")}
+                        className="w-full sm:w-auto"
                       >
                         Pause
                       </Button>
@@ -116,6 +118,7 @@ export default function PledgesPage() {
                         size="sm"
                         disabled={updatingId === pledge.id}
                         onClick={() => updateStatus(pledge.id, "CANCELLED")}
+                        className="w-full sm:w-auto"
                       >
                         Cancel
                       </Button>
@@ -127,7 +130,7 @@ export default function PledgesPage() {
                         size="sm"
                         disabled={updatingId === pledge.id}
                         onClick={() => updateStatus(pledge.id, "ACTIVE")}
-                        className="bg-emerald-600 text-white hover:bg-emerald-500"
+                        className="w-full bg-emerald-600 text-white hover:bg-emerald-500 sm:w-auto"
                       >
                         Resume
                       </Button>
@@ -136,6 +139,7 @@ export default function PledgesPage() {
                         size="sm"
                         disabled={updatingId === pledge.id}
                         onClick={() => updateStatus(pledge.id, "CANCELLED")}
+                        className="w-full sm:w-auto"
                       >
                         Cancel
                       </Button>
@@ -146,7 +150,7 @@ export default function PledgesPage() {
             ))}
           </ul>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

@@ -72,6 +72,24 @@ Guide users to discover campaigns.
 
 ---
 
+## Mobile Responsiveness
+
+All dashboard pages are mobile-first and fully responsive. See [DASHBOARD_MOBILE.md](./DASHBOARD_MOBILE.md) for:
+- Design principles and breakpoints
+- Component patterns for responsive layouts
+- Mobile-specific navigation implementation
+- Form and button layouts for touch devices
+- Testing and accessibility guidelines
+
+**Key patterns:**
+- Use `w-full sm:w-auto` for buttons to be full-width on mobile
+- Use `flex flex-col sm:flex-row` to stack on mobile, inline on desktop
+- Use `text-lg sm:text-xl` for responsive typography
+- Use `hidden md:block` for desktop-only elements
+- Use `md:hidden` for mobile-only elements
+
+---
+
 ## Coding Standards
 
 - Use Server Components by default
@@ -86,3 +104,4 @@ Guide users to discover campaigns.
 - Components under components/
 - Forms use React Hook Form + Zod
 - Use shadcn/ui wherever possible
+- Mobile-first responsive design with Tailwind breakpoints

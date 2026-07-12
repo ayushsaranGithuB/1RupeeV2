@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 import { dashboardRequest } from "@/lib/dashboard";
 
 const PRESET_AMOUNTS_RUPEES = [100, 500, 1000];
@@ -51,40 +53,43 @@ export default function TopupPage() {
     <div className="space-y-6">
       <div>
         <p className="text-xs font-medium text-slate-500">Wallet</p>
-        <h1 className="text-3xl font-semibold text-slate-900">Top up</h1>
+        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Top up</h1>
       </div>
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-        Payments are simulated in this environment — no real money moves.
-      </div>
+      <Card className="border-amber-200 bg-amber-50 p-4">
+        <p className="text-sm text-amber-800">
+          Payments are simulated in this environment — no real money moves.
+        </p>
+      </Card>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6"
-      >
-        <div>
-          <p className="mb-2 text-sm font-medium text-slate-700">
-            Choose an amount
-          </p>
-          <div className="flex gap-2">
-            {PRESET_AMOUNTS_RUPEES.map((preset) => (
-              <Button
-                key={preset}
-                type="button"
-                onClick={() => setAmount(preset)}
-                variant={amount === preset ? "default" : "outline"}
-                className={amount === preset ? "rounded-full bg-emerald-600 hover:bg-emerald-700" : "rounded-full"}
-              >
-                ₹{preset}
-              </Button>
-            ))}
+      <Card className="p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-slate-700">Choose an amount</p>
+            <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
+              {PRESET_AMOUNTS_RUPEES.map((preset) => (
+                <Button
+                  key={preset}
+                  type="button"
+                  onClick={() => setAmount(preset)}
+                  variant={amount === preset ? "default" : "outline"}
+                  className={
+                    amount === preset
+                      ? "rounded-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                      : "rounded-full"
+                  }
+                >
+                  ₹{preset}
+                </Button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700">
-            Custom amount (₹)
-            <input
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">
+              Custom amount (₹)
+            </label>
+            <Input
               type="number"
               min={1}
               step={1}
@@ -92,25 +97,25 @@ export default function TopupPage() {
               onChange={(e) =>
                 setAmount(e.target.value === "" ? "" : Number(e.target.value))
               }
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
+              placeholder="Enter amount"
             />
-          </label>
-        </div>
+          </div>
 
-        {error ? (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        ) : null}
+          {error ? (
+            <Card className="border-red-200 bg-red-50 p-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </Card>
+          ) : null}
 
-        <Button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-emerald-600 text-white hover:bg-emerald-500"
-        >
-          {submitting ? "Processing…" : `Top up ₹${amount || 0}`}
-        </Button>
-      </form>
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-emerald-600 text-white hover:bg-emerald-500"
+          >
+            {submitting ? "Processing…" : `Top up ₹${amount || 0}`}
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }
