@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { formatInrPaisa } from "@/lib/public";
+import { formatInr } from "@/lib/public";
 import { dashboardRequest } from "@/lib/dashboard";
 
 type Tier = {
@@ -24,7 +24,7 @@ type Wallet = {
   cached_balance: number;
 };
 
-const QUICK_TOPUP_AMOUNTS = [10000, 50000, 100000]; // In paise
+const QUICK_TOPUP_AMOUNTS = [100, 500, 1000]; // In rupees
 
 export default function CartPage() {
   return (
@@ -234,7 +234,7 @@ function CartContent() {
             <p className="text-sm text-slate-600">Tier</p>
             <p className="text-lg font-semibold text-slate-900">{tier.title}</p>
             <p className="text-sm text-slate-600 mt-1">
-              {formatInrPaisa(tier.daily_amount)} per day
+              {formatInr(tier.daily_amount)} per day
             </p>
           </div>
 
@@ -249,7 +249,7 @@ function CartContent() {
             <div className="flex justify-between items-center">
               <span className="font-semibold text-slate-900">Total to charge today:</span>
               <span className="text-2xl font-bold text-emerald-600">
-                {formatInrPaisa(totalPrice)}
+                {formatInr(totalPrice)}
               </span>
             </div>
           </div>
@@ -268,7 +268,7 @@ function CartContent() {
               <div className="rounded-lg bg-blue-50 border border-blue-100 p-4">
                 <p className="text-sm text-slate-600">Current balance</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {formatInrPaisa(wallet.cached_balance)}
+                  {formatInr(wallet.cached_balance)}
                 </p>
               </div>
 
@@ -276,14 +276,14 @@ function CartContent() {
                 <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4">
                   <p className="text-sm text-slate-600">Balance after pledge</p>
                   <p className="text-2xl font-bold text-emerald-900">
-                    {formatInrPaisa(balanceAfter)}
+                    {formatInr(balanceAfter)}
                   </p>
                 </div>
               ) : (
                 <div className="rounded-lg bg-red-50 border border-red-100 p-4">
                   <p className="text-sm text-red-700">Insufficient balance</p>
                   <p className="text-lg font-semibold text-red-900 mt-1">
-                    You need {formatInrPaisa(shortfall)} more
+                    You need {formatInr(shortfall)} more
                   </p>
                 </div>
               )}

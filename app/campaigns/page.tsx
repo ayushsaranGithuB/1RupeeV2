@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   getActiveCampaigns,
   getPublicStats,
-  formatInrPaisa,
+  formatInr,
   CAMPAIGN_CATEGORY_LABELS,
   CAMPAIGN_CATEGORY_OPTIONS,
   type CampaignCategory,
@@ -33,7 +33,7 @@ export default async function CampaignsPage({
   const heroStats = [
     {
       label: "Raised so far",
-      value: stats ? formatInrPaisa(stats.total_raised) : "—",
+      value: stats ? formatInr(stats.total_raised) : "—",
     },
     {
       label: "Active supporters",

@@ -64,7 +64,7 @@ Success Page
     },
     "transaction": {
       "id": "txn-id",
-      "amount": 9000,  // 100 paise × 90 days
+      "amount": 9000,  // ₹100/day × 90 days
       "type": "DONATION",
       "description": "First month pledge to [Campaign] at [Tier]"
     },

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  formatInrPaisa,
+  formatInr,
   CAMPAIGN_CATEGORY_LABELS,
   type PublicCampaign,
 } from "@/lib/public";
@@ -104,10 +104,10 @@ export function CampaignGrid({
                 ) : null}
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-semibold text-slate-900">
-                    {formatInrPaisa(campaign.raised_amount)}
+                    {formatInr(campaign.raised_amount)}
                     <span className="font-normal text-slate-400">
                       {campaign.goal_amount
-                        ? ` of ${formatInrPaisa(campaign.goal_amount)}`
+                        ? ` of ${formatInr(campaign.goal_amount)}`
                         : " raised"}
                     </span>
                   </span>

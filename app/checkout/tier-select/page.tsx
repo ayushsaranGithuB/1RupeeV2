@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { formatInrPaisa } from "@/lib/public";
+import { formatInr } from "@/lib/public";
 import { dashboardRequest } from "@/lib/dashboard";
 
 const PRESET_PLANS = [
@@ -194,7 +194,7 @@ function TierSelectContent() {
           <p className="text-sm text-slate-600">Selected tier</p>
           <p className="text-lg font-semibold text-slate-900">{tier.title}</p>
           <p className="text-sm text-slate-600 mt-1">
-            {formatInrPaisa(tier.daily_amount)} per day
+            {formatInr(tier.daily_amount)} per day
           </p>
         </div>
 
@@ -223,7 +223,7 @@ function TierSelectContent() {
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Daily amount:</span>
             <span className="font-medium text-slate-900">
-              {formatInrPaisa(tier.daily_amount)}
+              {formatInr(tier.daily_amount)}
             </span>
           </div>
           <div className="flex justify-between text-sm">
@@ -233,7 +233,7 @@ function TierSelectContent() {
           <div className="border-t border-slate-200 pt-2 flex justify-between">
             <span className="font-semibold text-slate-900">Total amount:</span>
             <span className="text-lg font-bold text-emerald-600">
-              {formatInrPaisa(totalPrice)}
+              {formatInr(totalPrice)}
             </span>
           </div>
         </div>
@@ -243,11 +243,11 @@ function TierSelectContent() {
           <div className="rounded-lg bg-blue-50 border border-blue-100 p-4">
             <p className="text-sm text-slate-600">Current wallet balance</p>
             <p className="text-lg font-semibold text-slate-900">
-              {formatInrPaisa(wallet.cached_balance)}
+              {formatInr(wallet.cached_balance)}
             </p>
             {wallet.cached_balance < totalPrice && (
               <p className="text-sm text-blue-700 mt-2">
-                You need {formatInrPaisa(totalPrice - wallet.cached_balance)} more. You can add funds on the next page.
+                You need {formatInr(totalPrice - wallet.cached_balance)} more. You can add funds on the next page.
               </p>
             )}
           </div>

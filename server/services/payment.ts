@@ -20,18 +20,19 @@ const MockWebhookSchema = z.object({
     data: z.object({
         reference_id: z.string().uuid(),
         user_id: z.string().uuid(),
-        amount: z.number().int().positive().min(100),
+        amount: z.number().int().positive().min(1), // Rupees
         payment_id: z.string().min(1),
     }),
 });
 
+// Razorpay's wire format is always in paise, regardless of our internal unit.
 const RazorpayWebhookSchema = z.object({
     event: z.literal('payment.captured'),
     payload: z.object({
         payment: z.object({
             entity: z.object({
                 id: z.string().min(1),
-                amount: z.number().int().positive().min(100),
+                amount: z.number().int().positive().min(100), // Paise
                 notes: z.object({
                     reference_id: z.string().uuid(),
                     user_id: z.string().uuid(),
@@ -165,7 +166,7 @@ class RazorpayPaymentProvider implements PaymentProvider {
         return {
             referenceId: parsed.data.payload.payment.entity.notes.reference_id,
             userId: parsed.data.payload.payment.entity.notes.user_id,
-            amount: parsed.data.payload.payment.entity.amount,
+            amount: parsed.data.payload.payment.entity.amount / 100, // Paise -> rupees
             providerPaymentId: parsed.data.payload.payment.entity.id,
         };
     }

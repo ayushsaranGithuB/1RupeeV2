@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatInrPaisa, getCampaignBySlug } from "../../../lib/public";
+import { formatInr, getCampaignBySlug } from "../../../lib/public";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/markdown-text";
@@ -118,7 +118,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
           <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
             <p className="text-sm text-emerald-700">Raised so far</p>
             <p className="text-xl font-bold text-emerald-900">
-              {formatInrPaisa(campaign.raised_amount)}
+              {formatInr(campaign.raised_amount)}
             </p>
           </div>
           <div className="rounded-xl border border-amber-100 bg-amber-50 p-4">
@@ -131,7 +131,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
             <p className="text-sm text-sky-700">Goal</p>
             <p className="text-xl font-bold text-sky-900">
               {campaign.goal_amount
-                ? formatInrPaisa(campaign.goal_amount)
+                ? formatInr(campaign.goal_amount)
                 : "Not specified"}
             </p>
           </div>
@@ -142,8 +142,8 @@ export default async function CampaignDetailPage({ params }: PageProps) {
             <div className="mb-2 flex items-center justify-between text-sm text-slate-600">
               <span>{progress}% funded</span>
               <span>
-                {formatInrPaisa(campaign.raised_amount)} of{" "}
-                {formatInrPaisa(campaign.goal_amount)}
+                {formatInr(campaign.raised_amount)} of{" "}
+                {formatInr(campaign.goal_amount)}
               </span>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-slate-100">

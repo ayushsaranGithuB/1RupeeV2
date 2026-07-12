@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { formatInrPaisa } from "@/lib/public";
+import { formatInr } from "@/lib/public";
 import { dashboardRequest } from "@/lib/dashboard";
 import { CheckCircle } from "lucide-react";
 
@@ -136,7 +136,7 @@ function SuccessContent() {
                 {pledge.tier_title}
               </p>
               <p className="text-sm text-slate-600 mt-1">
-                {formatInrPaisa(pledge.daily_amount)} per day
+                {formatInr(pledge.daily_amount)} per day
               </p>
             </div>
 
@@ -153,11 +153,11 @@ function SuccessContent() {
                   Total charged today:
                 </span>
                 <span className="text-2xl font-bold text-emerald-600">
-                  {formatInrPaisa(totalCharged)}
+                  {formatInr(totalCharged)}
                 </span>
               </div>
               <div className="text-sm text-slate-600">
-                Monthly recurring charge: {formatInrPaisa(monthlyCharge)}
+                Monthly recurring charge: {formatInr(monthlyCharge)}
               </div>
             </div>
           </div>
@@ -191,7 +191,7 @@ function SuccessContent() {
           <h2 className="font-semibold text-slate-900 mb-3">What's next?</h2>
           <ul className="space-y-2 text-sm text-slate-700">
             <li>✓ Your pledge is active and begins immediately</li>
-            <li>✓ Monthly charge of {formatInrPaisa(monthlyCharge)} will recur automatically</li>
+            <li>✓ Monthly charge of {formatInr(monthlyCharge)} will recur automatically</li>
             <li>✓ You can manage your pledge from your dashboard</li>
             <li>✓ View impact updates from {pledge.campaign_title}</li>
           </ul>

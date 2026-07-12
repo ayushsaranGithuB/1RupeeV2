@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { formatInrPaisa } from "@/lib/public";
+import { formatInr } from "@/lib/public";
 import { dashboardRequest } from "@/lib/dashboard";
 import { Loader } from "lucide-react";
 
@@ -205,13 +205,13 @@ function PaymentContent() {
                 {planLengthMonths} months ({daysInPlan} days)
               </span>
               <span className="font-medium text-slate-900">
-                {formatInrPaisa(tier.daily_amount)}/day
+                {formatInr(tier.daily_amount)}/day
               </span>
             </div>
             <div className="border-t border-slate-200 pt-3 flex justify-between">
               <span className="font-semibold text-slate-900">Total to charge:</span>
               <span className="text-xl font-bold text-emerald-600">
-                {formatInrPaisa(totalPrice)}
+                {formatInr(totalPrice)}
               </span>
             </div>
           </div>
@@ -224,7 +224,7 @@ function PaymentContent() {
             You'll be redirected to Razorpay to securely complete your payment.
           </p>
           <p className="text-lg font-semibold text-emerald-600">
-            Amount to pay: {formatInrPaisa(totalPrice)}
+            Amount to pay: {formatInr(totalPrice)}
           </p>
         </div>
 

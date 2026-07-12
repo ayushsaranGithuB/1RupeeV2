@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { formatInrPaisa } from "@/lib/public";
+import { formatInr } from "@/lib/public";
 import { dashboardRequest, formatDate, calculateDonationRunway } from "@/lib/dashboard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -89,7 +89,7 @@ export default function WalletPage() {
           </p>
           <div className="mt-4 space-y-2 text-sm text-emerald-700">
             <p>Supporting {activePledges.length} {activePledges.length === 1 ? "campaign" : "campaigns"}</p>
-            <p>Daily commitment: {formatInrPaisa(totalDailyAmount)}/day</p>
+            <p>Daily commitment: {formatInr(totalDailyAmount)}/day</p>
           </div>
           <Link href="/dashboard/wallet/topup" className="mt-4 inline-block">
             <Button className="w-full bg-emerald-600 text-white hover:bg-emerald-500 sm:w-auto">
@@ -97,7 +97,7 @@ export default function WalletPage() {
             </Button>
           </Link>
           <p className="mt-3 text-xs text-emerald-600">
-            Current wallet balance: {formatInrPaisa(wallet?.cached_balance || 0)}
+            Current wallet balance: {formatInr(wallet?.cached_balance || 0)}
           </p>
         </Card>
       ) : (
@@ -154,7 +154,7 @@ export default function WalletPage() {
                     }
                   >
                     {isCredit ? "+" : "-"}
-                    {formatInrPaisa(tx.amount)}
+                    {formatInr(tx.amount)}
                   </span>
                 </li>
               );

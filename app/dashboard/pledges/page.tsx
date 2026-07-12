@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatInrPaisa } from "@/lib/public";
+import { formatInr } from "@/lib/public";
 import { dashboardRequest, calculateDonationRunway } from "@/lib/dashboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -127,7 +127,7 @@ export default function PledgesPage() {
                     </p>
                     <div className="mt-2 flex flex-col gap-1 text-sm">
                       <p className="text-slate-700">
-                        <span className="font-medium">Daily commitment:</span> {formatInrPaisa(pledge.daily_amount || 0)}/day
+                        <span className="font-medium">Daily commitment:</span> {formatInr(pledge.daily_amount || 0)}/day
                       </p>
                       {pledge.status === "ACTIVE" && (
                         <p className="text-slate-700">

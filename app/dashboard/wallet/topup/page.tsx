@@ -52,7 +52,7 @@ export default function TopupPage() {
 
   const activePledges = pledges.filter((p) => p.status === "ACTIVE");
   const totalDailyAmount = activePledges.reduce((sum, p) => sum + (p.daily_amount || 0), 0);
-  const extensionDays = totalDailyAmount > 0 ? Math.floor((amount || 0) * 100 / totalDailyAmount) : 0;
+  const extensionDays = totalDailyAmount > 0 ? Math.floor((amount || 0) / totalDailyAmount) : 0;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

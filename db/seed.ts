@@ -12,7 +12,7 @@ import {
     audit_logs,
     transparency_reports,
 } from './schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
 // The admin that can sign in (magic link) and use the admin console. Override
@@ -31,7 +31,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ayushsaran@gmail.com';
  * - Random pledges
  * - Random donations
  *
- * All monetary values are stored in paise (₹1 = 100 paise).
+ * All monetary values are stored in rupees.
  *
  * Usage: bun run db/seed.ts
  */
@@ -48,7 +48,7 @@ type SeedTier = {
     impact_description: string;
     features: string[];
     featured: boolean;
-    daily_amount: number; // paise per day
+    daily_amount: number; // rupees per day
 };
 
 type SeedCampaign = {
@@ -62,8 +62,8 @@ type SeedCampaign = {
         | 'WATER_SANITATION';
     description: string;
     impact_highlights: string[];
-    goal_amount: number; // paise
-    raised_amount: number; // paise
+    goal_amount: number; // rupees
+    raised_amount: number; // rupees
     supporter_count: number;
     accent: string; // hex for placeholder graphics
     tiers: SeedTier[];
@@ -102,8 +102,8 @@ const NGO_SEED: SeedNgo[] = [
                     '38 learning centres built or repaired',
                     '210 local teachers trained and paid',
                 ],
-                goal_amount: 500_000_000,
-                raised_amount: 324_000_000,
+                goal_amount: 5_000_000,
+                raised_amount: 3_240_000,
                 supporter_count: 8420,
                 accent: '2563eb',
                 tiers: [
@@ -112,7 +112,7 @@ const NGO_SEED: SeedNgo[] = [
                         impact_description: 'Keeps one child stocked with notebooks and pencils for a month.',
                         features: ['Digital impact receipt', 'Monthly progress email', 'Supports one child'],
                         featured: false,
-                        daily_amount: 100,
+                        daily_amount: 1,
                     },
                     {
                         title: 'Classroom Patron',
@@ -124,7 +124,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Name on the supporter wall',
                         ],
                         featured: true,
-                        daily_amount: 500,
+                        daily_amount: 5,
                     },
                     {
                         title: 'Education Champion',
@@ -135,7 +135,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Invitation to an annual site visit',
                         ],
                         featured: false,
-                        daily_amount: 1500,
+                        daily_amount: 15,
                     },
                 ],
             },
@@ -149,8 +149,8 @@ const NGO_SEED: SeedNgo[] = [
                     '14 solar-powered computer labs live',
                     '76% of graduates pursue further study or work',
                 ],
-                goal_amount: 300_000_000,
-                raised_amount: 118_000_000,
+                goal_amount: 3_000_000,
+                raised_amount: 1_180_000,
                 supporter_count: 3110,
                 accent: '7c3aed',
                 tiers: [
@@ -159,7 +159,7 @@ const NGO_SEED: SeedNgo[] = [
                         impact_description: 'Covers a girl\'s lab time and materials for a month.',
                         features: ['Digital impact receipt', 'Monthly progress email', 'Supports one student'],
                         featured: false,
-                        daily_amount: 100,
+                        daily_amount: 1,
                     },
                     {
                         title: 'Lab Sponsor',
@@ -171,7 +171,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Name on the supporter wall',
                         ],
                         featured: true,
-                        daily_amount: 500,
+                        daily_amount: 5,
                     },
                     {
                         title: 'Digital Champion',
@@ -182,7 +182,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Invitation to a demo day',
                         ],
                         featured: false,
-                        daily_amount: 1500,
+                        daily_amount: 15,
                     },
                 ],
             },
@@ -206,8 +206,8 @@ const NGO_SEED: SeedNgo[] = [
                     '6 mobile clinics on the road',
                     '480 villages on a monthly visit schedule',
                 ],
-                goal_amount: 750_000_000,
-                raised_amount: 589_000_000,
+                goal_amount: 7_500_000,
+                raised_amount: 5_890_000,
                 supporter_count: 12040,
                 accent: 'dc2626',
                 tiers: [
@@ -216,7 +216,7 @@ const NGO_SEED: SeedNgo[] = [
                         impact_description: 'Funds free medicines for one patient visit each month.',
                         features: ['Digital impact receipt', 'Monthly progress email', 'Supports one patient'],
                         featured: false,
-                        daily_amount: 100,
+                        daily_amount: 1,
                     },
                     {
                         title: 'Clinic Sponsor',
@@ -228,7 +228,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Name on the supporter wall',
                         ],
                         featured: true,
-                        daily_amount: 500,
+                        daily_amount: 5,
                     },
                     {
                         title: 'Health Champion',
@@ -239,7 +239,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Invitation to ride along on a clinic day',
                         ],
                         featured: false,
-                        daily_amount: 1500,
+                        daily_amount: 15,
                     },
                 ],
             },
@@ -253,8 +253,8 @@ const NGO_SEED: SeedNgo[] = [
                     '31% drop in newborn infections at partner clinics',
                     '9 district hospitals supplied monthly',
                 ],
-                goal_amount: 200_000_000,
-                raised_amount: 76_000_000,
+                goal_amount: 2_000_000,
+                raised_amount: 760_000,
                 supporter_count: 2530,
                 accent: 'e11d48',
                 tiers: [
@@ -263,7 +263,7 @@ const NGO_SEED: SeedNgo[] = [
                         impact_description: 'Adds essential supplies to a newborn kit each month.',
                         features: ['Digital impact receipt', 'Monthly progress email', 'Supports one newborn'],
                         featured: false,
-                        daily_amount: 100,
+                        daily_amount: 1,
                     },
                     {
                         title: 'Kit Sponsor',
@@ -275,7 +275,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Name on the supporter wall',
                         ],
                         featured: true,
-                        daily_amount: 500,
+                        daily_amount: 5,
                     },
                     {
                         title: 'Newborn Champion',
@@ -286,7 +286,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Invitation to an annual site visit',
                         ],
                         featured: false,
-                        daily_amount: 1500,
+                        daily_amount: 15,
                     },
                 ],
             },
@@ -310,8 +310,8 @@ const NGO_SEED: SeedNgo[] = [
                     '1,240 injured animals rescued and treated',
                     '4 recovery shelters operating',
                 ],
-                goal_amount: 180_000_000,
-                raised_amount: 94_500_000,
+                goal_amount: 1_800_000,
+                raised_amount: 945_000,
                 supporter_count: 4180,
                 accent: 'd97706',
                 tiers: [
@@ -320,7 +320,7 @@ const NGO_SEED: SeedNgo[] = [
                         impact_description: 'Feeds and vaccinates one rescued animal for a month.',
                         features: ['Digital impact receipt', 'Monthly progress email', 'Supports one animal'],
                         featured: false,
-                        daily_amount: 100,
+                        daily_amount: 1,
                     },
                     {
                         title: 'Rescue Sponsor',
@@ -332,7 +332,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Name on the supporter wall',
                         ],
                         featured: true,
-                        daily_amount: 500,
+                        daily_amount: 5,
                     },
                     {
                         title: 'Shelter Champion',
@@ -343,7 +343,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Invitation to a shelter open day',
                         ],
                         featured: false,
-                        daily_amount: 1500,
+                        daily_amount: 15,
                     },
                 ],
             },
@@ -367,8 +367,8 @@ const NGO_SEED: SeedNgo[] = [
                     '2,300 hectares of land under restoration',
                     '87% sapling survival rate after year one',
                 ],
-                goal_amount: 400_000_000,
-                raised_amount: 223_000_000,
+                goal_amount: 4_000_000,
+                raised_amount: 2_230_000,
                 supporter_count: 6890,
                 accent: '16a34a',
                 tiers: [
@@ -377,7 +377,7 @@ const NGO_SEED: SeedNgo[] = [
                         impact_description: 'Plants and protects several native saplings each month.',
                         features: ['Digital impact receipt', 'Monthly progress email', 'Plants native trees'],
                         featured: false,
-                        daily_amount: 100,
+                        daily_amount: 1,
                     },
                     {
                         title: 'Grove Sponsor',
@@ -389,7 +389,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Name on the supporter wall',
                         ],
                         featured: true,
-                        daily_amount: 500,
+                        daily_amount: 5,
                     },
                     {
                         title: 'Forest Champion',
@@ -400,7 +400,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Invitation to a plantation drive',
                         ],
                         featured: false,
-                        daily_amount: 1500,
+                        daily_amount: 15,
                     },
                 ],
             },
@@ -424,8 +424,8 @@ const NGO_SEED: SeedNgo[] = [
                     '620 schools covered daily',
                     '18% rise in attendance at partner schools',
                 ],
-                goal_amount: 600_000_000,
-                raised_amount: 411_000_000,
+                goal_amount: 6_000_000,
+                raised_amount: 4_110_000,
                 supporter_count: 15320,
                 accent: 'ea580c',
                 tiers: [
@@ -434,7 +434,7 @@ const NGO_SEED: SeedNgo[] = [
                         impact_description: 'Serves a hot meal to a child every school day this month.',
                         features: ['Digital impact receipt', 'Monthly progress email', 'Feeds one child'],
                         featured: false,
-                        daily_amount: 100,
+                        daily_amount: 1,
                     },
                     {
                         title: 'Meal Sponsor',
@@ -446,7 +446,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Name on the supporter wall',
                         ],
                         featured: true,
-                        daily_amount: 500,
+                        daily_amount: 5,
                     },
                     {
                         title: 'Kitchen Champion',
@@ -457,7 +457,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Invitation to serve a meal in person',
                         ],
                         featured: false,
-                        daily_amount: 1500,
+                        daily_amount: 15,
                     },
                 ],
             },
@@ -481,8 +481,8 @@ const NGO_SEED: SeedNgo[] = [
                     '142 wells built or repaired',
                     '54% fewer waterborne illnesses reported',
                 ],
-                goal_amount: 350_000_000,
-                raised_amount: 197_000_000,
+                goal_amount: 3_500_000,
+                raised_amount: 1_970_000,
                 supporter_count: 5640,
                 accent: '0891b2',
                 tiers: [
@@ -491,7 +491,7 @@ const NGO_SEED: SeedNgo[] = [
                         impact_description: 'Provides safe water to one person for a month.',
                         features: ['Digital impact receipt', 'Monthly progress email', 'Supports one person'],
                         featured: false,
-                        daily_amount: 100,
+                        daily_amount: 1,
                     },
                     {
                         title: 'Well Sponsor',
@@ -503,7 +503,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Name on the supporter wall',
                         ],
                         featured: true,
-                        daily_amount: 500,
+                        daily_amount: 5,
                     },
                     {
                         title: 'Water Champion',
@@ -514,7 +514,7 @@ const NGO_SEED: SeedNgo[] = [
                             'Invitation to a well inauguration',
                         ],
                         featured: false,
-                        daily_amount: 1500,
+                        daily_amount: 15,
                     },
                 ],
             },
@@ -610,11 +610,12 @@ export async function seedDatabase() {
 
         if (usersNeedingWallets.length > 0) {
             for (const userId of usersNeedingWallets) {
-                const balance = Math.floor(Math.random() * 50000) + 1000; // 1000-51000 paise
                 try {
+                    // cached_balance starts at 0 and is only ever changed via wallet_transactions,
+                    // so it stays derivable as SUM(wallet_transactions.amount) for this wallet.
                     const [wallet] = await db.insert(wallets).values({
                         user_id: userId,
-                        cached_balance: balance,
+                        cached_balance: 0,
                     }).returning({ id: wallets.id });
 
                     if (wallet?.id) {
@@ -698,7 +699,7 @@ export async function seedDatabase() {
         if (existingWalletTransactions.length === 0 && walletIds.length > 0) {
             console.log('Creating wallet transactions...');
             for (let i = 0; i < walletIds.length; i++) {
-                const amount = 1000 + (i * 250);
+                const amount = 10 + (i * 3); // rupees
                 const type = i % 2 === 0 ? 'TOPUP' : 'ADJUSTMENT';
                 const [transaction] = await db.insert(wallet_transactions).values({
                     wallet_id: walletIds[i],
@@ -710,6 +711,10 @@ export async function seedDatabase() {
                 if (transaction?.id) {
                     walletTransactionIds.push(transaction.id);
                 }
+
+                await db.update(wallets)
+                    .set({ cached_balance: sql`${wallets.cached_balance} + ${amount}` })
+                    .where(eq(wallets.id, walletIds[i]));
             }
         } else {
             console.log(`Skipping wallet transactions seed, found ${existingWalletTransactions.length} existing rows.`);
@@ -741,7 +746,7 @@ export async function seedDatabase() {
                     pledge_id: pledgeIds[i],
                     campaign_id: campaignIds[i % campaignIds.length],
                     wallet_transaction_id: walletTransactionIds[i],
-                    amount: 1000 + (i * 250),
+                    amount: 10 + (i * 3), // rupees
                 }).returning({ id: donations.id });
 
                 if (donation?.id) {
@@ -760,7 +765,7 @@ export async function seedDatabase() {
                     ngo_id: ngoIds[i],
                     period_start: `2026-${month}-01`,
                     period_end: `2026-${month}-28`,
-                    total_amount: 25000 + (i * 5000),
+                    total_amount: 250 + (i * 50), // rupees
                     receipt_url: `https://example.com/receipts/payout-${i + 1}.pdf`,
                     status: i % 2 === 0 ? 'PENDING' : 'PROCESSING',
                 }).returning({ id: payouts.id });
@@ -781,7 +786,7 @@ export async function seedDatabase() {
                     admin_id: adminId,
                     user_id: userIds[i],
                     action: i % 2 === 0 ? 'USER_STATUS_UPDATE' : 'WALLET_ADJUSTMENT',
-                    amount: i % 2 === 0 ? null : 1000 + (i * 100),
+                    amount: i % 2 === 0 ? null : 10 + i, // rupees
                     reason: i % 2 === 0 ? 'Seeded admin review action' : 'Seeded wallet adjustment',
                 }).returning({ id: audit_logs.id });
 

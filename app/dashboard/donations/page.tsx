@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { formatInrPaisa } from "@/lib/public";
+import { formatInr } from "@/lib/public";
 import { dashboardRequest, formatDate } from "@/lib/dashboard";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
@@ -130,7 +130,7 @@ export default function DonationsPage() {
                   <p className="text-sm text-slate-500">{month.donations.length} donations</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <p className="font-bold text-emerald-600">{formatInrPaisa(month.total)}</p>
+                  <p className="font-bold text-emerald-600">{formatInr(month.total)}</p>
                   {expandedMonths.has(month.yearMonth) ? (
                     <ChevronUp className="h-5 w-5 text-slate-400" />
                   ) : (
@@ -161,7 +161,7 @@ export default function DonationsPage() {
                           </p>
                         </div>
                         <p className="font-semibold text-slate-900 shrink-0">
-                          {formatInrPaisa(donation.amount)}
+                          {formatInr(donation.amount)}
                         </p>
                       </div>
                     ))}
@@ -178,7 +178,7 @@ export default function DonationsPage() {
           <div className="text-center">
             <p className="text-sm text-slate-600 mb-1">Total donated</p>
             <p className="text-2xl font-bold text-emerald-600 sm:text-3xl">
-              {formatInrPaisa(totalDonated)}
+              {formatInr(totalDonated)}
             </p>
           </div>
         </Card>

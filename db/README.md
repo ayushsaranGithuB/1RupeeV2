@@ -62,7 +62,7 @@ Creates:
 
 **wallets**
 - 1:1 relationship with users
-- cached_balance (paise/integer)
+- cached_balance (rupees/integer, derived from wallet_transactions)
 - Derives actual balance from wallet_transactions
 
 **wallet_transactions** (Immutable Ledger)

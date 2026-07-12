@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   getPublicStats,
   getActiveCampaigns,
-  formatInrPaisa,
+  formatInr,
 } from "../lib/public";
 import { CampaignGrid } from "@/components/campaign-grid";
 

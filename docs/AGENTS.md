@@ -114,7 +114,7 @@ The MVP is a 3-month pilot with approximately 8–10 manually onboarded NGOs.
 ### Database
 
 - UUID primary keys
-- Store money in paise (INTEGER)
+- Store money in rupees (INTEGER)
 - Never mutate wallet ledger or donation history
 - Use transactions for multi-step writes
 

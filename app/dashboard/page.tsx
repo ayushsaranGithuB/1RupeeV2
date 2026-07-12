@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "@/lib/auth-client";
-import { formatInrPaisa } from "@/lib/public";
+import { formatInr } from "@/lib/public";
 import {
   dashboardRequest,
   calculateDonationRunway,
@@ -115,7 +115,7 @@ export default function DashboardPage() {
                       {pledge.tier_title || "Support tier"}
                       {typeof pledge.daily_amount === "number" && (
                         <span className="ml-2 text-slate-700">
-                          • {formatInrPaisa(pledge.daily_amount)}/day
+                          • {formatInr(pledge.daily_amount)}/day
                         </span>
                       )}
                     </p>
@@ -206,7 +206,7 @@ export default function DashboardPage() {
                     className="font-semibold  text-blue-900 px-1"
                     style={{ color: "#4077A4" }}
                   >
-                    {formatInrPaisa(wallet?.cached_balance || 0)}
+                    {formatInr(wallet?.cached_balance || 0)}
                   </span>
                   <br />
                   Total Daily Commitment :
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                     className="font-semibold  text-blue-900 px-1"
                     style={{ color: "#4077A4" }}
                   >
-                    {formatInrPaisa(totalDailyAmount)}
+                    {formatInr(totalDailyAmount)}
                   </span>
                 </p>
                 <Link href="/dashboard/wallet/topup" className="inline-block">
@@ -244,7 +244,7 @@ export default function DashboardPage() {
           className="text-4xl sm:text-6xl font-bold text-blue-900 mb-4"
           style={{ color: "#4077A4" }}
         >
-          {loading ? "…" : formatInrPaisa(totalRaised)}
+          {loading ? "…" : formatInr(totalRaised)}
         </div>
         {donations.length > 0 && (
           <p className="text-sm text-slate-600">

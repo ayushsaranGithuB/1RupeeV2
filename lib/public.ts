@@ -152,8 +152,9 @@ export async function getTransparencyReports(): Promise<TransparencyReport[]> {
     }
 }
 
-export function formatInrPaisa(value: number | null | undefined) {
-    const amount = Math.max(0, Math.round((value || 0) / 100));
+// Amounts are stored in rupees; format them as INR currency
+export function formatInr(value: number | null | undefined) {
+    const amount = Math.max(0, Math.round(value || 0));
     return new Intl.NumberFormat("en-IN", {
         style: "currency",
         currency: "INR",
