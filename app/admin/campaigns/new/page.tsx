@@ -188,7 +188,6 @@ export default function CreateCampaignPage() {
                 label="Campaign Logo"
                 value={form.logo_url}
                 onChange={(url) => setForm({ ...form, logo_url: url })}
-                onError={(err) => setError(err)}
                 minSize={500}
                 aspectRatio="square"
               />
