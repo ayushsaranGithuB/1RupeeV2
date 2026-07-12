@@ -92,7 +92,7 @@ export default function FaqPage() {
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400">
         Have questions?
       </p>
-      <h1 className="mb-4 text-4xl font-bold text-[#4A88B8]  font-kalam">
+      <h1 className="mb-4 text-4xl font-bold text-primary font-geist">
         Frequently Asked Questions
       </h1>
       <p className="mb-12 text-lg text-slate-500">
@@ -103,7 +103,7 @@ export default function FaqPage() {
       <div>
         {faqSections.map((section) => (
           <section key={section.title} className="mb-[4em]">
-            <h2 className="text-2xl font-semibold  text-[#4A88B8]  font-kalam">
+            <h2 className="text-2xl font-semibold text-primary font-geist">
               {section.title}
             </h2>
             <div className="space-y-3">

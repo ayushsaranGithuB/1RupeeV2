@@ -1,9 +1,21 @@
 import type { Metadata } from "next";
-import { Kalam } from "next/font/google";
+import { Kalam, Instrument_Sans, Geist } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+
+const instrumentSans = Instrument_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-instrument-sans",
+});
+
+const geist = Geist({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-geist",
+});
 
 const kalam = Kalam({
   subsets: ["latin"],
@@ -23,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={kalam.variable}>
+    <html lang="en" className={`${instrumentSans.variable} ${geist.variable} ${kalam.variable}`}>
       <body>
         <ImpersonationBanner />
         <SiteHeader />

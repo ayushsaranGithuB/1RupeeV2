@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -72,13 +73,17 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-4">
-          <div className="flex-shrink-0">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-600">
-              1Rupee
-            </p>
-            <p className="text-xs text-slate-500">{session.user.email}</p>
-          </div>
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-6 py-3">
+          <Link href="/dashboard" className="flex-shrink-0 transition hover:opacity-80">
+            <Image
+              src="/logo.png"
+              alt="1Rupee Logo"
+              width={100}
+              height={44}
+              priority
+            />
+          </Link>
+          <p className="hidden text-xs text-slate-500 sm:block">{session.user.email}</p>
 
           {/* Desktop Navigation */}
           <nav className="hidden flex-1 gap-1 md:flex">

@@ -49,8 +49,8 @@ export function SiteHeader() {
               key={link.href}
               href={link.href}
               className={cn(
-                "font-kalam",
-                "text-lg font-medium text-[#4A88B8] transition hover:text-emerald-700",
+                "font-geist",
+                "text-lg font-medium text-primary transition hover:text-emerald-700",
               )}
             >
               {link.label}

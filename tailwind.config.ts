@@ -8,6 +8,11 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                'geist': ['var(--font-geist)', 'sans-serif'],
+                'instrument-sans': ['var(--font-instrument-sans)', 'sans-serif'],
+                'kalam': ['var(--font-kalam)', 'serif'],
+            },
             colors: {
                 border: 'hsl(var(--border))',
                 input: 'hsl(var(--input))',
