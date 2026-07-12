@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -51,7 +52,9 @@ export default function CreateCampaignPage() {
           setForm((current) => ({ ...current, ngo_id: ngoData[0].id }));
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load NGOs");
+        const errorMsg = err instanceof Error ? err.message : "Failed to load NGOs";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -86,11 +89,12 @@ export default function CreateCampaignPage() {
         }),
       });
 
+      toast.success("Campaign created successfully");
       router.push("/admin/campaigns");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to create campaign",
-      );
+      const errorMsg = err instanceof Error ? err.message : "Failed to create campaign";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }

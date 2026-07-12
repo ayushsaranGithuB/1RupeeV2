@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, Suspense, useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -198,11 +199,11 @@ function CampaignDetailsContent() {
         setTiers(tierData);
         setRecentDonations(donationData);
       } catch (err) {
-        setError(
-          err instanceof Error
+        const errorMsg = err instanceof Error
             ? err.message
-            : "Failed to load campaign workspace",
-        );
+            : "Failed to load campaign workspace";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -267,10 +268,19 @@ function CampaignDetailsContent() {
         "/admin/campaigns",
       );
       setCampaigns(updatedCampaigns);
+
+      const statusMsg = statusOverride
+        ? statusOverride === "ACTIVE"
+          ? "published"
+          : statusOverride === "ARCHIVED"
+            ? "archived"
+            : "updated"
+        : "updated";
+      toast.success(`Campaign ${statusMsg} successfully`);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update campaign",
-      );
+      const errorMsg = err instanceof Error ? err.message : "Failed to update campaign";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -330,18 +340,22 @@ function CampaignDetailsContent() {
           method: "PATCH",
           body: JSON.stringify(payload),
         });
+        toast.success("Tier updated successfully");
       } else {
         await adminRequest("/admin/tiers", {
           method: "POST",
           body: JSON.stringify(payload),
         });
+        toast.success("Tier created successfully");
       }
       setTierForm(emptyTierForm);
       setEditingTierId(null);
       setTierDrawerMode(null);
       await loadTiers();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save tier");
+      const errorMsg = err instanceof Error ? err.message : "Failed to save tier";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setTierSaving(false);
     }
@@ -352,9 +366,12 @@ function CampaignDetailsContent() {
     setError(null);
     try {
       await adminRequest(`/admin/tiers/${id}`, { method: "DELETE" });
+      toast.success("Tier deleted successfully");
       await loadTiers();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete tier");
+      const errorMsg = err instanceof Error ? err.message : "Failed to delete tier";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setTierSaving(false);
     }
@@ -759,6 +776,16 @@ function CampaignDetailsContent() {
                         />
                       </div>
                     </div>
+                  </section>
+
+                  <section className="space-y-4 border-t border-slate-200 pt-6">
+                    <Button
+                      onClick={() => saveCampaign()}
+                      disabled={saving || !selectedCampaign}
+                      className="bg-emerald-600 text-white hover:bg-emerald-500"
+                    >
+                      {saving ? "Saving..." : "Save Changes"}
+                    </Button>
                   </section>
 
                   <section className="space-y-4 border-t border-slate-200 pt-6">
