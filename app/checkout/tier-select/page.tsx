@@ -24,12 +24,16 @@ type Tier = {
 type Campaign = {
   id: string;
   title: string;
+  ngo_name?: string;
+  logo_url?: string | null;
 };
 
 export default function TierSelectPage() {
   return (
     <Suspense
-      fallback={<main className="mx-auto max-w-2xl px-6 py-10">Loading...</main>}
+      fallback={
+        <main className="mx-auto max-w-2xl px-6 py-10">Loading...</main>
+      }
     >
       <TierSelectContent />
     </Suspense>
@@ -46,7 +50,7 @@ function TierSelectContent() {
 
   const [tier, setTier] = useState<Tier | null>(null);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [planLength, setPlanLength] = useState<number | null>(null);
+  const [planLength, setPlanLength] = useState<number | null>(6);
   const [customLength, setCustomLength] = useState("");
   const [customInputValue, setCustomInputValue] = useState("");
   const [customInputError, setCustomInputError] = useState<string | null>(null);
@@ -91,7 +95,9 @@ function TierSelectContent() {
             return;
           }
 
-          campaign = (campaignsData.data as any[]).find((c: any) => c.id === campaign_id);
+          campaign = (campaignsData.data as any[]).find(
+            (c: any) => c.id === campaign_id,
+          );
         }
 
         if (!campaign) {
@@ -107,7 +113,12 @@ function TierSelectContent() {
           return;
         }
 
-        setCampaign({ id: campaign.id, title: campaign.title } as Campaign);
+        setCampaign({
+          id: campaign.id,
+          title: campaign.title,
+          ngo_name: campaign.ngo_name,
+          logo_url: campaign.logo_url,
+        } as Campaign);
         setTier(selectedTier);
 
         // Fetch wallet balance
@@ -147,11 +158,15 @@ function TierSelectContent() {
     );
   }
 
-  const selectedPlanMonths = customLength ? parseInt(customLength) : (planLength || 0);
+  const selectedPlanMonths = customLength
+    ? parseInt(customLength)
+    : planLength || 0;
   const daysInPlan = selectedPlanMonths * 30;
   const totalPrice = tier ? tier.daily_amount * daysInPlan : 0;
   const hasSelectedDuration = planLength !== null || customLength !== "";
-  const isValidDuration = customLength === "" || (parseInt(customLength) >= 1 && parseInt(customLength) <= 12);
+  const isValidDuration =
+    customLength === "" ||
+    (parseInt(customLength) >= 1 && parseInt(customLength) <= 12);
 
   function handleSaveCustomDuration() {
     if (!customInputValue) {
@@ -177,30 +192,45 @@ function TierSelectContent() {
     }
     const finalPlanLength = customLength ? parseInt(customLength) : planLength;
     router.push(
-      `/checkout/cart?tier_id=${tier_id}&campaign_id=${campaign_id}${campaign_slug ? `&campaign_slug=${campaign_slug}` : ''}&plan_length=${finalPlanLength}`
+      `/checkout/cart?tier_id=${tier_id}&campaign_id=${campaign_id}${
+        campaign_slug ? `&campaign_slug=${campaign_slug}` : ""
+      }&plan_length=${finalPlanLength}`,
     );
   }
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Choose your pledge duration</h1>
-        <p className="mt-2 text-slate-600">{campaign.title}</p>
+        {campaign.logo_url && (
+          <img
+            src={campaign.logo_url}
+            alt={campaign.ngo_name || campaign.title}
+            className="h-16 mb-4 object-contain"
+          />
+        )}
+        <h1 className="text-2xl font-medium text-slate-900">
+          You're pledging to
+          <span className="font-bold text-emerald-600 ml-1">
+            {campaign.title}
+          </span>
+        </h1>
+        <p className="text-md text-slate-500 ">
+          {campaign.ngo_name && ` by ${campaign.ngo_name}`}
+        </p>
+        <h2 className="mt-4 text-md font-normal text-slate-500">
+          Selected tier:{" "}
+          <span className="font-semibold text-lg">
+            {tier?.title} @ {formatInr(tier?.daily_amount)} per day
+          </span>
+        </h2>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-6">
-        {/* Tier info */}
-        <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4">
-          <p className="text-sm text-slate-600">Selected tier</p>
-          <p className="text-lg font-semibold text-slate-900">{tier.title}</p>
-          <p className="text-sm text-slate-600 mt-1">
-            {formatInr(tier.daily_amount)} per day
-          </p>
-        </div>
-
         {/* Preset plan buttons */}
         <div>
-          <p className="mb-3 text-sm font-medium text-slate-700">Choose duration</p>
+          <p className="mb-3 text-sm font-medium text-slate-700">
+            Choose duration:
+          </p>
           <div className="grid grid-cols-3 gap-2">
             {PRESET_PLANS.map((plan) => (
               <Button
@@ -209,8 +239,16 @@ function TierSelectContent() {
                   setPlanLength(plan.months);
                   setCustomLength("");
                 }}
-                variant={planLength === plan.months && customLength === "" ? "default" : "outline"}
-                className={planLength === plan.months && customLength === "" ? "bg-emerald-600 hover:bg-emerald-700" : ""}
+                variant={
+                  planLength === plan.months && customLength === ""
+                    ? "default"
+                    : "outline"
+                }
+                className={
+                  planLength === plan.months && customLength === ""
+                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    : ""
+                }
               >
                 {plan.label}
               </Button>
@@ -228,7 +266,9 @@ function TierSelectContent() {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Duration:</span>
-            <span className="font-medium text-slate-900">{selectedPlanMonths} months ({daysInPlan} days)</span>
+            <span className="font-medium text-slate-900">
+              {selectedPlanMonths} months ({daysInPlan} days)
+            </span>
           </div>
           <div className="border-t border-slate-200 pt-2 flex justify-between">
             <span className="font-semibold text-slate-900">Total amount:</span>
@@ -247,74 +287,22 @@ function TierSelectContent() {
             </p>
             {wallet.cached_balance < totalPrice && (
               <p className="text-sm text-blue-700 mt-2">
-                You need {formatInr(totalPrice - wallet.cached_balance)} more. You can add funds on the next page.
+                You need {formatInr(totalPrice - wallet.cached_balance)} more.
+                You can add funds on the next page.
               </p>
             )}
           </div>
         )}
 
-        {/* Custom amount toggle/form */}
-        {/* Custom duration input */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-slate-700">Or enter a custom duration (1-12 months)</label>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              min="1"
-              max="12"
-              value={customInputValue}
-              onChange={(e) => {
-                setCustomInputValue(e.target.value);
-                setCustomInputError(null);
-              }}
-              placeholder="e.g., 2, 5, 8"
-              className="flex-1 rounded-lg border border-slate-300 px-3 py-2"
-            />
-            <Button
-              onClick={handleSaveCustomDuration}
-              className="bg-slate-600 hover:bg-slate-700"
-              disabled={!customInputValue}
-            >
-              Set
-            </Button>
-          </div>
-          {customInputError && (
-            <p className="text-sm text-red-600">{customInputError}</p>
-          )}
-        </div>
-
-        {customLength && (
-          <div className="flex justify-between items-center rounded-lg bg-emerald-50 border border-emerald-100 p-3">
-            <p className="text-sm text-slate-600">
-              Selected: <span className="font-semibold text-slate-900">{customLength} months</span>
-            </p>
-            <Button
-              onClick={() => {
-                setCustomLength("");
-                setCustomInputValue("");
-                setPlanLength(null);
-              }}
-              variant="ghost"
-              size="sm"
-            >
-              Clear
-            </Button>
-          </div>
-        )}
-
         {/* Actions */}
-        <div className="flex gap-3 pt-4">
-          <Button
-            variant="outline"
-            onClick={() => router.back()}
-            className="flex-1"
-          >
+        <div className="flex gap-3 justify-between pt-4">
+          <Button variant="outline" onClick={() => router.back()} className="">
             Back
           </Button>
           <Button
             onClick={handleNext}
             disabled={!hasSelectedDuration || !isValidDuration}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className=" bg-emerald-600 hover:bg-emerald-700 rounded-xl h-[48px] px-12"
           >
             Review & Continue
           </Button>
