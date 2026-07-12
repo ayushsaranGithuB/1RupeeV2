@@ -82,21 +82,21 @@ export default function WalletPage() {
       ) : null}
 
       {!loading && totalDailyAmount > 0 ? (
-        <Card className="border-emerald-100 bg-emerald-50 p-6">
-          <p className="text-sm font-medium text-emerald-700">Donation Runway</p>
-          <p className="mt-2 text-3xl font-bold text-emerald-900 sm:text-4xl">
+        <Card className="border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 p-6">
+          <p className="text-sm font-medium text-[hsl(var(--primary))]">Donation Runway</p>
+          <p className="mt-2 text-3xl font-bold text-[hsl(var(--primary))] sm:text-4xl">
             {donationRunway} days remaining
           </p>
-          <div className="mt-4 space-y-2 text-sm text-emerald-700">
+          <div className="mt-4 space-y-2 text-sm text-[hsl(var(--primary))]">
             <p>Supporting {activePledges.length} {activePledges.length === 1 ? "campaign" : "campaigns"}</p>
             <p>Daily commitment: {formatInr(totalDailyAmount)}/day</p>
           </div>
           <Link href="/dashboard/wallet/topup" className="mt-4 inline-block">
-            <Button className="w-full bg-emerald-600 text-white hover:bg-emerald-500 sm:w-auto">
+            <Button className="w-full bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 sm:w-auto">
               Extend My Impact
             </Button>
           </Link>
-          <p className="mt-3 text-xs text-emerald-600">
+          <p className="mt-3 text-xs text-[hsl(var(--primary))]">
             Current wallet balance: {formatInr(wallet?.cached_balance || 0)}
           </p>
         </Card>
@@ -149,7 +149,7 @@ export default function WalletPage() {
                   <span
                     className={
                       isCredit
-                        ? "text-sm font-semibold text-emerald-600 shrink-0"
+                        ? "text-sm font-semibold text-[hsl(var(--primary))] shrink-0"
                         : "text-sm font-semibold text-slate-700 shrink-0"
                     }
                   >

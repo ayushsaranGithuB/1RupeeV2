@@ -248,7 +248,7 @@ function CartContent() {
           <div className="border-t border-slate-200 pt-4 bg-slate-50 -mx-6 px-6 py-4">
             <div className="flex justify-between items-center">
               <span className="font-semibold text-slate-900">Total to charge today:</span>
-              <span className="text-2xl font-bold text-emerald-600">
+              <span className="text-2xl font-bold text-[hsl(var(--primary))]">
                 {formatInr(totalPrice)}
               </span>
             </div>
@@ -273,9 +273,9 @@ function CartContent() {
               </div>
 
               {hasSufficientBalance ? (
-                <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4">
+                <div className="rounded-lg bg-[hsl(var(--primary))]/5 border border-[hsl(var(--primary))]/20 p-4">
                   <p className="text-sm text-slate-600">Balance after pledge</p>
-                  <p className="text-2xl font-bold text-emerald-900">
+                  <p className="text-2xl font-bold text-[hsl(var(--primary))]">
                     {formatInr(balanceAfter)}
                   </p>
                 </div>
@@ -337,7 +337,7 @@ function CartContent() {
                 <Button
                   onClick={handleCustomTopup}
                   disabled={topupLoading || !topupAmount}
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90"
                 >
                   {topupLoading ? "Adding..." : "Add"}
                 </Button>
@@ -362,7 +362,7 @@ function CartContent() {
               )
             }
             disabled={!hasSufficientBalance}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className="flex-1"
           >
             {hasSufficientBalance ? "Proceed to Payment" : "Add Funds to Continue"}
           </Button>

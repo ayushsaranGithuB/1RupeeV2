@@ -42,7 +42,7 @@ export function CampaignGrid({
         return (
           <article
             key={campaign.id}
-            className="group flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5"
+            className="group flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-[hsl(var(--primary))]/20 hover:shadow-xl hover:shadow-[hsl(var(--primary))]/5"
           >
             <Link
               href={`/campaigns/${campaign.slug}`}
@@ -62,9 +62,9 @@ export function CampaignGrid({
                   />
                 </>
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-sky-50" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))]/5 via-white to-sky-50" />
               )}
-              <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm backdrop-blur">
+              <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[hsl(var(--primary))] shadow-sm backdrop-blur">
                 Active
               </span>
               {campaign.category ? (
@@ -78,7 +78,7 @@ export function CampaignGrid({
               <h3 className="text-lg font-semibold leading-snug tracking-tight text-slate-900 line-clamp-2">
                 <Link
                   href={`/campaigns/${campaign.slug}`}
-                  className="font-medium text-xl text-emerald-700"
+                  className="font-medium text-xl text-[hsl(var(--primary))]"
                 >
                   {campaign.title}
                 </Link>
@@ -97,7 +97,7 @@ export function CampaignGrid({
                 {progress !== null ? (
                   <div className="mb-2 h-2 overflow-hidden rounded-full bg-slate-100">
                     <div
-                      className="h-full rounded-full bg-emerald-500"
+                      className="h-full rounded-full bg-[hsl(var(--primary))]"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
@@ -112,7 +112,7 @@ export function CampaignGrid({
                     </span>
                   </span>
                   {progress !== null ? (
-                    <span className="font-semibold text-emerald-600">
+                    <span className="font-semibold text-[hsl(var(--primary))]">
                       {progress}%
                     </span>
                   ) : null}
@@ -121,8 +121,8 @@ export function CampaignGrid({
 
               {/* Footer */}
               <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-                <span className="text-xs text-emerald-700 flex items-center">
-                  <Users size={12} className="mr-0.5 inline text-emerald-700" />
+                <span className="text-xs text-[hsl(var(--primary))] flex items-center">
+                  <Users size={12} className="mr-0.5 inline text-[hsl(var(--primary))]" />
                   <span className="font-semibold mr-1">
                     {campaign.supporter_count.toLocaleString("en-IN")}
                   </span>
@@ -133,7 +133,7 @@ export function CampaignGrid({
                   className={buttonVariants({
                     size: "sm",
                     className:
-                      "rounded-full bg-emerald-600 px-5 text-white hover:bg-emerald-700",
+                      "rounded-full bg-[hsl(var(--primary-button))] px-5 text-[hsl(var(--primary-button-foreground))] hover:bg-[hsl(var(--primary-button-hover))]",
                   })}
                 >
                   Support

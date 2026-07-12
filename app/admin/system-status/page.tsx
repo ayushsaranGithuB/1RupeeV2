@@ -68,7 +68,7 @@ function StatusCard({
           <Loader2 size={18} className="animate-spin text-slate-400" />
         )}
         {check.state === "ok" && (
-          <CheckCircle2 size={18} className="text-emerald-600" />
+          <CheckCircle2 size={18} className="text-[hsl(var(--primary))]" />
         )}
         {check.state === "error" && (
           <XCircle size={18} className="text-red-600" />
@@ -77,7 +77,7 @@ function StatusCard({
       <p
         className={cn(
           "mt-2 text-lg font-semibold",
-          check.state === "ok" && "text-emerald-700",
+          check.state === "ok" && "text-[hsl(var(--primary))]",
           check.state === "error" && "text-red-700",
           check.state === "checking" && "text-slate-400",
         )}
@@ -330,7 +330,7 @@ function JobRunCard({
         <span
           className={cn(
             "rounded-full px-2 py-0.5 text-xs font-semibold",
-            run.status === "COMPLETED" && "bg-emerald-50 text-emerald-700",
+            run.status === "COMPLETED" && "bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]",
             run.status === "FAILED" && "bg-red-50 text-red-700",
             run.status === "RUNNING" && "bg-amber-50 text-amber-700",
           )}

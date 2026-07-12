@@ -244,7 +244,7 @@ export default function UserManagement() {
           </Select>
           <Button
             onClick={loadUsers}
-            className="bg-emerald-600 text-white hover:bg-emerald-500 ml-auto"
+            className="ml-auto"
           >
             Run Search
           </Button>

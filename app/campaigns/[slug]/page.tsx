@@ -40,7 +40,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
       </Link>
 
       <section className="rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-sm">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[hsl(var(--primary))]">
           Micro-Giving, Macro Impact
         </p>
         <h1 className="mb-1 text-4xl text-slate-900">{campaign.title}</h1>
@@ -49,7 +49,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
             by {campaign.ngo_name}
           </p>
         ) : null}
-        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-emerald-50 via-white to-sky-50">
+        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-[hsl(var(--primary))]/5 via-white to-sky-50">
           <div className="relative block aspect-[3/4] bg-slate-100 md:hidden">
             {mobileHero ? (
               <>
@@ -115,9 +115,9 @@ export default async function CampaignDetailPage({ params }: PageProps) {
         </div>
 
         <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
-            <p className="text-sm text-emerald-700">Raised so far</p>
-            <p className="text-xl font-bold text-emerald-900">
+          <div className="rounded-xl border border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 p-4">
+            <p className="text-sm text-[hsl(var(--primary))]">Raised so far</p>
+            <p className="text-xl font-bold text-[hsl(var(--primary))]">
               {formatInr(campaign.raised_amount)}
             </p>
           </div>
@@ -148,7 +148,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-emerald-500"
+                className="h-full rounded-full bg-[hsl(var(--primary))]"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -158,7 +158,7 @@ export default async function CampaignDetailPage({ params }: PageProps) {
         <div className="flex flex-col md:flex-row gap-3">
           <Link
             href="/sign-up"
-            className="rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white hover:bg-emerald-700"
+            className="rounded-xl bg-[hsl(var(--primary-button))] px-5 py-3 font-semibold text-[hsl(var(--primary-button-foreground))] hover:bg-[hsl(var(--primary-button-hover))]"
           ></Link>
           <Link
             href="/transparency"

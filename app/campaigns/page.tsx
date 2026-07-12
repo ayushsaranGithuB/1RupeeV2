@@ -48,23 +48,23 @@ export default async function CampaignsPage({
   return (
     <main className="bg-white">
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-emerald-100 bg-gradient-to-b from-emerald-50 via-white to-white">
+      <section className="relative overflow-hidden border-b border-[hsl(var(--primary))]/20 bg-gradient-to-b from-[hsl(var(--primary))]/5 via-white to-white">
         <div
           aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl"
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[hsl(var(--primary))]/20 blur-3xl"
         />
         <div
           aria-hidden
           className="pointer-events-none absolute -left-16 top-24 h-56 w-56 rounded-full bg-amber-200/30 blur-3xl"
         />
         <div className="relative mx-auto max-w-5xl px-6 py-20 text-center sm:px-10 sm:py-28">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 shadow-sm backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--primary))]/20 bg-white/80 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[hsl(var(--primary))] shadow-sm backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--primary))]" />
             Active Campaigns
           </span>
           <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 sm:text-6xl">
             Make every rupee count.
-            <span className="block text-emerald-600">
+            <span className="block text-[hsl(var(--primary))]">
               Change lives from ₹1 a day.
             </span>
           </h1>
@@ -81,7 +81,7 @@ export default async function CampaignsPage({
                 variant: "default",
                 size: "lg",
                 className:
-                  "rounded-full bg-emerald-600 px-7 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700",
+                  "rounded-full px-7 shadow-lg shadow-[hsl(var(--primary-button))]/20",
               })}
             >
               Explore campaigns
@@ -123,7 +123,7 @@ export default async function CampaignsPage({
         className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-16 sm:px-10 sm:py-20"
       >
         <div className="mb-10 flex flex-col gap-3 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[hsl(var(--primary))]">
             Causes that need you
           </p>
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
@@ -142,8 +142,8 @@ export default async function CampaignsPage({
             className={cn(
               "rounded-full border px-4 py-1.5 text-sm font-medium transition",
               !activeCategory
-                ? "border-emerald-600 bg-emerald-600 text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700",
+                ? "border-[hsl(var(--primary-button))] bg-[hsl(var(--primary-button))] text-[hsl(var(--primary-button-foreground))]"
+                : "border-slate-200 bg-white text-slate-600 hover:border-amber-200 hover:text-[hsl(var(--primary-button))]",
             )}
           >
             All causes
@@ -157,8 +157,8 @@ export default async function CampaignsPage({
                 className={cn(
                   "rounded-full border px-4 py-1.5 text-sm font-medium transition",
                   isActive
-                    ? "border-emerald-600 bg-emerald-600 text-white"
-                    : "border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700",
+                    ? "border-[hsl(var(--primary-button))] bg-[hsl(var(--primary-button))] text-[hsl(var(--primary-button-foreground))]"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-amber-200 hover:text-[hsl(var(--primary-button))]",
                 )}
               >
                 {option.label}
@@ -179,20 +179,20 @@ export default async function CampaignsPage({
 
       {/* Closing CTA */}
       <section className="px-6 pb-20 sm:px-10">
-        <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-3xl bg-emerald-700 px-8 py-14 text-center shadow-xl sm:py-16">
+        <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-3xl bg-[hsl(var(--primary))] px-8 py-14 text-center shadow-xl sm:py-16">
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-emerald-500/40 blur-3xl"
+            className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[hsl(var(--primary))]/40 blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-emerald-900/40 blur-3xl"
+            className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-[hsl(var(--primary))]/60 blur-3xl"
           />
           <div className="relative">
             <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Ready to turn ₹1 a day into real change?
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-emerald-50/90">
+            <p className="mx-auto mt-4 max-w-xl text-white/90">
               Join thousands of everyday givers building a habit of kindness —
               one rupee at a time.
             </p>
@@ -202,7 +202,7 @@ export default async function CampaignsPage({
                 className={buttonVariants({
                   size: "lg",
                   className:
-                    "rounded-full bg-white px-8 text-emerald-700 hover:bg-emerald-50",
+                    "rounded-full bg-white px-8 text-[hsl(var(--primary-button))] hover:bg-amber-50",
                 })}
               >
                 Create your account

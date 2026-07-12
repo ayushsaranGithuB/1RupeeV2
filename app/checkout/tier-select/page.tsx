@@ -211,7 +211,7 @@ function TierSelectContent() {
         <div>
           <h1 className="text-xl font-medium text-slate-900">
             You're pledging to
-            <span className="font-bold text-emerald-600 ml-1">
+            <span className="font-bold text-[hsl(var(--primary))] ml-1">
               {campaign.title}
             </span>
           </h1>
@@ -248,7 +248,7 @@ function TierSelectContent() {
                 }
                 className={
                   planLength === plan.months && customLength === ""
-                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    ? "bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90"
                     : ""
                 }
               >
@@ -274,7 +274,7 @@ function TierSelectContent() {
           </div>
           <div className="border-t border-slate-200 pt-2 flex justify-between">
             <span className="font-semibold text-slate-900">Total amount:</span>
-            <span className="text-lg font-bold text-emerald-600">
+            <span className="text-lg font-bold text-[hsl(var(--primary))]">
               {formatInr(totalPrice)}
             </span>
           </div>
@@ -304,7 +304,7 @@ function TierSelectContent() {
           <Button
             onClick={handleNext}
             disabled={!hasSelectedDuration || !isValidDuration}
-            className=" bg-emerald-600 hover:bg-emerald-700 rounded-xl h-[48px] px-12"
+            className=" bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 rounded-xl h-[48px] px-12"
           >
             Review & Continue
           </Button>

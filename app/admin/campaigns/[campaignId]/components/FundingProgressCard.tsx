@@ -50,7 +50,7 @@ export function FundingProgressCard({
         {showLink && (
           <Link
             href={`?tab=analytics`}
-            className="text-sm text-emerald-700 hover:underline"
+            className="text-sm text-[hsl(var(--primary))] hover:underline"
           >
             View details →
           </Link>
@@ -80,7 +80,7 @@ export function FundingProgressCard({
                 cy="60"
                 r="50"
                 fill="none"
-                stroke="#16a34a"
+                stroke="hsl(var(--primary))"
                 strokeWidth="8"
                 strokeDasharray={`${
                   (completionPercent / 100) * Math.PI * 100
@@ -116,7 +116,7 @@ export function FundingProgressCard({
           <div className="space-y-2">
             <div className="flex gap-2 h-2 overflow-hidden rounded-full bg-slate-100">
               <div
-                className="bg-emerald-500 rounded-full"
+                className="bg-[hsl(var(--primary))] rounded-full"
                 style={{ width: `${completionPercent}%` }}
               />
               <div className="flex-1 bg-slate-200 rounded-full" />
@@ -125,7 +125,7 @@ export function FundingProgressCard({
             {/* Legend */}
             <div className="flex gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                <div className="w-3 h-3 rounded-full bg-[hsl(var(--primary))]" />
                 <span className="text-slate-600">Raised</span>
                 <span className="font-semibold text-slate-900">
                   {formatCurrency(raised_amount)}

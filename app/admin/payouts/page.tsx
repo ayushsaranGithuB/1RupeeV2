@@ -220,7 +220,7 @@ export default function PayoutManagement() {
                 ngo_id: ngos[0]?.id || current.ngo_id,
               }));
             }}
-            className="bg-emerald-600 text-white hover:bg-emerald-500"
+            className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
           >
             Generate Payout
           </Button>
@@ -348,7 +348,7 @@ export default function PayoutManagement() {
                   <Button
                     type="submit"
                     disabled={saving || !ngos.length}
-                    className="bg-emerald-600 text-white hover:bg-emerald-500"
+                    className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                   >
                     {saving ? "Generating..." : "Save"}
                   </Button>
@@ -383,7 +383,7 @@ export default function PayoutManagement() {
                     <Button
                       onClick={processPayout}
                       disabled={saving}
-                      className="bg-emerald-600 text-white hover:bg-emerald-500"
+                      className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                     >
                       Mark Complete
                     </Button>

@@ -63,7 +63,7 @@ export function SignUpForm() {
       )}
 
       {submitted ? (
-        <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+        <div className="rounded-xl bg-[hsl(var(--primary))]/10 p-4 text-sm text-[hsl(var(--primary))]">
           <p className="font-semibold">Check your email</p>
           <p className="mt-1">
             We sent a sign-in link to <strong>{email}</strong>. In local dev
@@ -108,7 +108,6 @@ export function SignUpForm() {
             />
           </label>
           <Button
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
             type="submit"
             disabled={loading}
           >
@@ -121,7 +120,7 @@ export function SignUpForm() {
         Already have an account?{" "}
         <Link
           href="/sign-in"
-          className="font-semibold text-emerald-700 hover:text-emerald-800"
+          className="font-semibold text-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]/80"
         >
           Sign in
         </Link>

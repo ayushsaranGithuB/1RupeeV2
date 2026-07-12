@@ -50,7 +50,7 @@ export function SiteHeader() {
               href={link.href}
               className={cn(
                 "font-kalam",
-                "text-lg font-medium text-primary transition hover:text-emerald-700",
+                "text-lg font-medium text-[hsl(var(--primary))] transition hover:text-[hsl(var(--primary))]/80",
               )}
             >
               {link.label}
@@ -77,13 +77,13 @@ export function SiteHeader() {
             <>
               <Link
                 href="/sign-in"
-                className="text-sm font-medium text-slate-600 transition hover:text-emerald-700"
+                className="text-sm font-medium text-slate-600 transition hover:text-[hsl(var(--primary))]"
               >
                 Sign in
               </Link>
               <Link
                 href="/sign-up"
-                className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                className="rounded-full bg-[hsl(var(--primary-button))] px-5 py-2 text-sm font-semibold text-[hsl(var(--primary-button-foreground))] transition hover:bg-[hsl(var(--primary-button-hover))]"
               >
                 Register
               </Link>
@@ -105,7 +105,7 @@ export function SiteHeader() {
 
       <div
         className={cn(
-          "border-t border-emerald-100 bg-white md:hidden",
+          "border-t border-[hsl(var(--primary))]/20 bg-white md:hidden",
           open ? "block" : "hidden",
         )}
       >
@@ -117,7 +117,7 @@ export function SiteHeader() {
               onClick={() => setOpen(false)}
               className={cn(
                 "font-kalam",
-                "rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700",
+                "rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-[hsl(var(--primary))]/5 hover:text-[hsl(var(--primary))]",
               )}
             >
               {link.label}
@@ -150,14 +150,14 @@ export function SiteHeader() {
               <Link
                 href="/sign-in"
                 onClick={() => setOpen(false)}
-                className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700"
+                className="rounded-md px-2 py-2 text-sm font-medium text-slate-700 transition hover:bg-[hsl(var(--primary))]/5 hover:text-[hsl(var(--primary))]"
               >
                 Sign in
               </Link>
               <Link
                 href="/sign-up"
                 onClick={() => setOpen(false)}
-                className="mt-2 rounded-full bg-emerald-600 px-5 py-2 text-center text-sm font-semibold text-white transition hover:bg-emerald-700"
+                className="mt-2 rounded-full bg-[hsl(var(--primary-button))] px-5 py-2 text-center text-sm font-semibold text-[hsl(var(--primary-button-foreground))] transition hover:bg-[hsl(var(--primary-button-hover))]"
               >
                 Register
               </Link>

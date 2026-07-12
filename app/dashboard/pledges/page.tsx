@@ -87,12 +87,12 @@ export default function PledgesPage() {
       ) : null}
 
       {!loading && activePledges.length > 0 && (
-        <Card className="border-emerald-100 bg-emerald-50 p-4">
-          <p className="text-sm text-emerald-700 mb-1">Your generosity is funded for</p>
-          <p className="text-2xl font-bold text-emerald-900">
+        <Card className="border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 p-4">
+          <p className="text-sm text-[hsl(var(--primary))] mb-1">Your generosity is funded for</p>
+          <p className="text-2xl font-bold text-[hsl(var(--primary))]">
             {donationRunway} more {donationRunway === 1 ? "day" : "days"}
           </p>
-          <p className="text-xs text-emerald-600 mt-2">
+          <p className="text-xs text-[hsl(var(--primary))] mt-2">
             across {activePledges.length} {activePledges.length === 1 ? "campaign" : "campaigns"}
           </p>
         </Card>
@@ -165,7 +165,7 @@ export default function PledgesPage() {
                           size="sm"
                           disabled={updatingId === pledge.id}
                           onClick={() => updateStatus(pledge.id, "ACTIVE")}
-                          className="w-full bg-emerald-600 text-white hover:bg-emerald-500 sm:w-auto"
+                          className="w-full bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 sm:w-auto"
                         >
                           Resume
                         </Button>

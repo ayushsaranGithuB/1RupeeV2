@@ -252,7 +252,7 @@ export default function NGOManagement() {
               setCreateForm(emptyForm);
               setDrawerMode("create");
             }}
-            className="bg-emerald-600 text-white hover:bg-emerald-500"
+            className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
           >
             Add NGO
           </Button>
@@ -420,7 +420,7 @@ export default function NGOManagement() {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="bg-emerald-600 text-white hover:bg-emerald-500"
+                    className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                   >
                     {saving ? "Saving..." : "Save"}
                   </Button>
@@ -539,7 +539,7 @@ export default function NGOManagement() {
                     </p>
                     <Link
                       href={`/admin/campaigns?ngo=${selectedNgo.id}`}
-                      className="text-xs font-medium text-emerald-700 hover:underline"
+                      className="text-xs font-medium text-[hsl(var(--primary))] hover:underline"
                     >
                       View all Campaigns for this NGO
                     </Link>
@@ -554,7 +554,7 @@ export default function NGOManagement() {
                         <li key={campaign.id}>
                           <Link
                             href={`/admin/campaigns/${campaign.id}`}
-                            className="block rounded-md border border-slate-200 bg-white px-3 py-2 hover:border-emerald-300 hover:bg-emerald-50"
+                            className="block rounded-md border border-slate-200 bg-white px-3 py-2 hover:border-[hsl(var(--primary))]/30 hover:bg-[hsl(var(--primary))]/5"
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="truncate text-sm font-medium text-slate-900">
@@ -583,7 +583,7 @@ export default function NGOManagement() {
                   <Button
                     onClick={saveSelectedNgo}
                     disabled={saving}
-                    className="bg-emerald-600 text-white hover:bg-emerald-500"
+                    className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                   >
                     {saving ? "Saving..." : "Save"}
                   </Button>

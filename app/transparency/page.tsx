@@ -13,7 +13,7 @@ export default async function TransparencyPage() {
     <main className="mx-auto max-w-5xl px-6 pb-16 pt-10 sm:px-10">
       <div className="mb-8 flex items-end justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-emerald-700">
+          <p className="text-sm uppercase tracking-[0.2em] text-[hsl(var(--primary))]">
             Trust and Accountability
           </p>
           <h1 className="text-4xl text-slate-900">Transparency Reports</h1>
@@ -27,9 +27,9 @@ export default async function TransparencyPage() {
       </div>
 
       <section className="mb-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
-          <p className="text-sm text-emerald-700">Platform Donation Volume</p>
-          <p className="text-2xl font-bold text-emerald-900">
+        <div className="rounded-2xl border border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 p-5">
+          <p className="text-sm text-[hsl(var(--primary))]">Platform Donation Volume</p>
+          <p className="text-2xl font-bold text-[hsl(var(--primary))]">
             {stats
               ? `Rs ${Math.round(stats.total_raised).toLocaleString(
                   "en-IN",
@@ -68,7 +68,7 @@ export default async function TransparencyPage() {
                 href={report.file_url}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                className="rounded-lg bg-[hsl(var(--primary-button))] px-4 py-2 text-sm font-semibold text-[hsl(var(--primary-button-foreground))] hover:bg-[hsl(var(--primary-button-hover))]"
               >
                 Open report
               </a>

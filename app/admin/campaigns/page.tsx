@@ -186,7 +186,7 @@ export default function CampaignManagement() {
               ngo_id: ngos[0]?.id || current.ngo_id,
             }));
           }}
-          className="bg-emerald-600 text-white hover:bg-emerald-500"
+          className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
         >
           + Create Campaign
         </Button>
@@ -433,7 +433,7 @@ export default function CampaignManagement() {
                 <Button
                   onClick={saveCampaign}
                   disabled={saving}
-                  className="bg-emerald-600 text-white hover:bg-emerald-500"
+                  className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                 >
                   {saving ? "Saving..." : "Save"}
                 </Button>

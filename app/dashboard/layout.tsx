@@ -35,7 +35,7 @@ function NavLink({
       className={cn(
         "block rounded-lg px-4 py-2 text-sm font-medium transition md:rounded-full md:px-3 md:py-1",
         active
-          ? "bg-emerald-600 text-white"
+          ? "bg-[hsl(var(--primary))] text-white"
           : "text-slate-700 hover:bg-slate-100 md:text-slate-600",
       )}
     >

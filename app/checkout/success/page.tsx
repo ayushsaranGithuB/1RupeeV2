@@ -108,7 +108,7 @@ function SuccessContent() {
       {/* Success banner */}
       <div className="mb-8 text-center">
         <div className="flex justify-center mb-4">
-          <CheckCircle className="h-16 w-16 text-emerald-600" />
+          <CheckCircle className="h-16 w-16 text-[hsl(var(--primary))]" />
         </div>
         <h1 className="text-4xl font-bold text-slate-900 mb-2">
           Pledge successful!
@@ -120,7 +120,7 @@ function SuccessContent() {
 
       {/* Pledge details */}
       <div className="space-y-6">
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
+        <div className="rounded-2xl border border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 p-6">
           <h2 className="font-semibold text-slate-900 mb-4">Your pledge</h2>
           <div className="space-y-4">
             <div>
@@ -130,7 +130,7 @@ function SuccessContent() {
               </p>
             </div>
 
-            <div className="border-t border-emerald-200 pt-4">
+            <div className="border-t border-[hsl(var(--primary))]/20 pt-4">
               <p className="text-sm text-slate-600">Tier</p>
               <p className="text-lg font-semibold text-slate-900">
                 {pledge.tier_title}
@@ -140,19 +140,19 @@ function SuccessContent() {
               </p>
             </div>
 
-            <div className="border-t border-emerald-200 pt-4">
+            <div className="border-t border-[hsl(var(--primary))]/20 pt-4">
               <p className="text-sm text-slate-600">Plan duration</p>
               <p className="text-lg font-semibold text-slate-900">
                 {pledge.plan_length_months} months ({daysInPlan} days)
               </p>
             </div>
 
-            <div className="border-t border-emerald-200 pt-4 bg-white rounded-lg p-4 -mx-6 px-6">
+            <div className="border-t border-[hsl(var(--primary))]/20 pt-4 bg-white rounded-lg p-4 -mx-6 px-6">
               <div className="flex justify-between items-center mb-3">
                 <span className="font-semibold text-slate-900">
                   Total charged today:
                 </span>
-                <span className="text-2xl font-bold text-emerald-600">
+                <span className="text-2xl font-bold text-[hsl(var(--primary))]">
                   {formatInr(totalCharged)}
                 </span>
               </div>
@@ -179,7 +179,7 @@ function SuccessContent() {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-600">Status</span>
-              <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-emerald-700 font-medium">
+              <span className="inline-block rounded-full bg-[hsl(var(--primary))]/10 px-3 py-1 text-[hsl(var(--primary))] font-medium">
                 Active
               </span>
             </div>
@@ -208,7 +208,7 @@ function SuccessContent() {
           </Button>
           <Button
             onClick={() => router.push("/dashboard")}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className="flex-1 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90"
           >
             Go to dashboard
           </Button>

@@ -119,7 +119,7 @@ export default function DashboardPage() {
                         </span>
                       )}
                     </p>
-                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    <span className="inline-flex items-center rounded-full bg-[hsl(var(--primary))]/10 px-3 py-1 text-xs font-semibold text-[hsl(var(--primary))]">
                       ACTIVE
                     </span>
                   </div>

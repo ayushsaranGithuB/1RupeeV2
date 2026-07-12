@@ -18,7 +18,7 @@ export function MarkdownText({
               {...props}
               target="_blank"
               rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-emerald-700"
+              className="underline underline-offset-2 hover:text-[hsl(var(--primary))]"
             />
           ),
           ul: ({ ...props }) => (

@@ -92,7 +92,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-slate-200/80 px-4 py-5">
             <div className={cn("space-y-1", !sidebarOpen && "hidden")}>
-              <p className="text-xs font-bold uppercase  text-emerald-600">
+              <p className="text-xs font-bold uppercase  text-[hsl(var(--primary))]">
                 1Rupee
               </p>
               <h1 className="text-xs font-semibold text-slate-900">
@@ -104,7 +104,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               size="icon"
               onClick={() => setSidebarOpen((value) => !value)}
               aria-label="Toggle sidebar"
-              className="border-slate-200 bg-white cursor-pointer text-slate-600 hover:bg-slate-50 hover:text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="border-slate-200 bg-white cursor-pointer text-slate-600 hover:bg-slate-50 hover:text-slate-900 focus:ring-2 focus:ring-[hsl(var(--primary))] focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {sidebarOpen ? "<" : ">"}
             </Button>

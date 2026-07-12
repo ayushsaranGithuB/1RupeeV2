@@ -46,7 +46,7 @@ export function TierCard({
 
         ${
           featured
-            ? "bg-emerald-800 text-white border-emerald-900 shadow-2xl lg:scale-105 py-10"
+            ? "bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))] shadow-2xl lg:scale-105 py-10"
             : "bg-white border-neutral-200 py-8"
         }
 

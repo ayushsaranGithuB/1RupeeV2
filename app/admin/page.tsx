@@ -122,7 +122,7 @@ export default function AdminDashboard() {
                     {loading ? "--" : card.value}
                   </p>
                 </div>
-                <div className="rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-700">
+                <div className="rounded-full bg-[hsl(var(--primary))]/10 px-2 py-1 text-[11px] font-semibold text-[hsl(var(--primary))]">
                   Live
                 </div>
               </div>

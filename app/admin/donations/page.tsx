@@ -122,7 +122,7 @@ export default function DonationsPage() {
         />
         <Button
           onClick={loadDonations}
-          className="bg-emerald-600 text-white hover:bg-emerald-500"
+          className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
         >
           Apply
         </Button>

@@ -98,7 +98,7 @@ export default function ReportsPage() {
               setForm(emptyForm);
               setDrawerMode("create");
             }}
-            className="bg-emerald-600 text-white hover:bg-emerald-500"
+            className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
           >
             Publish Report
           </Button>
@@ -151,7 +151,7 @@ export default function ReportsPage() {
                           href={report.file_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-emerald-700 hover:underline"
+                          className="text-[hsl(var(--primary))] hover:underline"
                         >
                           Open
                         </a>
@@ -227,7 +227,7 @@ export default function ReportsPage() {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="bg-emerald-600 text-white hover:bg-emerald-500"
+                    className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                   >
                     {saving ? "Publishing..." : "Save"}
                   </Button>
@@ -264,7 +264,7 @@ export default function ReportsPage() {
                   href={selectedReport.file_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm text-emerald-700 hover:underline"
+                  className="text-sm text-[hsl(var(--primary))] hover:underline"
                 >
                   Open Report
                 </a>

@@ -56,7 +56,7 @@ export default function VerifyPage() {
 
       {status === "success" && (
         <div>
-          <CheckCircle2 className="mx-auto mb-4 text-emerald-600" size={48} />
+          <CheckCircle2 className="mx-auto mb-4 text-[hsl(var(--primary))]" size={48} />
           <p className="mb-2 text-xl font-semibold text-slate-900">
             You&apos;re all set
           </p>
@@ -66,7 +66,7 @@ export default function VerifyPage() {
           </p>
           <a
             href={destination}
-            className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="rounded-xl bg-[hsl(var(--primary-button))] px-4 py-2 text-sm font-semibold text-[hsl(var(--primary-button-foreground))] hover:bg-[hsl(var(--primary-button-hover))]"
           >
             Continue
           </a>
@@ -81,7 +81,7 @@ export default function VerifyPage() {
           <p className="mb-6 text-sm text-slate-600">{error}</p>
           <a
             href="/sign-in"
-            className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="rounded-xl bg-[hsl(var(--primary-button))] px-4 py-2 text-sm font-semibold text-[hsl(var(--primary-button-foreground))] hover:bg-[hsl(var(--primary-button-hover))]"
           >
             Back to sign in
           </a>

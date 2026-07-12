@@ -96,11 +96,7 @@ export default function TopupPage() {
                   type="button"
                   onClick={() => setAmount(preset)}
                   variant={amount === preset ? "default" : "outline"}
-                  className={
-                    amount === preset
-                      ? "rounded-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                      : "rounded-full"
-                  }
+                  className="rounded-full"
                 >
                   ₹{preset}
                 </Button>
@@ -125,9 +121,9 @@ export default function TopupPage() {
           </div>
 
           {!loading && totalDailyAmount > 0 && amount && (
-            <Card className="border-emerald-200 bg-emerald-50 p-4">
-              <p className="text-sm text-emerald-700 mb-1">This will extend your support by</p>
-              <p className="text-2xl font-bold text-emerald-900">
+            <Card className="border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 p-4">
+              <p className="text-sm text-[hsl(var(--primary))] mb-1">This will extend your support by</p>
+              <p className="text-2xl font-bold text-[hsl(var(--primary))]">
                 {extensionDays} {extensionDays === 1 ? "more day" : "more days"}
               </p>
             </Card>
@@ -142,7 +138,6 @@ export default function TopupPage() {
           <Button
             type="submit"
             disabled={submitting}
-            className="w-full bg-emerald-600 text-white hover:bg-emerald-500"
           >
             {submitting ? "Processing…" : `Extend for ₹${amount || 0}`}
           </Button>

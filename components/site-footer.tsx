@@ -48,7 +48,7 @@ export function SiteFooter() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <p className="flex items-center gap-1 text-base font-semibold text-slate-900">
-              <span className="text-emerald-600">1</span>
+              <span className="text-[hsl(var(--primary))]">1</span>
               <span>Rupee</span>
             </p>
             <p className="mt-2 text-sm text-slate-600">

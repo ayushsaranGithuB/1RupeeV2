@@ -110,7 +110,7 @@ export default function FaqPage() {
               {section.items.map((item) => (
                 <div
                   key={item.question}
-                  className="p-2 open:border-emerald-200 open:bg-emerald-50/40"
+                  className="p-2 open:border-[hsl(var(--primary))]/20 open:bg-[hsl(var(--primary))]/5"
                 >
                   <p className="cursor-pointer list-none font-medium text-slate-900 marker:content-none">
                     <span className="flex items-center justify-between gap-4">

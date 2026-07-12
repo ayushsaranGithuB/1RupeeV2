@@ -113,7 +113,7 @@ export function OverviewTab({
         </p>
         <Link
           href="?tab=settings"
-          className="text-sm text-emerald-700 hover:underline"
+          className="text-sm text-[hsl(var(--primary))] hover:underline"
         >
           Edit Description
         </Link>
@@ -126,7 +126,7 @@ export function OverviewTab({
           </h2>
           <Link
             href="?tab=tiers"
-            className="text-sm text-emerald-700 hover:underline"
+            className="text-sm text-[hsl(var(--primary))] hover:underline"
           >
             Edit Tiers →
           </Link>
@@ -178,7 +178,7 @@ export function OverviewTab({
           </h2>
           <Link
             href={`/admin/donations?campaign_id=${selectedCampaign?.id}`}
-            className="text-sm text-emerald-700 hover:underline"
+            className="text-sm text-[hsl(var(--primary))] hover:underline"
           >
             See all activities →
           </Link>

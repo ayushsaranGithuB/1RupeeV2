@@ -26,12 +26,12 @@ export default async function Home() {
         }}
       >
         <div className="max-w-3xl bg-black/20 backdrop-blur-sm p-12 rounded-xl h-min mb-5 md:mb-8">
-          <p className="mb-4 text-sm uppercase tracking-[0.25em] text-emerald-400">
+          <p className="mb-4 text-sm uppercase tracking-[0.25em] text-[hsl(var(--primary))]/80">
             Daily Giving, Reimagined
           </p>
           <h1 className="mb-6 text-4xl leading-tighter text-white sm:text-5xl">
             Build a habit of kindness from just{" "}
-            <span className="text-emerald-400">₹1 a day</span>.
+            <span className="text-[hsl(var(--primary))]/80">₹1 a day</span>.
           </h1>
           <p className="mb-8 max-w-xl text-md text-white">
             Pick a cause, choose a support tier, and let your daily
@@ -39,7 +39,7 @@ export default async function Home() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              className="rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700"
+              className="rounded-xl bg-[hsl(var(--primary-button))] px-5 py-3 font-semibold text-[hsl(var(--primary-button-foreground))] transition hover:bg-[hsl(var(--primary-button-hover))]"
               href="/campaigns"
             >
               Explore campaigns
@@ -57,7 +57,7 @@ export default async function Home() {
       <section className="px-8 py-12 md:px-12">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[hsl(var(--primary))]">
               Causes that need you
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">

@@ -210,7 +210,7 @@ function PaymentContent() {
             </div>
             <div className="border-t border-slate-200 pt-3 flex justify-between">
               <span className="font-semibold text-slate-900">Total to charge:</span>
-              <span className="text-xl font-bold text-emerald-600">
+              <span className="text-xl font-bold text-[hsl(var(--primary))]">
                 {formatInr(totalPrice)}
               </span>
             </div>
@@ -223,7 +223,7 @@ function PaymentContent() {
           <p className="text-sm text-slate-600">
             You'll be redirected to Razorpay to securely complete your payment.
           </p>
-          <p className="text-lg font-semibold text-emerald-600">
+          <p className="text-lg font-semibold text-[hsl(var(--primary))]">
             Amount to pay: {formatInr(totalPrice)}
           </p>
         </div>
@@ -255,7 +255,7 @@ function PaymentContent() {
           <Button
             onClick={handleProceedToPayment}
             disabled={submitting}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+            className="flex-1"
           >
             {submitting ? (
               <>

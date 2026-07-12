@@ -73,7 +73,7 @@ function AdminLogin() {
   return (
     <div className="grid min-h-screen place-items-center px-6">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-600">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[hsl(var(--primary))]">
           1Rupee
         </p>
         <h1 className="mt-1 text-2xl font-semibold text-slate-900">
@@ -91,7 +91,7 @@ function AdminLogin() {
         )}
 
         {sent ? (
-          <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+          <div className="rounded-xl bg-[hsl(var(--primary))]/10 p-4 text-sm text-[hsl(var(--primary))]">
             <p className="font-semibold">Check your email</p>
             <p className="mt-1">
               A sign-in link was sent to <strong>{email}</strong>. In local dev
@@ -112,7 +112,6 @@ function AdminLogin() {
               />
             </label>
             <Button
-              className="w-full bg-emerald-600 hover:bg-emerald-700"
               type="submit"
               disabled={loading}
             >

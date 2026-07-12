@@ -106,14 +106,14 @@ export default function ProfilePage() {
             <Card
               className={
                 message.type === "success"
-                  ? "border-emerald-200 bg-emerald-50 p-3"
+                  ? "border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 p-3"
                   : "border-red-200 bg-red-50 p-3"
               }
             >
               <p
                 className={
                   message.type === "success"
-                    ? "text-sm text-emerald-800"
+                    ? "text-sm text-[hsl(var(--primary))]"
                     : "text-sm text-red-700"
                 }
               >
@@ -125,7 +125,7 @@ export default function ProfilePage() {
           <Button
             type="submit"
             disabled={saving}
-            className="w-full bg-emerald-600 text-white hover:bg-emerald-500 sm:w-auto"
+            className="w-full bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 sm:w-auto"
           >
             {saving ? "Saving…" : "Save changes"}
           </Button>

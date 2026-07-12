@@ -130,7 +130,7 @@ export default function DonationsPage() {
                   <p className="text-sm text-slate-500">{month.donations.length} donations</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <p className="font-bold text-emerald-600">{formatInr(month.total)}</p>
+                  <p className="font-bold text-[hsl(var(--primary))]">{formatInr(month.total)}</p>
                   {expandedMonths.has(month.yearMonth) ? (
                     <ChevronUp className="h-5 w-5 text-slate-400" />
                   ) : (
@@ -177,7 +177,7 @@ export default function DonationsPage() {
         <Card className="p-6">
           <div className="text-center">
             <p className="text-sm text-slate-600 mb-1">Total donated</p>
-            <p className="text-2xl font-bold text-emerald-600 sm:text-3xl">
+            <p className="text-2xl font-bold text-[hsl(var(--primary))] sm:text-3xl">
               {formatInr(totalDonated)}
             </p>
           </div>

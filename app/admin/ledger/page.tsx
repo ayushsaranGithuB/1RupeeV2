@@ -79,7 +79,7 @@ export default function LedgerPage() {
         </Select>
         <Button
           onClick={loadLedger}
-          className="bg-emerald-600 text-white hover:bg-emerald-500"
+          className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
         >
           Apply
         </Button>

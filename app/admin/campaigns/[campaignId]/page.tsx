@@ -399,7 +399,7 @@ function CampaignDetailsContent() {
                   className={cn(
                     "rounded-full border px-2.5 py-0.5 text-xs font-medium",
                     selectedCampaign.status === "ACTIVE"
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      ? "border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 text-[hsl(var(--primary))]"
                       : "border-slate-200 bg-white text-slate-600",
                   )}
                 >
@@ -420,7 +420,7 @@ function CampaignDetailsContent() {
             <Button
               onClick={() => saveCampaign()}
               disabled={saving || !selectedCampaign}
-              className="bg-emerald-600 text-white hover:bg-emerald-500"
+              className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
             >
               {saving ? "Saving..." : "Save Changes"}
             </Button>
@@ -437,7 +437,7 @@ function CampaignDetailsContent() {
                 onClick={() => setActiveTab(tab.key)}
                 className={
                   activeTab === tab.key
-                    ? "bg-emerald-100 "
+                    ? "bg-[hsl(var(--primary))]/10 "
                     : "hover:bg-slate-100"
                 }
               >
@@ -505,7 +505,7 @@ function CampaignDetailsContent() {
                     <Button
                       size="sm"
                       onClick={openCreateTier}
-                      className="bg-emerald-600 text-white hover:bg-emerald-500"
+                      className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                     >
                       Add Tier
                     </Button>
@@ -543,7 +543,7 @@ function CampaignDetailsContent() {
                                 {tier.featured ? (
                                   <Badge
                                     variant="outline"
-                                    className="ml-2 rounded-full border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                                    className="ml-2 rounded-full border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 px-2 py-0.5 text-xs font-medium text-[hsl(var(--primary))]"
                                   >
                                     Featured
                                   </Badge>
@@ -782,7 +782,7 @@ function CampaignDetailsContent() {
                     <Button
                       onClick={() => saveCampaign()}
                       disabled={saving || !selectedCampaign}
-                      className="bg-emerald-600 text-white hover:bg-emerald-500"
+                      className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                     >
                       {saving ? "Saving..." : "Save Changes"}
                     </Button>
@@ -919,7 +919,7 @@ function CampaignDetailsContent() {
                 <div className="space-y-1">
                   <Link
                     href={`?tab=settings`}
-                    className="text-xs text-slate-400 hover:text-emerald-600 hover:underline"
+                    className="text-xs text-slate-400 hover:text-[hsl(var(--primary))] hover:underline"
                   >
                     Description
                   </Link>
@@ -952,7 +952,7 @@ function CampaignDetailsContent() {
                     onChange={(e) =>
                       setTierForm({ ...tierForm, featured: e.target.checked })
                     }
-                    className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    className="h-4 w-4 rounded border-slate-300 text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary))]"
                   />
                   Featured tier (highlighted on the campaign page)
                 </label>
@@ -961,7 +961,7 @@ function CampaignDetailsContent() {
                   <Button
                     type="submit"
                     disabled={tierSaving}
-                    className="bg-emerald-600 text-white hover:bg-emerald-500"
+                    className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                   >
                     {tierSaving ? "Saving..." : "Save"}
                   </Button>

@@ -22,7 +22,7 @@ export function Avatar({
 
   return (
     <div
-      className="rounded-full bg-emerald-600 font-semibold text-white overflow-hidden flex-shrink-0 flex items-center justify-center"
+      className="rounded-full bg-[hsl(var(--primary-button))] font-semibold text-[hsl(var(--primary-button-foreground))] overflow-hidden flex-shrink-0 flex items-center justify-center"
       style={{
         width: pixelSize,
         height: pixelSize,

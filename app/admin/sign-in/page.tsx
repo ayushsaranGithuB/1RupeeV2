@@ -83,7 +83,7 @@ export default function AdminSignInPage() {
         )}
 
         {emailSent ? (
-          <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+          <div className="rounded-xl bg-[hsl(var(--primary))]/10 p-4 text-sm text-[hsl(var(--primary))]">
             <p className="font-semibold">Check your email</p>
             <p className="mt-1">
               We sent a sign-in link to <strong>{email}</strong>. In local dev
@@ -104,7 +104,6 @@ export default function AdminSignInPage() {
               />
             </label>
             <Button
-              className="w-full cursor-pointer rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
               type="submit"
               disabled={loading}
             >
@@ -119,7 +118,7 @@ export default function AdminSignInPage() {
               <Button
                 variant="ghost"
                 type="button"
-                className="text-slate-500 hover:text-emerald-700"
+                className="text-slate-500 hover:text-[hsl(var(--primary))]"
                 onClick={() => {
                   setShowPhone(true);
                   setError(null);
@@ -144,7 +143,6 @@ export default function AdminSignInPage() {
                   Dev mode: the code is <strong>0000</strong>.
                 </p>
                 <Button
-                  className="w-full cursor-pointer rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                   type="submit"
                   disabled={loading}
                 >
@@ -176,7 +174,6 @@ export default function AdminSignInPage() {
                   />
                 </label>
                 <Button
-                  className="w-full cursor-pointer rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                   type="submit"
                   disabled={loading}
                 >
@@ -202,7 +199,7 @@ export default function AdminSignInPage() {
           Back to{" "}
           <Link
             href="/sign-in"
-            className="font-semibold text-emerald-700 hover:text-emerald-800"
+            className="font-semibold text-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]/80"
           >
             user sign in
           </Link>

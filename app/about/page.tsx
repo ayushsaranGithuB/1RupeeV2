@@ -41,7 +41,7 @@ export default function AboutPage() {
     <main className="bg-white">
       <section className="px-6 py-16 sm:px-10 sm:py-20">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-700">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-[hsl(var(--primary))]">
             Our story
           </p>
           <h1 className="mb-6 text-4xl font-bold text-slate-900 sm:text-5xl">
@@ -57,7 +57,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-emerald-50/50 px-6 py-16 sm:px-10">
+      <section className="bg-[hsl(var(--primary))]/5 px-6 py-16 sm:px-10">
         <div className="mx-auto max-w-5xl">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">
@@ -73,9 +73,9 @@ export default function AboutPage() {
             {values.map((value) => (
               <div
                 key={value.title}
-                className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm"
+                className="rounded-2xl border border-[hsl(var(--primary))]/20 bg-white p-6 shadow-sm"
               >
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">
                   <value.icon size={20} />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-slate-900">
@@ -107,7 +107,7 @@ export default function AboutPage() {
                   <h3 className="font-semibold text-slate-900">
                     {member.name}
                   </h3>
-                  <p className="mb-2 text-sm font-medium text-emerald-700">
+                  <p className="mb-2 text-sm font-medium text-[hsl(var(--primary))]">
                     {member.role}
                   </p>
                   <p className="text-sm text-slate-600">{member.bio}</p>
@@ -119,17 +119,17 @@ export default function AboutPage() {
       </section>
 
       <section className="px-6 py-16 sm:px-10">
-        <div className="mx-auto max-w-3xl rounded-2xl bg-emerald-600 px-8 py-12 text-center">
-          <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
+        <div className="mx-auto max-w-3xl rounded-2xl bg-[hsl(var(--primary-button))] px-8 py-12 text-center">
+          <h2 className="mb-3 text-2xl font-bold text-[hsl(var(--primary-button-foreground))] sm:text-3xl">
             Join 1 million daily givers
           </h2>
-          <p className="mb-6 text-emerald-50">
+          <p className="mb-6 text-[hsl(var(--primary-button-foreground))]/80">
             That&apos;s our goal, and every registration gets us closer to a
             community that can fund lasting change, one rupee at a time.
           </p>
           <Link
             href="/sign-up"
-            className="inline-block rounded-full bg-white px-6 py-3 font-semibold text-emerald-700 transition hover:bg-emerald-50"
+            className="inline-block rounded-full bg-white px-6 py-3 font-semibold text-[hsl(var(--primary-button))] transition hover:bg-amber-50"
           >
             Register now
           </Link>
