@@ -578,47 +578,59 @@ export async function seedDatabase() {
             .where(eq(users.email, ADMIN_EMAIL))
             .limit(1);
 
+        let adminId: string;
         if (existingAdmin.length === 0) {
             console.log(`Creating admin user ${ADMIN_EMAIL}...`);
-            const adminIdNew = randomUUID();
+            adminId = randomUUID();
             await db.insert(users).values({
-                id: adminIdNew,
+                id: adminId,
                 email: ADMIN_EMAIL,
                 name: '1Rupee Admin',
                 role: 'ADMIN',
                 status: 'active',
                 emailVerified: true,
             });
-            await db.insert(wallets).values({
-                user_id: adminIdNew,
-                cached_balance: 0,
-            });
+            userIds.push(adminId); // Add admin to userIds so wallet is created below
         } else if (existingAdmin[0].role !== 'ADMIN') {
             console.log(`Promoting ${ADMIN_EMAIL} to ADMIN...`);
+            adminId = existingAdmin[0].id;
             await db
                 .update(users)
                 .set({ role: 'ADMIN' })
                 .where(eq(users.email, ADMIN_EMAIL));
         } else {
             console.log(`Admin ${ADMIN_EMAIL} already present.`);
+            adminId = existingAdmin[0].id;
         }
 
-        // Create wallets for each user
-        if (existingWallets.length === 0) {
-            console.log('Creating wallets...');
-            for (const userId of userIds) {
-                const balance = Math.floor(Math.random() * 50000) + 1000; // 1000-51000 paise
-                const [wallet] = await db.insert(wallets).values({
-                    user_id: userId,
-                    cached_balance: balance,
-                }).returning({ id: wallets.id });
+        // Create wallets for each user that doesn't have one yet (idempotent)
+        console.log('Creating wallets for users without one...');
+        const walletUserIds = new Set(existingWallets.map((w) => w.user_id));
+        const usersNeedingWallets = userIds.filter((id) => !walletUserIds.has(id));
 
-                if (wallet?.id) {
-                    walletIds.push(wallet.id);
+        if (usersNeedingWallets.length > 0) {
+            for (const userId of usersNeedingWallets) {
+                const balance = Math.floor(Math.random() * 50000) + 1000; // 1000-51000 paise
+                try {
+                    const [wallet] = await db.insert(wallets).values({
+                        user_id: userId,
+                        cached_balance: balance,
+                    }).returning({ id: wallets.id });
+
+                    if (wallet?.id) {
+                        walletIds.push(wallet.id);
+                    }
+                } catch (err: any) {
+                    // User already has a wallet (race condition in tests), skip
+                    if (err.message?.includes('unique constraint')) {
+                        console.log(`User ${userId} already has a wallet, skipping...`);
+                    } else {
+                        throw err;
+                    }
                 }
             }
         } else {
-            console.log(`Skipping wallets seed, found ${existingWallets.length} existing rows.`);
+            console.log(`All users already have wallets.`);
         }
 
         // Create NGOs, their campaigns, and campaign tiers from structured seed data
@@ -826,10 +838,15 @@ export async function seedDatabase() {
         console.log(`- audit logs: ${auditLogIds.length}`);
         console.log(`- transparency reports: ${transparencyReportIds.length}`);
 
-        await closeDb();
+        // Only close DB if this is a standalone seed script run, not a test setup
+        if (import.meta.main) {
+            await closeDb();
+        }
     } catch (error) {
         console.error('❌ Seed failed:', error);
-        await closeDb();
+        if (import.meta.main) {
+            await closeDb();
+        }
         throw error;
     }
 }
