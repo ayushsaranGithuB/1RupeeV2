@@ -69,3 +69,17 @@ export function toQueryString(
   const query = searchParams.toString();
   return query ? `?${query}` : "";
 }
+
+export function calculateDonationRunway(
+  walletBalancePaise: number,
+  totalDailyAmountPaise: number,
+): number {
+  if (totalDailyAmountPaise <= 0) return 0;
+  return Math.floor(walletBalancePaise / totalDailyAmountPaise);
+}
+
+export function formatRunwayDays(days: number): string {
+  if (days === 0) return "0 days";
+  if (days === 1) return "1 day";
+  return `${days} days`;
+}

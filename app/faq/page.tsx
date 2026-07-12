@@ -15,27 +15,27 @@ const faqSections = [
       {
         question: "How do I get started?",
         answer:
-          "It's four quick steps: create your account, browse active campaigns and pick one that speaks to you, choose a tier and a plan length on that campaign, then top up your wallet to activate your pledge. From there, everything runs on its own — you can check in on your dashboard whenever you like to see the impact adding up.",
+          "It's four quick steps: create your account, browse active campaigns and pick one that speaks to you, choose a tier and a plan length on that campaign, then extend your impact by adding funds to activate your pledge. From there, everything runs on its own — you can check in on your dashboard whenever you like to see the impact adding up and your donation runway.",
       },
     ],
   },
   {
-    title: "Wallet & payments",
+    title: "Donation Runway & payments",
     items: [
       {
-        question: "What is the wallet?",
+        question: "What is donation runway?",
         answer:
-          "Think of your wallet as a prepaid balance that powers all your pledges. You top it up in whatever amount suits you, and from there your daily contributions are drawn from it automatically. Every rupee is tracked — top-ups, donations, all of it show up in your transaction history, so you always know exactly where your balance stands and where it went.",
+          "Your donation runway is how many days your current funds will continue supporting all of your active causes. Instead of thinking about how much money you have left, we help you think about how long your generosity will continue. When you fund ₹500 and your daily commitment is ₹5/day, that's 100 days of impact. Every extension you make adds more days to your runway.",
       },
       {
         question: "What payment methods are supported?",
         answer:
-          "You can top up your wallet using UPI, a debit or credit card, or net banking — whatever's easiest for you. Just choose an amount, complete the payment, and your wallet balance updates right away so you're ready to pledge.",
+          "You can extend your impact using UPI, a debit or credit card, or net banking — whatever's easiest for you. Just choose an amount, complete the payment, and your donation runway updates instantly so you can see how many more days you're funded for.",
       },
       {
-        question: "What happens if my wallet balance runs low?",
+        question: "What happens if my donation runway runs out?",
         answer:
-          "Nothing to worry about — if your balance can't cover a day's contribution, that day is simply skipped rather than leaving you in debt or charging you extra. Your pledges stay set up and waiting, so a quick top-up whenever you get the chance is all it takes to pick right back up.",
+          "Nothing to worry about — if your funds run out, your support simply pauses rather than leaving you in debt or charging you extra. Your pledges stay set up and waiting, so a quick extension whenever you get the chance is all it takes to pick right back up and continue supporting the causes you care about.",
       },
     ],
   },

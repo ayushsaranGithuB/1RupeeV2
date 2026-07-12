@@ -10,9 +10,9 @@ import { Menu, X } from "lucide-react";
 
 const navItems = [
   { label: "Overview", href: "/dashboard" },
-  { label: "Wallet", href: "/dashboard/wallet" },
-  { label: "Pledges", href: "/dashboard/pledges" },
-  { label: "Donations", href: "/dashboard/donations" },
+  { label: "Runway", href: "/dashboard/wallet" },
+  { label: "Causes", href: "/dashboard/pledges" },
+  { label: "Impact", href: "/dashboard/donations" },
   { label: "Profile", href: "/dashboard/profile" },
 ];
 
