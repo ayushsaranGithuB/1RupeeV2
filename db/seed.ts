@@ -522,7 +522,7 @@ const NGO_SEED: SeedNgo[] = [
     },
 ];
 
-async function seed() {
+export async function seedDatabase() {
     try {
         const db = getDb();
         console.log('🌱 Starting seed...');
@@ -827,12 +827,14 @@ async function seed() {
         console.log(`- transparency reports: ${transparencyReportIds.length}`);
 
         await closeDb();
-        process.exit(0);
     } catch (error) {
         console.error('❌ Seed failed:', error);
         await closeDb();
-        process.exit(1);
+        throw error;
     }
 }
 
-seed();
+// Only run if invoked directly as a script
+if (import.meta.main) {
+    seedDatabase().then(() => process.exit(0)).catch(() => process.exit(1));
+}
