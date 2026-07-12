@@ -80,7 +80,7 @@ function CartContent() {
 
         // If we have the campaign slug, use it to fetch directly with tiers
         if (campaign_slug) {
-          const campaignRes = await fetch(`/api/proxy/campaigns/${campaign_slug}`);
+          const campaignRes = await fetch(`/api/campaigns/${campaign_slug}`);
           const campaignData = await campaignRes.json();
 
           if (campaignData.success && campaignData.data) {
@@ -90,7 +90,7 @@ function CartContent() {
 
         // Fall back to fetching all campaigns if no slug
         if (!campaign) {
-          const campaignsRes = await fetch(`/api/proxy/campaigns?limit=100`);
+          const campaignsRes = await fetch(`/api/campaigns?limit=100`);
           const campaignsData = await campaignsRes.json();
 
           if (!campaignsData.success || !campaignsData.data) {

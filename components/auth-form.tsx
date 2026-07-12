@@ -23,7 +23,7 @@ export function SignUpForm() {
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/proxy/register", {
+    const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, phone }),
