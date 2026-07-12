@@ -200,29 +200,31 @@ function TierSelectContent() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <div className="mb-8">
+      <div className="mb-8 flex gap-3 items-center">
         {campaign.logo_url && (
           <img
             src={campaign.logo_url}
             alt={campaign.ngo_name || campaign.title}
-            className="h-16 mb-4 object-contain"
+            className="h-[60px] md:h-[100px]  object-contain"
           />
         )}
-        <h1 className="text-2xl font-medium text-slate-900">
-          You're pledging to
-          <span className="font-bold text-emerald-600 ml-1">
-            {campaign.title}
-          </span>
-        </h1>
-        <p className="text-md text-slate-500 ">
-          {campaign.ngo_name && ` by ${campaign.ngo_name}`}
-        </p>
-        <h2 className="mt-4 text-md font-normal text-slate-500">
-          Selected tier:{" "}
-          <span className="font-semibold text-lg">
-            {tier?.title} @ {formatInr(tier?.daily_amount)} per day
-          </span>
-        </h2>
+        <div>
+          <h1 className="text-xl font-medium text-slate-900">
+            You're pledging to
+            <span className="font-bold text-emerald-600 ml-1">
+              {campaign.title}
+            </span>
+          </h1>
+          <p className="text-sm text-slate-500 ">
+            {campaign.ngo_name && ` by ${campaign.ngo_name}`}
+          </p>
+          <h2 className="mt-2 text-md font-normal text-slate-500">
+            Selected tier:{" "}
+            <span className="font-semibold ">
+              {tier?.title} @ {formatInr(tier?.daily_amount)} per day
+            </span>
+          </h2>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-6">
