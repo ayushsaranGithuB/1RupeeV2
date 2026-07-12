@@ -101,7 +101,10 @@ export default function CreateCampaignPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-medium text-slate-500">
-            Admin / Campaigns / New
+            <Link href="/admin" className="hover:text-slate-700">Admin</Link>
+            {' / '}
+            <Link href="/admin/campaigns" className="hover:text-slate-700">Campaigns</Link>
+            {' / New'}
           </p>
           <h1 className="text-[30px] font-semibold">Create Campaign</h1>
         </div>

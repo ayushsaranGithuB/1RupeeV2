@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ interface CampaignRecord {
   impact_highlights?: string[] | null;
   mobile_hero_image?: string | null;
   desktop_hero_image?: string | null;
+  logo_url?: string | null;
 }
 
 interface NgoOption {
@@ -171,7 +173,8 @@ export default function CampaignManagement() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-medium text-slate-500">
-            Admin / Campaigns
+            <Link href="/admin" className="hover:text-slate-700">Admin</Link>
+            {' / Campaigns'}
           </p>
           <h1 className="text-[30px] font-semibold">Campaigns</h1>
         </div>
@@ -265,9 +268,22 @@ export default function CampaignManagement() {
                   onClick={() => router.push(`/admin/campaigns/${campaign.id}`)}
                 >
                   <TableCell className="font-medium text-slate-900">
-                    {campaign.title}
-                    <div className="text-xs text-slate-500">
-                      /{campaign.slug}
+                    <div className="flex items-center gap-3">
+                      {campaign.logo_url ? (
+                        <img
+                          src={campaign.logo_url}
+                          alt={campaign.title}
+                          className="h-12 w-12 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="h-12 w-12 rounded-lg bg-slate-200" />
+                      )}
+                      <div>
+                        {campaign.title}
+                        <div className="text-xs text-slate-500">
+                          /{campaign.slug}
+                        </div>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>

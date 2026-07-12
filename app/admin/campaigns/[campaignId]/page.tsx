@@ -364,7 +364,10 @@ function CampaignDetailsContent() {
     <div className="mx-auto max-w-[1400px] space-y-4">
       <div className="space-y-3">
         <p className="text-xs font-medium text-slate-500">
-          Admin / Campaigns / Campaign Workspace
+          <Link href="/admin" className="hover:text-slate-700">Admin</Link>
+          {' / '}
+          <Link href="/admin/campaigns" className="hover:text-slate-700">Campaigns</Link>
+          {' / Campaign Workspace'}
         </p>
 
         <div className="flex flex-wrap items-start justify-between gap-3">
