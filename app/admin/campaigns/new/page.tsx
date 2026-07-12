@@ -7,6 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { adminRequest } from "@/lib/admin";
 import { CAMPAIGN_CATEGORY_OPTIONS } from "@/lib/public";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ const emptyForm = {
   impact_highlights: "",
   mobile_hero_image: "",
   desktop_hero_image: "",
+  logo_url: "",
   goal_amount: "",
   status: "DRAFT",
 };
@@ -78,6 +80,7 @@ export default function CreateCampaignPage() {
             .filter(Boolean),
           mobile_hero_image: form.mobile_hero_image || undefined,
           desktop_hero_image: form.desktop_hero_image || undefined,
+          logo_url: form.logo_url || undefined,
           goal_amount: Number(form.goal_amount),
           status: form.status,
         }),
@@ -104,7 +107,7 @@ export default function CreateCampaignPage() {
         </div>
         <Link
           href="/admin/campaigns"
-          className={cn(buttonVariants({ variant: "outline" }))}
+          className={cn(buttonVariants({ variant: "default" }))}
         >
           Back to Campaign List
         </Link>
@@ -178,6 +181,16 @@ export default function CreateCampaignPage() {
                 onChange={(e) =>
                   setForm({ ...form, impact_highlights: e.target.value })
                 }
+              />
+            </div>
+            <div className="xl:col-span-2">
+              <ImageUploadField
+                label="Campaign Logo"
+                value={form.logo_url}
+                onChange={(url) => setForm({ ...form, logo_url: url })}
+                onError={(err) => setError(err)}
+                minSize={500}
+                aspectRatio="square"
               />
             </div>
             <Input

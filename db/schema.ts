@@ -171,6 +171,7 @@ export const campaigns = pgTable('campaigns', {
     description: text('description'),
     mobile_hero_image: text('mobile_hero_image'),
     desktop_hero_image: text('desktop_hero_image'),
+    logo_url: text('logo_url'),
     impact_highlights: jsonb('impact_highlights').$type<string[]>(),
     goal_amount: integer('goal_amount'),
     raised_amount: integer('raised_amount').notNull().default(0),

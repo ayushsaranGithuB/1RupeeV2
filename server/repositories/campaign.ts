@@ -70,6 +70,7 @@ export class CampaignRepository {
         description: string;
         mobile_hero_image?: string | null;
         desktop_hero_image?: string | null;
+        logo_url?: string | null;
         impact_highlights?: string[] | null;
         goal_amount: number;
         status?: 'DRAFT' | 'ACTIVE';
@@ -85,6 +86,7 @@ export class CampaignRepository {
             description: data.description,
             mobile_hero_image: data.mobile_hero_image || null,
             desktop_hero_image: data.desktop_hero_image || null,
+            logo_url: data.logo_url || null,
             impact_highlights: data.impact_highlights ?? null,
             goal_amount: data.goal_amount,
             status: (data.status || 'DRAFT') as any,
@@ -99,6 +101,7 @@ export class CampaignRepository {
         description?: string;
         mobile_hero_image?: string | null;
         desktop_hero_image?: string | null;
+        logo_url?: string | null;
         impact_highlights?: string[] | null;
         status?: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'ARCHIVED';
     }): Promise<ApiCampaign | null> {

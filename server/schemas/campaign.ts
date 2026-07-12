@@ -25,6 +25,7 @@ export const CreateCampaignSchema = z.object({
     description: z.string().min(20),
     mobile_hero_image: z.string().url().optional(),
     desktop_hero_image: z.string().url().optional(),
+    logo_url: z.string().url().optional(),
     impact_highlights: z.array(z.string()).optional(),
     goal_amount: z.number().int().positive(),
     status: z.enum(['DRAFT', 'ACTIVE']).default('DRAFT'),
@@ -36,6 +37,7 @@ export const UpdateCampaignSchema = z.object({
     description: z.string().min(20).optional(),
     mobile_hero_image: z.string().url().optional(),
     desktop_hero_image: z.string().url().optional(),
+    logo_url: z.string().url().optional(),
     impact_highlights: z.array(z.string()).optional(),
     status: z.enum(['DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED', 'ARCHIVED']).optional(),
 });

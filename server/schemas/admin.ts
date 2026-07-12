@@ -35,6 +35,7 @@ export const AdminCreateCampaignSchema = z.object({
     description: z.string().min(50, 'Description must be at least 50 characters').optional(),
     mobile_hero_image: z.string().url().optional(),
     desktop_hero_image: z.string().url().optional(),
+    logo_url: z.string().url().optional(),
     impact_highlights: z.array(z.string()).optional(),
     goal_amount: z.number().int().positive('Goal amount must be positive').optional(),
     status: z.enum(['DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED', 'ARCHIVED']).optional(),

@@ -19,6 +19,7 @@ interface CampaignRecord {
   description: string | null;
   mobile_hero_image: string | null;
   desktop_hero_image: string | null;
+  logo_url: string | null;
   impact_highlights: string[] | null;
   goal_amount: number | null;
   raised_amount: number;

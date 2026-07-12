@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUploadField } from "@/components/ImageUploadField";
 import { adminRequest, formatCurrency, formatDate } from "@/lib/admin";
 import { CAMPAIGN_CATEGORY_OPTIONS, type CampaignCategory } from "@/lib/public";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ interface CampaignRecord {
   description: string | null;
   mobile_hero_image: string | null;
   desktop_hero_image: string | null;
+  logo_url: string | null;
   impact_highlights: string[] | null;
   goal_amount: number | null;
   raised_amount: number;
@@ -72,6 +74,7 @@ interface FormState {
   description: string;
   mobile_hero_image: string;
   desktop_hero_image: string;
+  logo_url: string;
   impact_highlights: string;
   status: CampaignRecord["status"];
   goal_amount: string;
@@ -125,6 +128,7 @@ function CampaignDetailsContent() {
     description: "",
     mobile_hero_image: "",
     desktop_hero_image: "",
+    logo_url: "",
     impact_highlights: "",
     status: "DRAFT",
     goal_amount: "",
@@ -225,6 +229,7 @@ function CampaignDetailsContent() {
       description: selectedCampaign.description || "",
       mobile_hero_image: selectedCampaign.mobile_hero_image || "",
       desktop_hero_image: selectedCampaign.desktop_hero_image || "",
+      logo_url: selectedCampaign.logo_url || "",
       impact_highlights: (selectedCampaign.impact_highlights ?? []).join("\n"),
       status: selectedCampaign.status,
       goal_amount: String(selectedCampaign.goal_amount || ""),
@@ -248,6 +253,7 @@ function CampaignDetailsContent() {
           description: form.description,
           mobile_hero_image: form.mobile_hero_image || undefined,
           desktop_hero_image: form.desktop_hero_image || undefined,
+          logo_url: form.logo_url || undefined,
           impact_highlights: form.impact_highlights
             .split("\n")
             .map((line) => line.trim())
@@ -697,6 +703,18 @@ function CampaignDetailsContent() {
                             "18,500+ people provided with clean water\n42 villages supported\n67 wells repaired or installed"
                           }
                           className="min-h-28"
+                        />
+                      </div>
+                      <div className="xl:col-span-2">
+                        <ImageUploadField
+                          label="Campaign Logo"
+                          value={form.logo_url}
+                          onChange={(url) =>
+                            setForm({ ...form, logo_url: url })
+                          }
+                          onError={(err) => setError(err)}
+                          minSize={500}
+                          aspectRatio="square"
                         />
                       </div>
                       <div className="space-y-2">
