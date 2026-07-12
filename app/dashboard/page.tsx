@@ -155,12 +155,12 @@ export default function DashboardPage() {
       {/* Generosity Funded For Section */}
       {!loading && activePledges.length > 0 && (
         <div
-          className="relative -mx-6 sm:-mx-10 p-6 sm:p-8 pt-8 sm:pt-12 min-h-[500px] "
+          className="relative -mx-6 sm:-mx-10 p-6 sm:p-8 pt-8 sm:px-12 "
           style={{
             backgroundImage: "url('/wavebg.svg')",
             backgroundPosition: "center top",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "100% 500px",
+            backgroundRepeat: "repeat-x",
+            backgroundSize: "auto 100%",
           }}
         >
           <div className="relative z-10 text-center pt-6">
@@ -181,7 +181,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p
-                  className="font-kalam text-4xl sm:text-6xl font-bold mb-2 leading-tight"
+                  className="font-kalam text-4xl  font-bold mb-2 leading-tight"
                   style={{ color: "#4077A4" }}
                 >
                   {donationRunway.toLocaleString()} more{" "}
@@ -198,10 +198,24 @@ export default function DashboardPage() {
                 </div>
 
                 <p
-                  className="text-xs sm:text-sm mb-6 sm:mb-8"
+                  className="text-sm mb-8 leading-6"
                   style={{ color: "#4077A4" }}
                 >
-                  Total Daily Commitment • {formatInrPaisa(totalDailyAmount)}
+                  Current Wallet Balance:
+                  <span
+                    className="font-semibold  text-blue-900 px-1"
+                    style={{ color: "#4077A4" }}
+                  >
+                    {formatInrPaisa(wallet?.cached_balance || 0)}
+                  </span>
+                  <br />
+                  Total Daily Commitment :
+                  <span
+                    className="font-semibold  text-blue-900 px-1"
+                    style={{ color: "#4077A4" }}
+                  >
+                    {formatInrPaisa(totalDailyAmount)}
+                  </span>
                 </p>
                 <Link href="/dashboard/wallet/topup" className="inline-block">
                   <Button className="text-sm text-[#6F470D] bg-[#F5D57D] font-semibold px-8 py-6 rounded-full">
