@@ -218,7 +218,7 @@ export default function DashboardPage() {
                   </span>
                 </p>
                 <Link href="/dashboard/wallet/topup" className="inline-block">
-                  <Button className="text-sm text-[#6F470D] bg-[#F5D57D] font-semibold px-8 py-6 rounded-full">
+                  <Button className="text-sm text-[#6F470D] bg-[#F5D57D] hover:bg-[#f9dc8c] font-semibold px-8 py-6 rounded-full border border-[#6F470D/50] hover:border-[#f9dc8c] transition">
                     Extend My Impact →
                   </Button>
                 </Link>

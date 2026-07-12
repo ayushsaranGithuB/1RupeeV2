@@ -199,7 +199,7 @@ function TierSelectContent() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
+    <main className="mx-auto max-w-2xl px-6 py-10 min-h-[calc(80vh-80px)]">
       <div className="mb-8 flex gap-3 items-center">
         {campaign.logo_url && (
           <img

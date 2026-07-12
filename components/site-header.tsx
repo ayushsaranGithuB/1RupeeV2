@@ -49,7 +49,7 @@ export function SiteHeader() {
               key={link.href}
               href={link.href}
               className={cn(
-                "font-geist",
+                "font-kalam",
                 "text-lg font-medium text-primary transition hover:text-emerald-700",
               )}
             >
