@@ -234,8 +234,42 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* No Pledges State */}
+      {!loading && activePledges.length === 0 && (
+        <div className="text-center py-12  px-4">
+          <div className="space-y-6 max-w-md mx-auto">
+            <div className="mb-8">
+              <Image
+                src="/illustrations/1rp-illus-calendar.svg"
+                alt="Explore campaigns"
+                width={150}
+                height={150}
+                className="mx-auto opacity-60"
+              />
+            </div>
+            <div>
+              <h2
+                className="font-kalam text-3xl md:text-4xl font-bold mb-3"
+                style={{ color: "#4077A4" }}
+              >
+                Start Your Impact Journey
+              </h2>
+              <p className="text-slate-600 text-sm">
+                Choose a cause you care about and pledge even one rupee a day. Together, we can create meaningful change in India.
+              </p>
+            </div>
+            <Link href="/campaigns" className="inline-block pt-4">
+              <Button className="text-sm text-white  font-semibold px-8 py-6  transition">
+                Explore Campaigns →
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Your Impact Section */}
-      <div className="p-8 text-center mt-8">
+      {!loading && activePledges.length > 0 && (
+        <div className="p-8 text-center mt-8">
         <h2
           className=" font-kalam text-4xl font-bold mb-2 "
           style={{ color: "#4077A4" }}
@@ -273,6 +307,7 @@ export default function DashboardPage() {
           </p>
         )}
       </div>
+      )}
     </div>
   );
 }
