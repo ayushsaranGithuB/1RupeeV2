@@ -304,7 +304,7 @@ function TierSelectContent() {
           <Button
             onClick={handleNext}
             disabled={!hasSelectedDuration || !isValidDuration}
-            className=" bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 rounded-xl h-[48px] px-12"
+            className="text-white bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 rounded-xl h-[48px] px-12"
           >
             Review & Continue
           </Button>
