@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Confetti } from "@/components/confetti";
+import LoadingCoin from "@/components/ui/loading";
 
 type Wallet = { cached_balance: number } | null;
 
@@ -174,7 +175,11 @@ export default function PledgesPage() {
 
       <div className="space-y-5 w-full max-w-md mx-auto">
         {loading ? (
-          <p className="text-sm text-slate-500 text-center py-8">Loading…</p>
+          <div className="flex justify-center items-center py-16">
+            <div className="w-16 h-16">
+              <LoadingCoin />
+            </div>
+          </div>
         ) : pledges.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-slate-600 mb-4">

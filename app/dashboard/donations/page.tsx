@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { formatInr } from "@/lib/public";
 import { dashboardRequest, formatDate } from "@/lib/dashboard";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import LoadingCoin from "@/components/ui/loading";
 
 type Donation = {
   id: string;
@@ -105,9 +106,11 @@ export default function DonationsPage() {
       ) : null}
 
       {loading ? (
-        <Card className="p-6">
-          <p className="text-sm text-slate-500">Loading…</p>
-        </Card>
+        <div className="flex justify-center items-center py-16">
+          <div className="w-16 h-16">
+            <LoadingCoin />
+          </div>
+        </div>
       ) : donations.length === 0 ? (
         <Card className="p-6">
           <p className="text-sm text-slate-500">No donations yet.</p>

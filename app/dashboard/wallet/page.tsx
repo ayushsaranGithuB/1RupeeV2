@@ -6,6 +6,7 @@ import { formatInr } from "@/lib/public";
 import { dashboardRequest, formatDate, calculateDonationRunway } from "@/lib/dashboard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import LoadingCoin from "@/components/ui/loading";
 
 type Wallet = { cached_balance: number } | null;
 
@@ -126,7 +127,11 @@ export default function WalletPage() {
           Activity history
         </h2>
         {loading ? (
-          <p className="mt-3 text-sm text-slate-500">Loading…</p>
+          <div className="flex justify-center items-center py-8">
+            <div className="w-12 h-12">
+              <LoadingCoin />
+            </div>
+          </div>
         ) : transactions.length === 0 ? (
           <p className="mt-3 text-sm text-slate-500">No activity yet.</p>
         ) : (
