@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ChevronRight } from "lucide-react";
+import LoadingCoin from "@/components/ui/loading";
 
 export type Pledge = {
   id: string;
@@ -63,6 +64,15 @@ export function Dashboard({
           👋
         </h1>
       </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center py-20">
+          <div className="w-16 h-16">
+            <LoadingCoin />
+          </div>
+        </div>
+      )}
 
       {/* Currently Supporting Section */}
       {!loading && activePledges.length > 0 && (
@@ -226,7 +236,8 @@ export function Dashboard({
                 Start Your Impact Journey
               </h2>
               <p className="text-slate-600 text-base md:text-lg leading-relaxed">
-                Choose a cause you care about and pledge even one rupee a day. Together, we can create meaningful change in India.
+                Choose a cause you care about and pledge even one rupee a day.
+                Together, we can create meaningful change in India.
               </p>
             </div>
             <Link href="/campaigns" className="inline-block pt-4">
@@ -272,7 +283,9 @@ export function Dashboard({
                 className="font-semibold text-lg text-blue-900 px-1"
                 style={{ color: "#4077A4" }}
               >
-                {Math.ceil(donations.length / Math.max(activePledges.length, 1))}{" "}
+                {Math.ceil(
+                  donations.length / Math.max(activePledges.length, 1),
+                )}{" "}
                 day{donations.length > 1 ? "s" : ""}.
               </span>
             </p>
