@@ -7,20 +7,20 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "text-[hsl(var(--primary-button-foreground))] bg-[hsl(var(--primary-button))] hover:bg-[hsl(var(--primary-button-hover))]",
-        destructive:
-          "bg-red-600 text-white hover:bg-red-700",
+        default:
+          "text-white bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 rounded-xl h-[48px] px-12",
+        hero: "text-[hsl(var(--primary-button-foreground))] bg-[hsl(var(--primary-button))] hover:bg-[hsl(var(--primary-button-hover))]",
+        destructive: "bg-red-600 text-white hover:bg-red-700",
         outline:
           "border border-slate-200 bg-white hover:bg-slate-50 text-slate-900",
-        secondary:
-          "bg-slate-100 text-slate-900 hover:bg-slate-200",
+        secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200",
         ghost: "hover:bg-slate-100 text-slate-900",
         link: "text-[hsl(var(--primary-button))] underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2 rounded-md",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        default: "h-10 px-8 py-2 rounded-2xl",
+        sm: "h-9 rounded-lg px-6",
+        lg: "h-11 rounded-2xl px-8",
         icon: "h-10 w-10",
       },
     },
