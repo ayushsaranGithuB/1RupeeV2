@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { formatInr } from "@/lib/public";
 import { dashboardRequest, calculateDonationRunway } from "@/lib/dashboard";
 import { Badge } from "@/components/ui/badge";
@@ -73,11 +74,23 @@ export default function PledgesPage() {
   const totalDailyAmount = activePledges.reduce((sum, p) => sum + (p.daily_amount || 0), 0);
   const donationRunway = calculateDonationRunway(wallet?.cached_balance || 0, totalDailyAmount);
 
+  useEffect(() => {
+    document.title = "1Rupee - My Causes";
+  }, []);
+
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-xs font-medium text-slate-500">Your causes</p>
-        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Active pledges</h1>
+    <div className="space-y-8 py-8">
+      {/* Heading */}
+      <div className="text-center pb-4">
+        <h1
+          className="text-4xl sm:text-5xl font-bold mb-2"
+          style={{ color: "#4077A4" }}
+        >
+          Your Causes 📍
+        </h1>
+        <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
+          Keep track of all the campaigns you're supporting
+        </p>
       </div>
 
       {error ? (
@@ -87,56 +100,79 @@ export default function PledgesPage() {
       ) : null}
 
       {!loading && activePledges.length > 0 && (
-        <Card className="border-[hsl(var(--primary))]/20 bg-[hsl(var(--primary))]/5 p-4">
-          <p className="text-sm text-[hsl(var(--primary))] mb-1">Your generosity is funded for</p>
-          <p className="text-2xl font-bold text-[hsl(var(--primary))]">
-            {donationRunway} more {donationRunway === 1 ? "day" : "days"}
+        <div className="text-center py-6 px-4">
+          <p className="text-sm font-bold mb-2" style={{ color: "#4077A4" }}>
+            Your generosity is funded for:
           </p>
-          <p className="text-xs text-[hsl(var(--primary))] mt-2">
-            across {activePledges.length} {activePledges.length === 1 ? "campaign" : "campaigns"}
-          </p>
-        </Card>
+          <div className="space-y-2">
+            <p
+              className="font-kalam text-3xl sm:text-4xl font-bold"
+              style={{ color: "#4077A4" }}
+            >
+              {donationRunway} more {donationRunway === 1 ? "day" : "days"}
+            </p>
+            <p className="text-xs text-slate-500">
+              across {activePledges.length} {activePledges.length === 1 ? "campaign" : "campaigns"}
+            </p>
+          </div>
+        </div>
       )}
 
-      <Card className="p-0">
+      <div className="space-y-5 w-full max-w-md mx-auto">
         {loading ? (
-          <p className="p-6 text-sm text-slate-500">Loading…</p>
+          <p className="text-sm text-slate-500 text-center py-8">Loading…</p>
         ) : pledges.length === 0 ? (
-          <p className="p-6 text-sm text-slate-500">
-            You haven&apos;t pledged to any campaigns yet.
-          </p>
+          <div className="text-center py-12">
+            <p className="text-slate-600 mb-4">
+              You haven&apos;t pledged to any campaigns yet.
+            </p>
+            <p className="text-xs text-slate-500">
+              Head back to the dashboard to explore and support causes you care about.
+            </p>
+          </div>
         ) : (
-          <ul className="divide-y divide-slate-100">
-            {pledges.map((pledge) => {
-              const pledgeRunway = pledge.status === "ACTIVE" && pledge.daily_amount
-                ? calculateDonationRunway(wallet?.cached_balance || 0, pledge.daily_amount)
-                : 0;
-              return (
-                <li key={pledge.id} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-                      <p className="truncate font-medium text-slate-900">
+          pledges.map((pledge) => {
+            const pledgeRunway = pledge.status === "ACTIVE" && pledge.daily_amount
+              ? calculateDonationRunway(wallet?.cached_balance || 0, pledge.daily_amount)
+              : 0;
+            return (
+              <Card
+                key={pledge.id}
+                className="border border-slate-200 bg-white p-4 sm:p-5 hover:shadow-md transition"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-slate-900 text-md mb-1">
                         {pledge.campaign_title || "Campaign"}
                       </p>
-                      <Badge variant={STATUS_VARIANT[pledge.status]}>
+                      <p className="text-xs text-slate-600 mb-3">
+                        {pledge.tier_title || "Support tier"}
+                      </p>
+                      <Badge variant={STATUS_VARIANT[pledge.status]} className="text-xs">
                         {pledge.status}
                       </Badge>
                     </div>
-                    <p className="mt-2 text-sm text-slate-500">
-                      {pledge.tier_title || "Support tier"}
-                    </p>
-                    <div className="mt-2 flex flex-col gap-1 text-sm">
-                      <p className="text-slate-700">
-                        <span className="font-medium">Daily commitment:</span> {formatInr(pledge.daily_amount || 0)}/day
-                      </p>
-                      {pledge.status === "ACTIVE" && (
-                        <p className="text-slate-700">
-                          <span className="font-medium">Remaining coverage:</span> {pledgeRunway} {pledgeRunway === 1 ? "day" : "days"}
-                        </p>
-                      )}
-                    </div>
                   </div>
-                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-600">Daily commitment:</span>
+                      <span className="font-semibold text-slate-900">
+                        {formatInr(pledge.daily_amount || 0)}/day
+                      </span>
+                    </div>
+                    {pledge.status === "ACTIVE" && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600">Coverage remaining:</span>
+                        <span className="font-semibold text-slate-900">
+                          {pledgeRunway} {pledgeRunway === 1 ? "day" : "days"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2 pt-3 border-t border-slate-100">
                     {pledge.status === "ACTIVE" && (
                       <>
                         <Button
@@ -144,7 +180,7 @@ export default function PledgesPage() {
                           size="sm"
                           disabled={updatingId === pledge.id}
                           onClick={() => updateStatus(pledge.id, "PAUSED")}
-                          className="w-full sm:w-auto"
+                          className="w-full text-sm"
                         >
                           Pause
                         </Button>
@@ -153,7 +189,7 @@ export default function PledgesPage() {
                           size="sm"
                           disabled={updatingId === pledge.id}
                           onClick={() => updateStatus(pledge.id, "CANCELLED")}
-                          className="w-full sm:w-auto"
+                          className="w-full text-sm"
                         >
                           Cancel
                         </Button>
@@ -165,7 +201,7 @@ export default function PledgesPage() {
                           size="sm"
                           disabled={updatingId === pledge.id}
                           onClick={() => updateStatus(pledge.id, "ACTIVE")}
-                          className="w-full bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90 sm:w-auto"
+                          className="w-full text-sm bg-blue-600 hover:bg-blue-700 text-white"
                         >
                           Resume
                         </Button>
@@ -174,19 +210,19 @@ export default function PledgesPage() {
                           size="sm"
                           disabled={updatingId === pledge.id}
                           onClick={() => updateStatus(pledge.id, "CANCELLED")}
-                          className="w-full sm:w-auto"
+                          className="w-full text-sm"
                         >
                           Cancel
                         </Button>
                       </>
                     )}
                   </div>
-                </li>
-              );
-            })}
-          </ul>
+                </div>
+              </Card>
+            );
+          })
         )}
-      </Card>
+      </div>
     </div>
   );
 }

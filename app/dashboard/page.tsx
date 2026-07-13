@@ -37,6 +37,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    document.title = "1Rupee - Dashboard";
+  }, []);
+
+  useEffect(() => {
     let active = true;
     (async () => {
       const [w, p, d] = await Promise.all([
