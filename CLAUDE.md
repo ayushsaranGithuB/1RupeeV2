@@ -70,6 +70,8 @@ app/                    # Next.js App Router
 └── layout.tsx          # Root layout
 
 components/            # Reusable components
+├── dashboard.tsx      # Dashboard component (accepts props for all data)
+├── dashboard.stories.tsx  # Storybook stories with interactive controls
 ├── ui/                # Shadcn-style UI components
 │   ├── button.tsx
 │   ├── card.tsx
@@ -184,13 +186,48 @@ bun start            # Start production server
 - **Cron Jobs**: Wallet processing via GitHub Actions (secrets in "production" environment)
 - **Alerts**: Via Resend to `ADMIN_EMAIL` (ayushsaran@gmail.com)
 
+## Component Architecture
+
+### Dashboard Component
+The dashboard page is refactored as a **reusable component with props**:
+
+```tsx
+<Dashboard
+  firstName="Ayush"
+  activePledges={pledges}
+  totalDailyAmount={18}
+  wallet={{ cached_balance: 5000 }}
+  donationRunway={277}
+  donations={donations}
+  totalRaised={800}
+  loading={false}
+/>
+```
+
+**Benefits:**
+- **Simplified page.tsx** — Just data fetching, passes computed values to component
+- **Testable** — Easy to test with different prop combinations
+- **Storybook controls** — Interactive UI controls for each prop (numbers, objects, booleans)
+- **Reusable** — Can be used in multiple contexts (preview, testing, email, etc.)
+
+### Dashboard Stories
+6 Storybook stories demonstrate different states:
+- With active pledges (multiple campaigns)
+- No pledges (empty state)
+- Single pledge
+- Large daily commitment
+- Loading state
+- Many pledges (shows "Manage all causes" link)
+
+Each prop is controllable via Storybook's UI controls—adjust firstName, amounts, donation counts, etc. in real-time.
+
 ## Testing & Review
 
 - **Tests**: Vitest for unit tests
 - **Coverage**: Run `bun test:coverage`
 - **Type Safety**: TypeScript + Zod validation
 - **Linting**: ESLint with flat config
-- **Storybook**: For UI component development and documentation
+- **Storybook**: For UI component development and documentation with interactive controls
 
 ## Common Development Tasks
 
