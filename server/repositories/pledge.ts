@@ -1,5 +1,5 @@
 import { getDb } from '@db';
-import { pledges, campaign_tiers, campaigns, donations } from '@db/schema';
+import { pledges, campaign_tiers, campaigns, donations, ngos } from '@db/schema';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import { ApiPledge } from '../types';
 import { generateUUID } from '../utils/id';
@@ -38,13 +38,16 @@ export class PledgeRepository {
                 campaign_tier_id: pledges.campaign_tier_id,
                 campaign_id: campaign_tiers.campaign_id,
                 campaign_title: campaigns.title,
+                campaign_logo: campaigns.logo_url,
                 tier_title: campaign_tiers.title,
                 daily_amount: campaign_tiers.daily_amount,
                 monthly_equivalent: campaign_tiers.monthly_equivalent,
+                ngo_logo: ngos.logo_url,
             })
             .from(pledges)
             .innerJoin(campaign_tiers, eq(pledges.campaign_tier_id, campaign_tiers.id))
             .innerJoin(campaigns, eq(campaign_tiers.campaign_id, campaigns.id))
+            .innerJoin(ngos, eq(campaigns.ngo_id, ngos.id))
             .where(and(...conditions));
 
         return (result as any) || [];

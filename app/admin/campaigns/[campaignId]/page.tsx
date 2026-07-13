@@ -23,6 +23,7 @@ import { CAMPAIGN_CATEGORY_OPTIONS, type CampaignCategory } from "@/lib/public";
 import { cn } from "@/lib/utils";
 import { OverviewTab } from "./components/OverviewTab";
 import { AnalyticsTab } from "./components/AnalyticsTab";
+import { ImagesSection } from "@/components/ImagesSection";
 
 interface CampaignRecord {
   id: string;
@@ -725,58 +726,23 @@ function CampaignDetailsContent() {
                           className="min-h-28"
                         />
                       </div>
-                      <div className="xl:col-span-2">
-                        <ImageUploadField
-                          label="Campaign Logo"
-                          value={form.logo_url}
-                          onChange={(url) =>
-                            setForm({ ...form, logo_url: url })
-                          }
-                          onError={(err) => setError(err)}
-                          minSize={500}
-                          aspectRatio="square"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="campaign-mobile-hero-image"
-                          className="text-sm font-medium text-slate-700"
-                        >
-                          Mobile Hero URL (3:4)
-                        </label>
-                        <Input
-                          id="campaign-mobile-hero-image"
-                          value={form.mobile_hero_image}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              mobile_hero_image: e.target.value,
-                            })
-                          }
-                          placeholder="https://..."
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="campaign-desktop-hero-image"
-                          className="text-sm font-medium text-slate-700"
-                        >
-                          Desktop Hero URL (4:3)
-                        </label>
-                        <Input
-                          id="campaign-desktop-hero-image"
-                          value={form.desktop_hero_image}
-                          onChange={(e) =>
-                            setForm({
-                              ...form,
-                              desktop_hero_image: e.target.value,
-                            })
-                          }
-                          placeholder="https://..."
-                        />
-                      </div>
                     </div>
                   </section>
+
+                  <ImagesSection
+                    logoUrl={form.logo_url}
+                    mobileHeroImage={form.mobile_hero_image}
+                    desktopHeroImage={form.desktop_hero_image}
+                    onLogoChange={(url) =>
+                      setForm({ ...form, logo_url: url })
+                    }
+                    onMobileHeroChange={(url) =>
+                      setForm({ ...form, mobile_hero_image: url })
+                    }
+                    onDesktopHeroChange={(url) =>
+                      setForm({ ...form, desktop_hero_image: url })
+                    }
+                  />
 
                   <section className="space-y-4 border-t border-slate-200 pt-6">
                     <Button

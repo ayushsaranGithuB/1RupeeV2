@@ -207,7 +207,7 @@ export default function PledgesPage() {
                     <div className="flex gap-4 items-start mb-2">
                       <div className="shrink-0">
                         {pledge.ngo_logo || pledge.campaign_logo ? (
-                          <Image
+                          <img
                             src={pledge.ngo_logo || pledge.campaign_logo || ""}
                             alt={pledge.campaign_title || "Campaign"}
                             width={56}
