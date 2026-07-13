@@ -8,15 +8,15 @@ import { formatInr } from "@/lib/public";
 import {
   dashboardRequest,
   calculateDonationRunway,
-  formatRunwayDays,
+  // formatRunwayDays,
 } from "@/lib/dashboard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 
-type Wallet = { cached_balance: number } | null;
+export type Wallet = { cached_balance: number } | null;
 
-type Pledge = {
+export type Pledge = {
   id: string;
   status: string;
   campaign_title?: string;
@@ -24,7 +24,7 @@ type Pledge = {
   daily_amount?: number;
 };
 
-type Donation = {
+export type Donation = {
   amount: number;
   created_at?: string;
 };
