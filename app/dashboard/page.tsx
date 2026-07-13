@@ -100,26 +100,29 @@ export default function DashboardPage() {
           >
             You're currently supporting:
           </p>
-          <div className="space-y-2 sm:space-y-3 w-full">
+          <div className="space-y-5 w-full">
             {activePledges.slice(0, 3).map((pledge) => (
               <Card
                 key={pledge.id}
-                className="border border-slate-200 bg-white p-4 sm:p-5 hover:shadow-md transition max-w-md mx-auto"
+                className="border border-slate-200 bg-white p-4 sm:p-5 hover:shadow-md transition max-w-md mx-auto cursor-pointer"
+                onClick={() => {
+                  window.location.href = "/dashboard/pledges";
+                }}
               >
-                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="flex items-center justify-between mb-2">
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-slate-900 mb-1 text-sm sm:text-base">
+                    <p className="font-semibold text-slate-900 mb-1 text-md ">
                       {pledge.campaign_title || "Campaign"}
                     </p>
-                    <p className="text-xs sm:text-sm text-slate-600 mb-4">
+                    <p className="text-xs text-slate-600 mb-4">
                       {pledge.tier_title || "Support tier"}
                       {typeof pledge.daily_amount === "number" && (
-                        <span className="ml-2 text-slate-700">
+                        <span className="ml-2 text-slate-700 text-md font-medium">
                           • {formatInr(pledge.daily_amount)}/day
                         </span>
                       )}
                     </p>
-                    <span className="inline-flex items-center rounded-full bg-[hsl(var(--primary))]/10 px-3 py-1 text-xs font-semibold text-[hsl(var(--primary))]">
+                    <span className="inline-flex items-center rounded-full bg-[hsl(var(--primary))]/10 px-3 py-1 text-[0.7em] font-semibold text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 tracking-wider">
                       ACTIVE
                     </span>
                   </div>
@@ -155,7 +158,7 @@ export default function DashboardPage() {
       {/* Generosity Funded For Section */}
       {!loading && activePledges.length > 0 && (
         <div
-          className="relative -mx-6 sm:-mx-10 p-6 sm:p-8 pt-8 sm:px-12 "
+          className="relative -mx-6 sm:-mx-10 p-6 sm:p-8 pt-8 sm:px-12"
           style={{
             backgroundImage: "url('/wavebg.svg')",
             backgroundPosition: "center top",
@@ -163,7 +166,7 @@ export default function DashboardPage() {
             backgroundSize: "auto 100%",
           }}
         >
-          <div className="relative z-10 text-center pt-6">
+          <div className="relative z-10 text-center pt-6 md:pb-8">
             <p
               className="text-sm font-bold my-4 sm:mb-6"
               style={{ color: "#4077A4" }}
@@ -171,7 +174,7 @@ export default function DashboardPage() {
               Your generosity is funded for:
             </p>
             <div className="flex flex-col items-center">
-              <div className="shrink-0 mb-4 sm:mb-6">
+              <div className="shrink-0 mb-4">
                 <Image
                   src="/illustrations/1rp-illus-calendar.svg"
                   alt="Calendar illustration"
@@ -181,13 +184,13 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p
-                  className="font-kalam text-4xl  font-bold mb-2 leading-tight"
+                  className="font-kalam text-4xl  font-bold mb-0 leading-tight"
                   style={{ color: "#4077A4" }}
                 >
                   {donationRunway.toLocaleString()} more{" "}
                   {donationRunway === 1 ? "day" : "days"}
                 </p>
-                <div className="flex justify-center mb-4 sm:mb-6">
+                <div className="flex justify-center mb-6">
                   <Image
                     src="/lineunder.svg"
                     alt="Decorative line"
@@ -197,26 +200,29 @@ export default function DashboardPage() {
                   />
                 </div>
 
-                <p
-                  className="text-sm mb-8 leading-6"
-                  style={{ color: "#4077A4" }}
-                >
-                  Current Wallet Balance:
-                  <span
-                    className="font-semibold  text-blue-900 px-1"
-                    style={{ color: "#4077A4" }}
-                  >
-                    {formatInr(wallet?.cached_balance || 0)}
-                  </span>
-                  <br />
-                  Total Daily Commitment :
-                  <span
-                    className="font-semibold  text-blue-900 px-1"
-                    style={{ color: "#4077A4" }}
-                  >
-                    {formatInr(totalDailyAmount)}
-                  </span>
-                </p>
+                <div className="flex flex-col items-center md:flex-row md:space-x-8 text-sm mb-8 leading-6 font-medium text-slate-500">
+                  <p className="">
+                    Wallet Balance:
+                    <br />
+                    <span
+                      className="font-semibold text-xl text-blue-900 px-1"
+                      style={{ color: "#4077A4" }}
+                    >
+                      {formatInr(wallet?.cached_balance || 0)}
+                    </span>
+                  </p>
+                  <p>
+                    Daily Commitment:
+                    <br />
+                    <span
+                      className="font-semibold text-xl text-blue-900 px-1"
+                      style={{ color: "#4077A4" }}
+                    >
+                      {formatInr(totalDailyAmount)}
+                    </span>
+                  </p>
+                </div>
+
                 <Link href="/dashboard/wallet/topup" className="inline-block">
                   <Button className="text-sm text-[#6F470D] bg-[#F5D57D] hover:bg-[#f9dc8c] font-semibold px-8 py-6 rounded-full border border-[#6F470D/50] hover:border-[#f9dc8c] transition">
                     Extend My Impact →
@@ -231,12 +237,12 @@ export default function DashboardPage() {
       {/* Your Impact Section */}
       <div className="p-8 text-center mt-8">
         <h2
-          className=" font-kalam text-4xl font-bold mb-2 sm:mb-6"
+          className=" font-kalam text-4xl font-bold mb-2 "
           style={{ color: "#4077A4" }}
         >
           Your Impact
         </h2>
-        <p className="text-xs sm:text-base text-slate-500 mb-6 sm:mb-8">
+        <p className="text-xs text-slate-500 mb-6 sm:mb-8">
           Your one small daily action helps fuels life-changing causes across
           India
         </p>
@@ -248,21 +254,22 @@ export default function DashboardPage() {
         </div>
         {donations.length > 0 && (
           <p className="text-sm text-slate-600">
-            Raised so far, towards
+            Raised across
             <span
               className="font-semibold text-lg text-blue-900 px-1"
               style={{ color: "#4077A4" }}
             >
               {activePledges.length}
+              {activePledges.length === 1 ? " campaign" : " campaigns"}
             </span>
-            {activePledges.length === 1 ? "campaign" : "campaigns"}, over
+            , over
             <span
               className="font-semibold text-lg text-blue-900 px-1"
               style={{ color: "#4077A4" }}
             >
-              {Math.ceil(donations.length / Math.max(activePledges.length, 1))}
+              {Math.ceil(donations.length / Math.max(activePledges.length, 1))}{" "}
+              day{donations.length > 1 ? "s" : ""}.
             </span>
-            day{donations.length > 1 ? "s" : ""}.
           </p>
         )}
       </div>
