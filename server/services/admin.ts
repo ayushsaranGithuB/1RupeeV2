@@ -552,14 +552,16 @@ export class AdminReportingService {
                 created_at: wallet_transactions.created_at,
                 type: wallet_transactions.type,
                 amount: wallet_transactions.amount,
-                description: wallet_transactions.description,
+                description: sql<string>`COALESCE('Daily donation for ' || ${campaigns.title}, ${wallet_transactions.description})`,
                 user_id: users.id,
                 user_name: users.name,
                 user_email: users.email,
             })
             .from(wallet_transactions)
             .innerJoin(wallets, eq(wallet_transactions.wallet_id, wallets.id))
-            .innerJoin(users, eq(wallets.user_id, users.id));
+            .innerJoin(users, eq(wallets.user_id, users.id))
+            .leftJoin(donations, eq(wallet_transactions.id, donations.wallet_transaction_id))
+            .leftJoin(campaigns, eq(donations.campaign_id, campaigns.id));
 
         const rows = conditions.length > 0
             ? await (query.where(and(...conditions)) as any)
