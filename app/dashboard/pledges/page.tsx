@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 import { formatInr } from "@/lib/public";
 import { dashboardRequest, calculateDonationRunway } from "@/lib/dashboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog } from "@/components/ui/dialog";
+import { Confetti } from "@/components/confetti";
 
 type Wallet = { cached_balance: number } | null;
 
@@ -31,6 +34,10 @@ export default function PledgesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<"pause" | "cancel" | null>(null);
+  const [selectedPledgeId, setSelectedPledgeId] = useState<string | null>(null);
+  const [celebratingId, setCelebratingId] = useState<string | null>(null);
 
   async function load() {
     try {
@@ -51,23 +58,64 @@ export default function PledgesPage() {
     load();
   }, []);
 
-  async function updateStatus(id: string, status: Pledge["status"]) {
-    if (status === "CANCELLED" && !window.confirm("Cancel this pledge? This can't be undone.")) {
-      return;
+  async function handleConfirm() {
+    if (!selectedPledgeId || !dialogType) return;
+
+    setUpdatingId(selectedPledgeId);
+    setError(null);
+    setDialogOpen(false);
+
+    try {
+      const newStatus = dialogType === "pause" ? "PAUSED" : "CANCELLED";
+      await dashboardRequest(`/pledges/${selectedPledgeId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: newStatus }),
+      });
+      await load();
+
+      const message =
+        dialogType === "pause"
+          ? "Pledge paused. You can resume anytime!"
+          : "Pledge cancelled. We hope to see you back soon!";
+      toast.success(message);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to update pledge";
+      toast.error(message);
+      setError(message);
+    } finally {
+      setUpdatingId(null);
+      setSelectedPledgeId(null);
+      setDialogType(null);
     }
+  }
+
+  async function handleResume(id: string) {
     setUpdatingId(id);
     setError(null);
+
     try {
       await dashboardRequest(`/pledges/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status: "ACTIVE" }),
       });
       await load();
+      setCelebratingId(id);
+      toast.success("Your support is back on! 🎉");
+
+      setTimeout(() => setCelebratingId(null), 3500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update pledge");
+      const message = err instanceof Error ? err.message : "Failed to resume pledge";
+      toast.error(message);
+      setError(message);
     } finally {
       setUpdatingId(null);
     }
+  }
+
+  function openDialog(pledgeId: string, type: "pause" | "cancel") {
+    setSelectedPledgeId(pledgeId);
+    setDialogType(type);
+    setDialogOpen(true);
   }
 
   const activePledges = pledges.filter((p) => p.status === "ACTIVE");
@@ -78,8 +126,12 @@ export default function PledgesPage() {
     document.title = "1Rupee - My Causes";
   }, []);
 
+  const selectedPledge = pledges.find((p) => p.id === selectedPledgeId);
+
   return (
     <div className="space-y-8 py-8">
+      {celebratingId && <Confetti />}
+
       {/* Heading */}
       <div className="text-center pb-4">
         <h1
@@ -135,94 +187,151 @@ export default function PledgesPage() {
             const pledgeRunway = pledge.status === "ACTIVE" && pledge.daily_amount
               ? calculateDonationRunway(wallet?.cached_balance || 0, pledge.daily_amount)
               : 0;
+            const isResumed = celebratingId === pledge.id;
+
             return (
-              <Card
-                key={pledge.id}
-                className="border border-slate-200 bg-white p-4 sm:p-5 hover:shadow-md transition"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-slate-900 text-md mb-1">
-                        {pledge.campaign_title || "Campaign"}
-                      </p>
-                      <p className="text-xs text-slate-600 mb-3">
-                        {pledge.tier_title || "Support tier"}
-                      </p>
-                      <Badge variant={STATUS_VARIANT[pledge.status]} className="text-xs">
-                        {pledge.status}
-                      </Badge>
+              <div key={pledge.id}>
+                {isResumed && (
+                  <div className="mb-4 text-center animate-bounce">
+                    <div className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
+                      🎉 Hooray! Welcome back to making an impact! 🎉
                     </div>
                   </div>
-
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-600">Daily commitment:</span>
-                      <span className="font-semibold text-slate-900">
-                        {formatInr(pledge.daily_amount || 0)}/day
-                      </span>
+                )}
+                <Card
+                  className="border border-slate-200 bg-white p-4 sm:p-5 hover:shadow-md transition"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-slate-900 text-md mb-1">
+                          {pledge.campaign_title || "Campaign"}
+                        </p>
+                        <p className="text-xs text-slate-600 mb-3">
+                          {pledge.tier_title || "Support tier"}
+                        </p>
+                        <Badge variant={STATUS_VARIANT[pledge.status]} className="text-xs">
+                          {pledge.status}
+                        </Badge>
+                      </div>
                     </div>
-                    {pledge.status === "ACTIVE" && (
+
+                    <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-600">Coverage remaining:</span>
+                        <span className="text-slate-600">Daily commitment:</span>
                         <span className="font-semibold text-slate-900">
-                          {pledgeRunway} {pledgeRunway === 1 ? "day" : "days"}
+                          {formatInr(pledge.daily_amount || 0)}/day
                         </span>
                       </div>
-                    )}
-                  </div>
+                      {pledge.status === "ACTIVE" && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-600">Coverage remaining:</span>
+                          <span className="font-semibold text-slate-900">
+                            {pledgeRunway} {pledgeRunway === 1 ? "day" : "days"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="flex flex-col gap-2 pt-3 border-t border-slate-100">
-                    {pledge.status === "ACTIVE" && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={updatingId === pledge.id}
-                          onClick={() => updateStatus(pledge.id, "PAUSED")}
-                          className="w-full text-sm"
-                        >
-                          Pause
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          disabled={updatingId === pledge.id}
-                          onClick={() => updateStatus(pledge.id, "CANCELLED")}
-                          className="w-full text-sm"
-                        >
-                          Cancel
-                        </Button>
-                      </>
-                    )}
-                    {pledge.status === "PAUSED" && (
-                      <>
-                        <Button
-                          size="sm"
-                          disabled={updatingId === pledge.id}
-                          onClick={() => updateStatus(pledge.id, "ACTIVE")}
-                          className="w-full text-sm bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          Resume
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          disabled={updatingId === pledge.id}
-                          onClick={() => updateStatus(pledge.id, "CANCELLED")}
-                          className="w-full text-sm"
-                        >
-                          Cancel
-                        </Button>
-                      </>
-                    )}
+                    <div className="pt-3 border-t border-slate-100">
+                      {pledge.status === "ACTIVE" && (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={updatingId === pledge.id}
+                            onClick={() => openDialog(pledge.id, "pause")}
+                            className="flex-1 text-sm"
+                          >
+                            Pause
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={updatingId === pledge.id}
+                            onClick={() => openDialog(pledge.id, "cancel")}
+                            className="flex-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                      {pledge.status === "PAUSED" && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            disabled={updatingId === pledge.id}
+                            onClick={() => handleResume(pledge.id)}
+                            className="flex-1 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2"
+                          >
+                            ✨ Resume Supporting ✨
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={updatingId === pledge.id}
+                            onClick={() => openDialog(pledge.id, "cancel")}
+                            className="flex-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             );
           })
         )}
       </div>
+
+      {/* Dialog */}
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title={
+          dialogType === "pause"
+            ? "Pause your support?"
+            : "Cancel your pledge?"
+        }
+        description=""
+        onConfirm={handleConfirm}
+        confirmText={dialogType === "pause" ? "Yes, pause" : "Yes, cancel"}
+        cancelText="Keep supporting"
+        isDangerous={dialogType === "cancel"}
+      >
+        <div className="space-y-3 text-sm text-slate-700">
+          <p className="font-medium">
+            We&apos;re sorry to see you go, but we understand.
+          </p>
+          {dialogType === "pause" ? (
+            <div className="space-y-2">
+              <p>
+                Your pledge to <strong>{selectedPledge?.campaign_title}</strong> will be paused.
+              </p>
+              <p>
+                You can resume your support anytime, and your wallet will continue to fund this cause when you do.
+              </p>
+              <p className="text-xs text-slate-500 pt-2">
+                Your current wallet balance will be preserved.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p>
+                Cancelling your pledge to <strong>{selectedPledge?.campaign_title}</strong> means you&apos;ll no longer contribute to this campaign.
+              </p>
+              <p>
+                But don&apos;t worry—you can always pledge to this or other causes again in the future.
+              </p>
+              <p className="text-xs text-slate-500 pt-2">
+                This action cannot be undone.
+              </p>
+            </div>
+          )}
+        </div>
+      </Dialog>
     </div>
   );
 }

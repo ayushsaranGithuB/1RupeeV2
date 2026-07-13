@@ -1,7 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cd /c/Users/ayush/Web/1Rupee/v2 && ls apps/web/app/dashboard/ apps/web/app/admin/)",
+      "Grep(*)",
+      "Bash(bun dev*)",
+      "Bash(bun test*)",
+      "Bash(bun run*)",
+      "Bash(bun storybook*)",
+      "Bash(timeout *)",
+      "Bash(curl -s*)",
+      "Bash(pkill -f*)",
+      "Bash(sleep *)",
+      "Bash(Get-Process*)",
+      "Bash(Stop-Process*)",
+      "PowerShell(Stop-Process*)",
+      "PowerShell(Get-Process*)",
       "Read(//c/Users/ayush/Web/1Rupee/v2/**)",
       "Bash(mkdir -p /c/Users/ayush/Web/1Rupee/v2/apps/web/app/dashboard/wallet/topup /c/Users/ayush/Web/1Rupee/v2/apps/web/app/dashboard/pledges /c/Users/ayush/Web/1Rupee/v2/apps/web/app/dashboard/donations /c/Users/ayush/Web/1Rupee/v2/apps/web/app/dashboard/profile)",
       "Bash(find /c/Users/ayush/Web/1Rupee/v2 -iname \"better-auth\" -type d -path \"*node_modules*\" 2>/dev/null | head -5)",
