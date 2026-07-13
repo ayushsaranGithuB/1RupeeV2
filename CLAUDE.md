@@ -75,6 +75,8 @@ components/            # Reusable components
 │   ├── card.tsx
 │   ├── badge.tsx
 │   ├── dialog.tsx     # Custom modal dialog
+│   ├── status-badge.tsx  # Pledge status pill (ACTIVE, PAUSED, CANCELLED)
+│   ├── stories/       # Storybook stories for UI components
 │   └── ...
 └── confetti.tsx       # Celebration animation
 

@@ -12,6 +12,7 @@ import {
 } from "@/lib/dashboard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { ChevronRight } from "lucide-react";
 
 export type Wallet = { cached_balance: number } | null;
@@ -126,9 +127,7 @@ export default function DashboardPage() {
                         </span>
                       )}
                     </p>
-                    <span className="inline-flex items-center rounded-full bg-[hsl(var(--primary))]/10 px-3 py-1 text-[0.7em] font-semibold text-[hsl(var(--primary))] border border-[hsl(var(--primary))]/20 tracking-wider">
-                      ACTIVE
-                    </span>
+                    <StatusBadge variant="active">ACTIVE</StatusBadge>
                   </div>
                   <Link
                     href="/dashboard/pledges"

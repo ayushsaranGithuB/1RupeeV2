@@ -5,10 +5,10 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { formatInr } from "@/lib/public";
 import { dashboardRequest, calculateDonationRunway } from "@/lib/dashboard";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Confetti } from "@/components/confetti";
 
 type Wallet = { cached_balance: number } | null;
@@ -20,12 +20,14 @@ type Pledge = {
   tier_title?: string;
   daily_amount?: number;
   monthly_equivalent?: number;
+  campaign_logo?: string;
+  ngo_logo?: string;
 };
 
-const STATUS_VARIANT: Record<Pledge["status"], "default" | "secondary" | "destructive"> = {
-  ACTIVE: "default",
-  PAUSED: "secondary",
-  CANCELLED: "destructive",
+const STATUS_VARIANT: Record<Pledge["status"], "active" | "paused" | "cancelled"> = {
+  ACTIVE: "active",
+  PAUSED: "paused",
+  CANCELLED: "cancelled",
 };
 
 export default function PledgesPage() {
@@ -202,7 +204,22 @@ export default function PledgesPage() {
                   className="border border-slate-200 bg-white p-4 sm:p-5 hover:shadow-md transition"
                 >
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex gap-4 items-start mb-2">
+                      <div className="shrink-0">
+                        {pledge.ngo_logo || pledge.campaign_logo ? (
+                          <Image
+                            src={pledge.ngo_logo || pledge.campaign_logo || ""}
+                            alt={pledge.campaign_title || "Campaign"}
+                            width={56}
+                            height={56}
+                            className="rounded-lg object-cover w-14 h-14"
+                          />
+                        ) : (
+                          <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-600 font-semibold text-sm">
+                            {pledge.campaign_title?.charAt(0) || "C"}
+                          </div>
+                        )}
+                      </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-slate-900 text-md mb-1">
                           {pledge.campaign_title || "Campaign"}
@@ -210,9 +227,9 @@ export default function PledgesPage() {
                         <p className="text-xs text-slate-600 mb-3">
                           {pledge.tier_title || "Support tier"}
                         </p>
-                        <Badge variant={STATUS_VARIANT[pledge.status]} className="text-xs">
+                        <StatusBadge variant={STATUS_VARIANT[pledge.status]}>
                           {pledge.status}
-                        </Badge>
+                        </StatusBadge>
                       </div>
                     </div>
 
